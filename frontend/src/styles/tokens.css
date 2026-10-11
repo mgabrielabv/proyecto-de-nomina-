@@ -1,0 +1,62 @@
+:root {
+  color-scheme: light;
+  --color-bg: #FAFAF9;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #F5F5F4;
+  --color-card: rgba(255, 255, 255, 0.72);
+  --color-border: #E7E5E4;
+  --color-border-strong: #D6D3D1;
+  --color-text: #1C1917;
+  --color-text-secondary: #78716C;
+  --color-text-muted: #A8A29E;
+  --color-accent: #1C1917;
+  --color-accent-hover: #292524;
+  --color-accent-text: #FAFAF9;
+  --color-error: #A8514B;
+  --color-error-soft: #FBEDEC;
+  --color-success: #4F7A4F;
+  --color-success-soft: #EEF4EE;
+  --color-focus: rgba(28, 25, 23, 0.16);
+  --color-spot: rgba(28, 25, 23, 0.05);
+  --orb-a: rgba(182, 178, 174, 0.5);
+  --orb-b: rgba(217, 214, 211, 0.55);
+  --orb-c: rgba(190, 186, 182, 0.38);
+  --radius-input: 12px;
+  --radius-card: 20px;
+  --radius-button: 12px;
+  --shadow-card: 0 1px 2px rgba(28, 25, 23, 0.05), 0 20px 50px -28px rgba(28, 25, 23, 0.18);
+  --shadow-input-focus: 0 10px 30px -16px rgba(28, 25, 23, 0.28);
+  --panel-gradient: radial-gradient(120% 90% at 18% 8%, #FFFFFF 0%, #F6F5F4 34%, #EDECEA 62%, #E4E3E1 100%);
+  --page-gradient: radial-gradient(96% 60% at 20% -10%, rgba(214, 211, 209, 0.5), transparent 60%),
+    radial-gradient(80% 50% at 90% 110%, rgba(214, 211, 209, 0.35), transparent 55%);
+}
+
+html.dark {
+  color-scheme: dark;
+  --color-bg: #0C0C0D;
+  --color-surface: #141415;
+  --color-surface-soft: #1C1C1E;
+  --color-card: rgba(22, 22, 24, 0.68);
+  --color-border: #27272A;
+  --color-border-strong: #3F3F46;
+  --color-text: #FAFAF9;
+  --color-text-secondary: #A8A29E;
+  --color-text-muted: #71717A;
+  --color-accent: #FAFAF9;
+  --color-accent-hover: #E7E5E4;
+  --color-accent-text: #0C0C0D;
+  --color-error: #E08A85;
+  --color-error-soft: #2E1F1F;
+  --color-success: #A7C4A7;
+  --color-success-soft: #1D271D;
+  --color-focus: rgba(250, 250, 249, 0.16);
+  --color-spot: rgba(250, 250, 249, 0.06);
+  --orb-a: rgba(63, 63, 70, 0.4);
+  --orb-b: rgba(39, 39, 42, 0.5);
+  --orb-c: rgba(24, 24, 26, 0.7);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 30px 60px -32px rgba(0, 0, 0, 0.7);
+  --shadow-input-focus: 0 10px 32px -16px rgba(0, 0, 0, 0.6);
+  --panel-gradient: radial-gradient(120% 90% at 18% 8%, #171719 0%, #111113 34%, #0E0E10 62%, #0A0A0B 100%);
+  --page-gradient: radial-gradient(96% 60% at 20% -10%, rgba(63, 63, 70, 0.4), transparent 60%),
+    radial-gradient(80% 50% at 90% 110%, rgba(63, 63, 70, 0.28), transparent 55%);
+}

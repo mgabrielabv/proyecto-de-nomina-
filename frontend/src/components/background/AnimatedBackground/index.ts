@@ -1,0 +1,1 @@
+export { AnimatedBackground, type AnimatedBackgroundProps } from './AnimatedBackground';

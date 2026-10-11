@@ -1,0 +1,1 @@
+export { CursorSpotlight, type CursorSpotlightProps } from './CursorSpotlight';
