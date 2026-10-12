@@ -32,16 +32,15 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <motion.div variants={fadeUpItem} className="space-y-4">
         <Input
-          name="email"
-          label="Correo electrónico"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          value={values.email}
-          onChange={(value) => setField('email', value)}
-          onBlurField={() => handleBlur('email')}
-          error={getError('email')}
-          success={values.email.length > 0 && !getError('email')}
+          name="username"
+          label="Usuario"
+          type="text"
+          autoComplete="username"
+          value={values.username}
+          onChange={(value) => setField('username', value)}
+          onBlurField={() => handleBlur('username')}
+          error={getError('username')}
+          success={values.username.length > 0 && !getError('username')}
         />
         <PasswordInput
           name="password"

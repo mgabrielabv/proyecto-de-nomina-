@@ -32,21 +32,21 @@ export function getPasswordStrengthScore(password: string): number {
   return score;
 }
 
-function validateEmail(value: string): string | undefined {
-  if (value.trim().length === 0) return AUTH_ERROR_MESSAGES.requiredEmail;
-  if (!isValidEmail(value)) return AUTH_ERROR_MESSAGES.invalidEmail;
-  return undefined;
-}
-
 function validatePassword(value: string): string | undefined {
   if (value.trim().length === 0) return AUTH_ERROR_MESSAGES.requiredPassword;
   if (!hasMinLength(value, MIN_PASSWORD_LENGTH)) return AUTH_ERROR_MESSAGES.shortPassword;
   return undefined;
 }
 
+function validateEmail(value: string): string | undefined {
+  if (value.trim().length === 0) return AUTH_ERROR_MESSAGES.requiredEmail;
+  if (!isValidEmail(value)) return AUTH_ERROR_MESSAGES.invalidEmail;
+  return undefined;
+}
+
 export function validateLogin(values: LoginValues): FieldErrors<LoginValues> {
   return {
-    email: validateEmail(values.email),
+    username: values.username.trim().length === 0 ? AUTH_ERROR_MESSAGES.requiredUsername : undefined,
     password: validatePassword(values.password),
   };
 }
