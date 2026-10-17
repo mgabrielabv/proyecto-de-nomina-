@@ -1,6 +1,7 @@
 import { useCallback, useState, type FormEvent } from 'react';
 import { signIn } from '../services';
 import type { LoginValues, SubmitState } from '../types';
+import type { SessionUser } from '../../../types';
 import { validateLogin } from '../validators';
 import { useForm } from './useForm';
 
@@ -14,8 +15,8 @@ export interface UseLoginFormResult {
   handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
-export function useLoginForm(onSuccess?: () => void): UseLoginFormResult {
-  const form = useForm<LoginValues>({ initialValues: { username: '', password: '' }, validate: validateLogin });
+export function useLoginForm(onSuccess?: (user: SessionUser) => void): UseLoginFormResult {
+  const form = useForm<LoginValues>({ initialValues: { email: '', password: '' }, validate: validateLogin });
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -26,10 +27,10 @@ export function useLoginForm(onSuccess?: () => void): UseLoginFormResult {
       if (!form.submitAndValidate()) return;
       setSubmitState('loading');
       setServerError(null);
-      void signIn({ username: form.values.username, password: form.values.password }).then((result) => {
+      void signIn({ email: form.values.email, password: form.values.password }).then((result) => {
         if (result.ok) {
           setSubmitState('success');
-          onSuccess?.();
+          window.setTimeout(() => onSuccess?.(result.user), 320);
         } else {
           setSubmitState('idle');
           setServerError(result.error);

@@ -29,7 +29,7 @@ export function useRegisterForm(onSuccess?: () => void): UseRegisterFormResult {
       if (!form.submitAndValidate()) return;
       setSubmitState('loading');
       setServerError(null);
-      void signUp({ email: form.values.email, password: form.values.password }).then((result) => {
+      void signUp().then((result) => {
         if (result.ok) {
           setSubmitState('success');
           onSuccess?.();

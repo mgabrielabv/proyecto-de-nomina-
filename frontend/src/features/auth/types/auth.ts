@@ -2,7 +2,7 @@ export type AuthMode = 'login' | 'register';
 export type SubmitState = 'idle' | 'loading' | 'success';
 
 export interface LoginValues {
-  username: string;
+  email: string;
   password: string;
 }
 
@@ -13,29 +13,11 @@ export interface RegisterValues {
   confirmPassword: string;
 }
 
-export interface Credentials {
+export interface LoginCredentials {
   email: string;
   password: string;
 }
 
-export interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-export interface AuthUser {
-  id: number;
-  username: string;
-  nombre: string;
-  perfil: string;
-}
-
-export interface SessionUser {
-  userID: number;
-  userName: string;
-  Profile: string;
-}
-
 export type FieldErrors<T> = Partial<Record<keyof T, string>>;
 
-export type AuthResult = { ok: true; user: AuthUser } | { ok: false; error: string };
+export type AuthResult = { ok: true; user: import('../../../types').SessionUser } | { ok: false; error: string };

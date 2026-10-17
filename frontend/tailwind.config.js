@@ -20,6 +20,17 @@ export default {
         'error-soft': 'var(--color-error-soft)',
         success: 'var(--color-success)',
         'success-soft': 'var(--color-success-soft)',
+        warning: 'var(--color-warning)',
+        'warning-soft': 'var(--color-warning-soft)',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+      },
+      animation: {
+        shimmer: 'shimmer 1.6s ease-in-out infinite',
       },
       borderRadius: {
         input: 'var(--radius-input)',

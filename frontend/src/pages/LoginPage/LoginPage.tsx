@@ -3,9 +3,17 @@ import { AnimatedBackground } from '../../components/background/AnimatedBackgrou
 import { AuthCard } from '../../components/auth/AuthCard';
 import { BrandMark } from '../../components/ui/BrandMark';
 import { ThemeToggle } from '../../components/ui/ThemeToggle';
+import { useSessionStore } from '../../store';
+import { Navigate } from 'react-router-dom';
+import { getRoleHomePath } from '../../utils';
 
 export function LoginPage() {
   const reduce = useReducedMotion();
+  const user = useSessionStore((state) => state.user);
+
+  if (user) {
+    return <Navigate to={getRoleHomePath(user.role)} replace />;
+  }
 
   return (
     <div className="min-h-dvh bg-bg font-sans text-text">
@@ -41,25 +49,10 @@ export function LoginPage() {
                   <span className="font-semibold">Más foco.</span>
                 </h2>
                 <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-text-secondary">
-                  La plataforma moderna para el pago de nómina. Gestiona salarios, dispersa pagos y calcula
-                  retenciones de todo tu equipo en un solo lugar.
+                  La plataforma moderna para la gestión de personas y nómina.
                 </p>
-                <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-4">
-                  <div>
-                    <dt className="text-2xl font-semibold tracking-tight text-text">1.4M</dt>
-                    <dd className="text-xs uppercase tracking-wider text-text-muted">Nóminas al mes</dd>
-                  </div>
-                  <div>
-                    <dt className="text-2xl font-semibold tracking-tight text-text">99.99%</dt>
-                    <dd className="text-xs uppercase tracking-wider text-text-muted">Precisión en pagos</dd>
-                  </div>
-                  <div>
-                    <dt className="text-2xl font-semibold tracking-tight text-text">12k+</dt>
-                    <dd className="text-xs uppercase tracking-wider text-text-muted">Equipos gestionados</dd>
-                  </div>
-                </dl>
               </div>
-              <p className="text-xs text-text-muted">© {new Date().getFullYear()} Onyx. Diseñado con intención.</p>
+              <p className="text-xs text-text-muted">© {new Date().getFullYear()} Onyx.</p>
             </div>
           </AnimatedBackground>
         </section>

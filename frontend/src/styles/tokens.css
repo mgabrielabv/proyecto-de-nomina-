@@ -16,6 +16,8 @@
   --color-error-soft: #FBEDEC;
   --color-success: #4F7A4F;
   --color-success-soft: #EEF4EE;
+  --color-warning: #8A6A1F;
+  --color-warning-soft: #F8F1DE;
   --color-focus: rgba(28, 25, 23, 0.16);
   --color-spot: rgba(28, 25, 23, 0.05);
   --orb-a: rgba(182, 178, 174, 0.5);
@@ -49,6 +51,8 @@ html.dark {
   --color-error-soft: #2E1F1F;
   --color-success: #A7C4A7;
   --color-success-soft: #1D271D;
+  --color-warning: #D9BC6A;
+  --color-warning-soft: #2A2416;
   --color-focus: rgba(250, 250, 249, 0.16);
   --color-spot: rgba(250, 250, 249, 0.06);
   --orb-a: rgba(63, 63, 70, 0.4);

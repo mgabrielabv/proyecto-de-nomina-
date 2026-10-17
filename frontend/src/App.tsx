@@ -1,10 +1,12 @@
 import { ThemeProvider } from './context';
-import { LoginPage } from './pages/LoginPage';
+import { AppRouter } from './routes';
+import { ToastHost } from './components/ui/Toast';
 
 export default function App() {
   return (
     <ThemeProvider>
-      <LoginPage />
+      <AppRouter />
+      <ToastHost />
     </ThemeProvider>
   );
 }

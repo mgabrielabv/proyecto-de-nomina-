@@ -1,8 +1,11 @@
 import { AnimatePresence, motion, useReducedMotion, type AnimationDefinition } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authCardVariants, modeSwapVariants, successCardVariants } from '../../../animations/variants';
 import { SUCCESS_EXIT_DELAY } from '../../../constants';
-import { cn } from '../../../utils';
+import { useSessionStore } from '../../../store';
+import type { SessionUser } from '../../../types';
+import { cn, getRoleHomePath } from '../../../utils';
 import { BrandMark } from '../../ui/BrandMark';
 import { AuthSuccess } from '../AuthSuccess';
 import { LoginForm } from '../LoginForm';
@@ -11,13 +14,24 @@ type AuthStage = 'auth' | 'done';
 
 export function AuthCard() {
   const reduce = useReducedMotion();
+  const navigate = useNavigate();
+  const setSession = useSessionStore((state) => state.setSession);
   const [stage, setStage] = useState<AuthStage>('auth');
   const [exiting, setExiting] = useState(false);
   const exitTimer = useRef<number | undefined>(undefined);
+  const redirectTimer = useRef<number | undefined>(undefined);
 
-  useEffect(() => () => window.clearTimeout(exitTimer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(exitTimer.current);
+      window.clearTimeout(redirectTimer.current);
+    },
+    [],
+  );
 
-  const handleSuccess = () => {
+  const handleSuccess = (user: SessionUser) => {
+    setSession(user);
+    redirectTimer.current = window.setTimeout(() => navigate(getRoleHomePath(user.role), { replace: true }), 900);
     if (reduce) {
       setStage('done');
       return;

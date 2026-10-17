@@ -46,7 +46,7 @@ function validateEmail(value: string): string | undefined {
 
 export function validateLogin(values: LoginValues): FieldErrors<LoginValues> {
   return {
-    username: values.username.trim().length === 0 ? AUTH_ERROR_MESSAGES.requiredUsername : undefined,
+    email: validateEmail(values.email),
     password: validatePassword(values.password),
   };
 }

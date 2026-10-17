@@ -3,12 +3,13 @@ import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { fadeUpItem, staggerContainer } from '../../../animations/variants';
 import { useLoginForm } from '../../../features/auth/hooks';
+import type { SessionUser } from '../../../types';
 import { Button } from '../../ui/Button';
 import { Checkbox } from '../../ui/Checkbox';
 import { Input, PasswordInput } from '../../ui/Input';
 
 export interface LoginFormProps {
-  onSuccess: () => void;
+  onSuccess: (user: SessionUser) => void;
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
@@ -32,15 +33,16 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <motion.div variants={fadeUpItem} className="space-y-4">
         <Input
-          name="username"
-          label="Usuario"
-          type="text"
-          autoComplete="username"
-          value={values.username}
-          onChange={(value) => setField('username', value)}
-          onBlurField={() => handleBlur('username')}
-          error={getError('username')}
-          success={values.username.length > 0 && !getError('username')}
+          name="email"
+          label="Correo electrónico"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          value={values.email}
+          onChange={(value) => setField('email', value)}
+          onBlurField={() => handleBlur('email')}
+          error={getError('email')}
+          success={values.email.length > 0 && !getError('email')}
         />
         <PasswordInput
           name="password"
