@@ -16,7 +16,7 @@ export interface UseLoginFormResult {
 }
 
 export function useLoginForm(onSuccess?: (user: SessionUser) => void): UseLoginFormResult {
-  const form = useForm<LoginValues>({ initialValues: { email: '', password: '' }, validate: validateLogin });
+  const form = useForm<LoginValues>({ initialValues: { username: '', password: '' }, validate: validateLogin });
   const [submitState, setSubmitState] = useState<SubmitState>('idle');
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export function useLoginForm(onSuccess?: (user: SessionUser) => void): UseLoginF
       if (!form.submitAndValidate()) return;
       setSubmitState('loading');
       setServerError(null);
-      void signIn({ email: form.values.email, password: form.values.password }).then((result) => {
+      void signIn({ username: form.values.username, password: form.values.password }).then((result) => {
         if (result.ok) {
           setSubmitState('success');
           window.setTimeout(() => onSuccess?.(result.user), 320);

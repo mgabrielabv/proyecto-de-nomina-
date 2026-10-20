@@ -44,9 +44,14 @@ function validateEmail(value: string): string | undefined {
   return undefined;
 }
 
+function validateUsername(value: string): string | undefined {
+  if (value.trim().length === 0) return AUTH_ERROR_MESSAGES.requiredUsername;
+  return undefined;
+}
+
 export function validateLogin(values: LoginValues): FieldErrors<LoginValues> {
   return {
-    email: validateEmail(values.email),
+    username: validateUsername(values.username),
     password: validatePassword(values.password),
   };
 }

@@ -43,16 +43,16 @@ export function Topbar({ title, onOpenDrawer, description }: TopbarProps) {
       </button>
 
       <div className="flex min-w-0 flex-1 items-center gap-4">
-        <div className="hidden flex-1 lg:block">
+        <div className="hidden min-w-0 flex-1 lg:block">
           <PageHeader title={title} description={description} />
         </div>
-        <div className="block flex-1 lg:hidden">
+        <div className="block min-w-0 flex-1 lg:hidden">
           <h1 className="truncate text-base font-semibold tracking-tight text-text">{title}</h1>
           {description && <p className="truncate text-xs text-text-muted">{description}</p>}
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className={cn('relative transition-[width] duration-200', expandedSearch ? 'w-64 sm:w-80' : 'w-9')}>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <div className={cn('relative h-9 transition-[width] duration-200', expandedSearch ? 'w-64 sm:w-80' : 'w-9')}>
             <button
               type="button"
               onClick={() => setExpandedSearch((current) => !current)}

@@ -1,5 +1,12 @@
 export type UserRole = 'user' | 'superuser';
 
+// Perfil del usuario tal como lo expone el backend: el id autoriza en los
+// mapas del servidor y el nombre decide el rol (rutas/menú) en el frontend.
+export interface ProfileRef {
+  id: number;
+  nombre: string;
+}
+
 export type EmployeeStatus = 'active' | 'inactive';
 
 export type ContractType = 'indefinido' | 'temporal' | 'practicas' | 'becario';
@@ -19,6 +26,8 @@ export interface SessionUser {
   name: string;
   email: string;
   role: UserRole;
+  profiles: ProfileRef[];
+  activeProfile: ProfileRef;
   jobTitle: string;
   departmentId: string;
 }

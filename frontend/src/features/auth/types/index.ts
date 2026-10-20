@@ -7,3 +7,4 @@ export type {
   RegisterValues,
   SubmitState,
 } from './auth';
+export type { ProfileRef } from '../../../types';

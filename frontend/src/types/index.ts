@@ -15,6 +15,7 @@ export type {
   PayrollReceipt,
   PayrollStatus,
   Position,
+  ProfileRef,
   RequestStatus,
   RequestType,
   SessionUser,

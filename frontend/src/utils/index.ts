@@ -12,4 +12,4 @@ export {
   parseDate,
   toISODate,
 } from './date';
-export { getGreeting, getInitials, getRoleHomePath, slugify } from './identity';
+export { getGreeting, getInitials, getRoleHomePath, profileToRole, slugify, sortProfilesByPriority } from './identity';

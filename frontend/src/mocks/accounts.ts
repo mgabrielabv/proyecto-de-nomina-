@@ -1,4 +1,4 @@
-import type { SessionUser } from '../types';
+import type { ProfileRef, SessionUser } from '../types';
 import { EMPLOYEES } from './employees';
 
 export interface MockAccount {
@@ -10,11 +10,17 @@ export interface MockAccount {
 function toSession(employeeId: string): SessionUser {
   const employee = EMPLOYEES.find((item) => item.id === employeeId);
   if (!employee) throw new Error(`Empleado no encontrado: ${employeeId}`);
+  const activeProfile: ProfileRef = {
+    id: employee.role === 'superuser' ? 1 : 2,
+    nombre: employee.role === 'superuser' ? 'Superusuario' : 'Empleado',
+  };
   return {
     id: employee.id,
     name: employee.name,
     email: employee.email,
     role: employee.role,
+    profiles: [activeProfile],
+    activeProfile,
     jobTitle: employee.jobTitle,
     departmentId: employee.departmentId,
   };

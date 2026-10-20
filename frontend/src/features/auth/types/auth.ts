@@ -1,8 +1,13 @@
 export type AuthMode = 'login' | 'register';
 export type SubmitState = 'idle' | 'loading' | 'success';
 
+// Perfil del usuario tal como lo expone el backend en la respuesta de login:
+// el id autoriza en los mapas del servidor y el nombre es el que decide el rol
+// (y por tanto las rutas/menú) en el frontend.
+export type { ProfileRef } from '../../../types';
+
 export interface LoginValues {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -14,7 +19,7 @@ export interface RegisterValues {
 }
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
