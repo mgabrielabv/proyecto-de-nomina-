@@ -28,11 +28,12 @@ export function SidebarItem({ item, collapsed, layoutId, onNavigate }: SidebarIt
         type="button"
         onClick={handleClick}
         aria-current={active ? 'page' : undefined}
+        aria-label={collapsed ? item.label : undefined}
         title={collapsed ? item.label : undefined}
         whileHover={reduce ? undefined : { x: 2 }}
         whileTap={reduce ? undefined : { scale: 0.985 }}
         className={cn(
-          'group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+          'group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200',
           collapsed ? 'justify-center px-0' : 'px-3',
           active ? 'text-text' : 'text-text-secondary hover:text-text',
         )}
@@ -45,7 +46,15 @@ export function SidebarItem({ item, collapsed, layoutId, onNavigate }: SidebarIt
           />
         )}
         <Icon className="relative h-[18px] w-[18px] shrink-0" aria-hidden />
-        {!collapsed && <span className="relative truncate">{item.label}</span>}
+        <span
+          aria-hidden={collapsed || undefined}
+          className={cn(
+            'relative overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-sidebar',
+            collapsed ? 'ml-0 max-w-0 opacity-0' : 'ml-3 max-w-[12rem] opacity-100',
+          )}
+        >
+          {item.label}
+        </span>
       </motion.button>
     </li>
   );

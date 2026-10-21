@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react';
+import { ChevronRight, LogOut, Settings } from 'lucide-react';
 import { BrandMark } from '../../ui/BrandMark';
 import { Avatar } from '../../ui/Avatar';
 import { SIDEBAR_EXTRA_ITEMS } from '../../../constants';
@@ -13,11 +13,10 @@ import { SidebarItem } from './SidebarItem';
 
 export interface SidebarProps {
   collapsed: boolean;
-  onToggle: () => void;
   variant?: 'desktop' | 'mobile';
 }
 
-export function Sidebar({ collapsed, onToggle, variant = 'desktop' }: SidebarProps) {
+export function Sidebar({ collapsed, variant = 'desktop' }: SidebarProps) {
   const user = useSessionStore((state) => state.user);
   const clearSession = useSessionStore((state) => state.clearSession);
   const navigate = useNavigate();
@@ -39,27 +38,16 @@ export function Sidebar({ collapsed, onToggle, variant = 'desktop' }: SidebarPro
       className={cn(
         'flex flex-col border-border bg-surface/95 backdrop-blur-xl',
         variant === 'desktop'
-          ? 'fixed inset-y-0 left-0 z-40 hidden lg:flex border-r transition-[width] duration-250'
+          ? 'fixed inset-y-0 left-0 z-40 hidden lg:flex border-r transition-[width] duration-300 ease-sidebar will-change-[width]'
           : 'relative flex h-full w-full border-none bg-transparent',
       )}
       style={variant === 'desktop' ? { width: collapsed ? 84 : 264 } : undefined}
     >
-      <div className="flex h-20 items-center justify-between px-5">
-        <BrandMark />
-        {variant === 'desktop' && (
-          <button
-            type="button"
-            onClick={onToggle}
-            aria-label={collapsed ? 'Expandir sidebar' : 'Contraer sidebar'}
-            aria-pressed={!collapsed}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text"
-          >
-            {collapsed ? <ChevronRight className="h-4 w-4" aria-hidden /> : <ChevronLeft className="h-4 w-4" aria-hidden />}
-          </button>
-        )}
+      <div className={cn('flex h-20 items-center px-5', collapsed && variant === 'desktop' && 'justify-center px-0')}>
+        <BrandMark collapsed={collapsed && variant === 'desktop'} />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-4">
+      <div className="sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
         <SidebarNav
           role={user.role}
           collapsed={variant === 'mobile' ? false : collapsed}
@@ -86,18 +74,30 @@ export function Sidebar({ collapsed, onToggle, variant = 'desktop' }: SidebarPro
           aria-expanded={menuOpen}
           aria-haspopup="true"
           className={cn(
-            'flex w-full items-center gap-3 rounded-xl border border-transparent px-2.5 py-2.5 text-left transition-colors duration-200 hover:bg-surface-soft',
+            'flex w-full items-center rounded-xl border border-transparent px-2.5 py-2.5 text-left transition-colors duration-200 hover:bg-surface-soft',
+            variant !== 'mobile' && collapsed && 'justify-center px-0',
             menuOpen && 'bg-surface-soft',
           )}
         >
           <Avatar name={user.name} size="sm" />
-          {(variant === 'mobile' || !collapsed) && (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-text">{user.name}</p>
-              <p className="truncate text-xs text-text-muted">{user.jobTitle}</p>
-            </div>
-          )}
-          {(variant === 'mobile' || !collapsed) && <ChevronRight className={cn('h-4 w-4 text-text-muted transition-transform duration-200', menuOpen && 'rotate-90')} aria-hidden />}
+          <div
+            aria-hidden={!(variant === 'mobile' || !collapsed) || undefined}
+            className={cn(
+              'min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left transition-[max-width,opacity,margin] duration-300 ease-sidebar',
+              variant === 'mobile' || !collapsed ? 'ml-3 max-w-[12rem] opacity-100' : 'ml-0 max-w-0 opacity-0',
+            )}
+          >
+            <p className="truncate text-sm font-semibold text-text">{user.name}</p>
+            <p className="truncate text-xs text-text-muted">{user.jobTitle}</p>
+          </div>
+          <ChevronRight
+            className={cn(
+              'h-4 w-4 shrink-0 overflow-hidden text-text-muted transition-[transform,opacity,max-width] duration-300 ease-sidebar',
+              menuOpen && 'rotate-90',
+              variant === 'mobile' || !collapsed ? 'max-w-[1rem] opacity-100' : 'max-w-0 opacity-0',
+            )}
+            aria-hidden
+          />
         </button>
 
         {menuOpen && (

@@ -41,6 +41,9 @@ export default {
         card: 'var(--shadow-card)',
         'input-focus': 'var(--shadow-input-focus)',
       },
+      transitionTimingFunction: {
+        sidebar: 'cubic-bezier(0.32, 0.72, 0, 1)',
+      },
       fontFamily: {
         sans: ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },

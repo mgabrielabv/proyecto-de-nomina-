@@ -34,17 +34,23 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
         className="relative flex min-h-dvh"
       >
         {lg && (
-          <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} variant="desktop" />
+          <Sidebar collapsed={sidebarCollapsed} variant="desktop" />
         )}
         <div
-          className="flex min-h-dvh flex-1 flex-col transition-[padding-left] duration-250"
+          className="flex min-h-dvh flex-1 flex-col transition-[padding-left] duration-300 ease-sidebar will-change-[padding-left]"
           style={
             lg
               ? { paddingLeft: sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH }
               : undefined
           }
         >
-          <Topbar title={title} description={description} onOpenDrawer={() => setDrawerOpen(true)} />
+          <Topbar
+            title={title}
+            description={description}
+            sidebarCollapsed={sidebarCollapsed}
+            onToggleSidebar={toggleSidebar}
+            onOpenDrawer={() => setDrawerOpen(true)}
+          />
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -62,7 +68,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
       </motion.div>
 
       <Drawer open={drawerOpen && isMobile} title="Menú" onClose={() => setDrawerOpen(false)} side="left" width="280px">
-        <Sidebar collapsed={false} onToggle={() => undefined} variant="mobile" />
+        <Sidebar collapsed={false} variant="mobile" />
       </Drawer>
     </div>
   );
