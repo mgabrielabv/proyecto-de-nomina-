@@ -1,9 +1,7 @@
 import {
   BarChart3,
-  Building2,
   CalendarCheck,
   ClipboardList,
-  FileText,
   FolderCog,
   LayoutDashboard,
   Settings,
@@ -25,15 +23,19 @@ export interface NavItem {
 
 export interface NavSection {
   id: string;
-  label: string | null;
+  label: string;
   items: NavItem[];
   roles: UserRole[];
 }
 
+// Cada grupo corresponde a un rol: 'personal' es el bloque del usuario estándar
+// y 'administracion' el del superusuario. El sidebar muestra abierto el grupo
+// del perfil activo y deja el resto plegado (acordeón), para reducir la carga
+// visual de la navegación.
 export const NAV_SECTIONS: NavSection[] = [
   {
     id: 'personal',
-    label: null,
+    label: 'Mi espacio',
     roles: ['user', 'superuser'],
     items: [
       { label: 'Inicio', path: ROUTES.dashboard, icon: LayoutDashboard },
@@ -61,7 +63,9 @@ export const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-export const SIDEBAR_EXTRA_ITEMS: NavItem[] = [
-  { label: 'Soporte', path: ROUTES.settings, icon: Building2 },
-  { label: 'Documentación', path: ROUTES.settings, icon: FileText },
-];
+// Grupo que corresponde a cada rol: se abre por defecto y, en el sidebar
+// colapsado, es el único cuyos iconos se muestran.
+export const ROLE_SECTION_ID: Record<UserRole, string> = {
+  user: 'personal',
+  superuser: 'administracion',
+};

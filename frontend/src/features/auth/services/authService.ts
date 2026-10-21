@@ -35,7 +35,7 @@ function toSessionUser(sesion: BackendSession): SessionUser {
 
 export async function signIn(payload: LoginCredentials): Promise<AuthResult> {
   try {
-    const sesion = await execute<BackendSession>('Security', 'Session', 'login', [
+    const sesion = await execute<BackendSession>('Session', 'Session', 'login', [
       payload.username.trim(),
       payload.password,
     ]);
@@ -78,7 +78,7 @@ export async function signOut(): Promise<void> {
   // logout es idempotente en el backend; aunque falle (red caída), el store
   // local se limpia igualmente desde sessionStore.
   try {
-    await execute('Security', 'Session', 'logout', []);
+    await execute('Session', 'Session', 'logout', []);
   } catch {
     // Se ignora: sin sesión viva no hay nada que destruir del lado servidor.
   }
