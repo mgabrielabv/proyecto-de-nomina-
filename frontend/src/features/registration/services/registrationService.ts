@@ -1,42 +1,36 @@
-import { FORM_MESSAGES, MUTATION_LATENCY_MAX, MUTATION_LATENCY_MIN } from '../../../constants';
-import { delay, randomLatency } from '../../../mocks';
-import { createEmployee, isEmailTaken } from '../../employees/services';
-import type { Employee, EmployeeDraft } from '../../../types';
+import { ApiError, execute } from '../../auth/services/apiClient';
+
+export type MaritalStatus = 'SOLTERO' | 'CASADO' | 'DIVORCIADO' | 'VIUDO' | 'CONCUBINO';
+export type Sex = 'M' | 'F';
+
+export interface RegistrationPayload {
+  cedula: string;
+  primer_nombre: string;
+  primer_apellido: string;
+  username: string;
+  password: string;
+  perfiles: number[];
+  segundo_nombre?: string;
+  segundo_apellido?: string;
+  fecha_nacimiento?: string;
+  sexo?: Sex;
+  estado_civil?: MaritalStatus;
+  nro_tlf?: string;
+  email?: string;
+  direccion?: string;
+}
 
 export interface RegistrationResult {
   ok: boolean;
   error?: string;
-  employee?: Employee;
 }
 
-export async function registerPerson(draft: EmployeeDraft): Promise<RegistrationResult> {
-  if (await isEmailTaken(draft.email)) {
-    return { ok: false, error: 'Ya existe una cuenta con ese correo.' };
+export async function registerPerson(payload: RegistrationPayload): Promise<RegistrationResult> {
+  try {
+    await execute('Security', 'User', 'registrar', [payload]);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError) return { ok: false, error: error.message };
+    return { ok: false, error: 'No se pudo registrar la persona. Inténtalo de nuevo.' };
   }
-  await delay(randomLatency(MUTATION_LATENCY_MIN, MUTATION_LATENCY_MAX));
-  const employee = await createEmployee(draft);
-  return { ok: true, employee };
-}
-
-export function validateDraftStep(draft: EmployeeDraft, step: number): Record<string, string> {
-  const errors: Record<string, string> = {};
-  if (step === 0) {
-    if (!draft.name.trim()) errors.name = FORM_MESSAGES.required;
-    if (!draft.email.trim()) errors.email = FORM_MESSAGES.required;
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(draft.email.trim())) errors.email = FORM_MESSAGES.invalidEmail;
-    if (!draft.phone.trim()) errors.phone = FORM_MESSAGES.required;
-  }
-  if (step === 1) {
-    if (!draft.jobTitle.trim()) errors.jobTitle = FORM_MESSAGES.required;
-    if (!draft.departmentId) errors.departmentId = FORM_MESSAGES.required;
-    if (!draft.hireDate) errors.hireDate = FORM_MESSAGES.required;
-    if (!draft.contractType) errors.contractType = FORM_MESSAGES.required;
-    if (draft.baseSalary <= 0) errors.baseSalary = FORM_MESSAGES.salaryInvalid;
-  }
-  if (step === 2) {
-    if (!draft.email.trim()) errors.email = FORM_MESSAGES.required;
-    if (draft.password.length < 8) errors.password = FORM_MESSAGES.shortPassword;
-    if (!draft.role) errors.role = FORM_MESSAGES.required;
-  }
-  return errors;
 }

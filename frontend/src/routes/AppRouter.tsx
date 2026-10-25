@@ -39,7 +39,7 @@ function AppRoutes() {
           <Route path={ROUTES.requests} element={<UserRequests />} />
           <Route path={ROUTES.settings} element={<UserSettings />} />
         </Route>
-        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.dashboard} />}>
+        <Route element={<RoleRoute allow={['superuser', 'user']} fallback={ROUTES.dashboard} />}>
           <Route element={<DashboardLayout title="Panel administrativo" />}>
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
             <Route path={ROUTES.adminRegistration} element={<AdminRegistration />} />
