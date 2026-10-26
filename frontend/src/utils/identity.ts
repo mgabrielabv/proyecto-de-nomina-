@@ -17,25 +17,28 @@ export function getGreeting(date: Date = new Date()): string {
 }
 
 export function getRoleHomePath(role: UserRole): string {
-  return role === 'superuser' ? ROUTES.adminHome : ROUTES.dashboard;
+  if (role === 'superuser') return ROUTES.adminHome;
+  if (role === 'rrhh') return ROUTES.adminRegistration;
+  return ROUTES.dashboard;
 }
 
-// Traduce el nombre del perfil del backend al rol del frontend. Hoy solo
-// 'Superusuario' desbloquea el panel administrativo; cualquier otro perfil
-// se trata como usuario estándar.
+// Traduce el nombre del perfil del backend al rol del frontend.
 export function profileToRole(nombre: string): UserRole {
-  return nombre === 'Superusuario' ? 'superuser' : 'user';
+  if (nombre === 'Superusuario') return 'superuser';
+  if (nombre === 'RRHH') return 'rrhh';
+  return 'user';
 }
 
-// Ordena los perfiles por prioridad: Superusuario primero (es el de mayor
-// privilegio) y el resto queda estable por id. Se usa para pre-seleccionar el
-// perfil activo y para poblar el selector tras el login multi-perfil.
+// Ordena los perfiles por prioridad: Superusuario, RRHH y luego el resto de
+// forma estable por id. Se usa para pre-seleccionar el perfil activo y para
+// poblar el selector tras el login multi-perfil.
 export function sortProfilesByPriority(profiles: ProfileRef[]): ProfileRef[] {
-  return [...profiles].sort((a, b) => {
-    const prioridadA = a.nombre === 'Superusuario' ? 0 : 1;
-    const prioridadB = b.nombre === 'Superusuario' ? 0 : 1;
-    return prioridadA - prioridadB || a.id - b.id;
-  });
+  const prioridad = (nombre: string) => {
+    if (nombre === 'Superusuario') return 0;
+    if (nombre === 'RRHH') return 1;
+    return 2;
+  };
+  return [...profiles].sort((a, b) => prioridad(a.nombre) - prioridad(b.nombre) || a.id - b.id);
 }
 
 export function slugify(value: string): string {

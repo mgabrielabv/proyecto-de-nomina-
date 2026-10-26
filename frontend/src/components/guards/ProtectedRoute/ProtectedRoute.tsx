@@ -10,5 +10,9 @@ export function ProtectedRoute() {
     return <Navigate to={ROUTES.login} replace state={{ from: location.pathname }} />;
   }
 
+  if (user.mustChangePassword && location.pathname !== ROUTES.settings) {
+    return <Navigate to={ROUTES.settings} replace state={{ forcePasswordChange: true }} />;
+  }
+
   return <Outlet />;
 }

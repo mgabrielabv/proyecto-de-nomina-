@@ -54,4 +54,4 @@ export const CONTRACT_TYPE_LABEL = {
   becario: 'Becario',
 } as const;
 
-export const ROLE_LABEL = { user: 'Usuario', superuser: 'Superusuario' } as const;
+export const ROLE_LABEL = { user: 'Usuario', rrhh: 'RRHH', superuser: 'Superusuario' } as const;

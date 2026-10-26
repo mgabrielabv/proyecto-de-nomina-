@@ -2,6 +2,21 @@ import { ApiError, execute } from '../../auth/services/apiClient';
 
 export type MaritalStatus = 'SOLTERO' | 'CASADO' | 'DIVORCIADO' | 'VIUDO' | 'CONCUBINO';
 export type Sex = 'M' | 'F';
+export type PaymentType = 'POR_HORA' | 'SALARIO_FIJO';
+export type PaymentFrequency = 'SEMANAL' | 'QUINCENAL' | 'MENSUAL';
+
+export interface LaborData {
+  cargo_id: number;
+  fecha_inicio: string;
+  tipo_pago: PaymentType;
+  frecuencia_pago: PaymentFrequency;
+  monto: number;
+  horas_semanales?: number;
+  fecha_fin?: string;
+  vigente_desde?: string;
+  vigente_hasta?: string;
+  motivo?: string;
+}
 
 export interface RegistrationPayload {
   cedula: string;
@@ -18,6 +33,7 @@ export interface RegistrationPayload {
   nro_tlf?: string;
   email?: string;
   direccion?: string;
+  laboral?: LaborData;
 }
 
 export interface RegistrationResult {

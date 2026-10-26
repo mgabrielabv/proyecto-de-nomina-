@@ -6,10 +6,18 @@ import type { Employee, PayrollPeriodType } from '../../../types';
 
 type CsvRow = Record<string, string | number>;
 
+const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
+
 function toCsv(rows: CsvRow[]): string {
   if (rows.length === 0) return '';
   const headers = Object.keys(rows[0]);
-  const escape = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
+  const escape = (value: string | number) => {
+    const text = String(value);
+    // Evita que celdas de texto se interpreten como fórmulas al abrir el CSV
+    // en Excel/LibreOffice. Los números se dejan intactos.
+    const safe = typeof value === 'string' && CSV_FORMULA_PREFIX.test(text) ? `'${text}` : text;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
   return [headers.join(','), ...rows.map((row) => headers.map((header) => escape(row[header])).join(','))].join('\n');
 }
 

@@ -1,4 +1,4 @@
-export type UserRole = 'user' | 'superuser';
+export type UserRole = 'user' | 'rrhh' | 'superuser';
 
 // Perfil del usuario tal como lo expone el backend: el id autoriza en los
 // mapas del servidor y el nombre decide el rol (rutas/menú) en el frontend.
@@ -30,6 +30,7 @@ export interface SessionUser {
   activeProfile: ProfileRef;
   jobTitle: string;
   departmentId: string;
+  mustChangePassword?: boolean;
 }
 
 export interface Department {

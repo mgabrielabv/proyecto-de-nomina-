@@ -39,16 +39,20 @@ function AppRoutes() {
           <Route path={ROUTES.requests} element={<UserRequests />} />
           <Route path={ROUTES.settings} element={<UserSettings />} />
         </Route>
-        <Route element={<RoleRoute allow={['superuser', 'user']} fallback={ROUTES.dashboard} />}>
+        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.dashboard} />}>
           <Route element={<DashboardLayout title="Panel administrativo" />}>
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
-            <Route path={ROUTES.adminRegistration} element={<AdminRegistration />} />
             <Route path={ROUTES.adminEmployees} element={<AdminEmployees />} />
             <Route path={ROUTES.adminPayroll} element={<AdminPayroll />} />
             <Route path={ROUTES.adminAttendance} element={<AdminAttendance />} />
             <Route path={ROUTES.adminRequests} element={<AdminRequests />} />
             <Route path={ROUTES.adminDepartments} element={<AdminDepartments />} />
             <Route path={ROUTES.adminReports} element={<AdminReports />} />
+          </Route>
+        </Route>
+        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.dashboard} />}>
+          <Route element={<DashboardLayout title="Registrar personas" />}>
+            <Route path={ROUTES.adminRegistration} element={<AdminRegistration />} />
           </Route>
         </Route>
       </Route>

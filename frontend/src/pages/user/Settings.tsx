@@ -10,7 +10,7 @@ import { Button } from '../../components/ui/Button';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { ThemeToggle } from '../../components/ui/ThemeToggle';
 import { useTheme } from '../../hooks';
-import { useToastStore } from '../../store';
+import { useSessionStore, useToastStore } from '../../store';
 import {
   changePassword,
   readPreferences,
@@ -29,6 +29,8 @@ const EMPTY_PASSWORD: PasswordForm = { current: '', next: '', confirm: '' };
 
 export function UserSettings() {
   const push = useToastStore((state) => state.push);
+  const user = useSessionStore((state) => state.user);
+  const setMustChangePassword = useSessionStore((state) => state.setMustChangePassword);
   const { theme } = useTheme();
 
   const [preferences, setPreferences] = useState<AppPreferences>(() => readPreferences());
@@ -54,6 +56,10 @@ export function UserSettings() {
     const errors: Record<string, string> = {};
     if (!password.current) errors.current = FORM_MESSAGES.required;
     if (password.next.length < 8) errors.next = FORM_MESSAGES.shortPassword;
+    else if (!/[A-Za-z]/.test(password.next) || !/[0-9]/.test(password.next))
+      errors.next = 'La contraseña debe incluir al menos una letra y un número.';
+    else if (new TextEncoder().encode(password.next).length > 72)
+      errors.next = 'La contraseña no puede superar los 72 bytes.';
     if (password.next !== password.confirm) errors.confirm = FORM_MESSAGES.passwordMismatch;
     if (Object.keys(errors).length > 0) {
       setPasswordErrors(errors);
@@ -69,6 +75,7 @@ export function UserSettings() {
       }
       setPassword(EMPTY_PASSWORD);
       setPasswordErrors({});
+      setMustChangePassword(false);
       push(TOAST_MESSAGES.passwordChanged);
     } finally {
       setSavingPassword(false);
@@ -78,6 +85,12 @@ export function UserSettings() {
   return (
     <div className="space-y-6">
       <PageHeader title="Configuración" description="Tema, idioma, cambio de contraseña y preferencias." />
+
+      {user?.mustChangePassword && (
+        <div role="alert" className="rounded-xl border border-warning bg-warning-soft px-4 py-3 text-sm text-text">
+          Por seguridad, debes cambiar tu contraseña antes de continuar usando la plataforma.
+        </div>
+      )}
 
       <motion.div variants={staggerContainer(0.05)} initial="hidden" animate="show" className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <motion.div variants={fadeUpItem}>
@@ -152,7 +165,9 @@ export function UserSettings() {
           <Card className="space-y-6">
             <header>
               <h3 className="text-sm font-semibold tracking-tight text-text">Cambiar contraseña</h3>
-              <p className="mt-1 text-xs text-text-muted">Usa al menos 8 caracteres.</p>
+              <p className="mt-1 text-xs text-text-muted">
+                Usa al menos 8 caracteres, con una letra y un número.
+              </p>
             </header>
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">

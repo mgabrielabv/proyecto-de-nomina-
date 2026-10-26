@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { fadeUpItem, staggerContainer } from '../../../animations/variants';
 import { useSessionStore } from '../../../store';
 import type { ProfileRef } from '../../../types';
-import { profileToRole } from '../../../utils';import { Button } from '../../ui/Button';
+import { Button } from '../../ui/Button';
 import { Select } from '../../ui/Select';
 
 export interface ProfilePickerProps {
@@ -45,7 +45,7 @@ export function ProfilePicker({ profiles, onSelect }: ProfilePickerProps) {
         <p className="text-sm text-text-secondary">Tu cuenta tiene varios perfiles. ¿Con cuál quieres entrar?</p>
       </motion.div>
 
-      <motion.div variants={fadeUpItem} className="space-y-4">
+      <motion.div variants={fadeUpItem} className="relative z-20 space-y-4">
         <Select
           name="active-profile"
           label="Perfil"
@@ -65,7 +65,7 @@ export function ProfilePicker({ profiles, onSelect }: ProfilePickerProps) {
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-text">{selected.nombre}</p>
               <p className="truncate text-xs text-text-muted">
-                Entrarás como {profileToRole(selected.nombre) === 'superuser' ? 'Superusuario' : 'Usuario'}
+                Entrarás como {selected.nombre}
               </p>
             </div>
           </div>

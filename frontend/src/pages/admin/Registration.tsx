@@ -7,12 +7,17 @@ import { Card } from '../../components/ui/Card';
 import { Stepper } from '../../components/ui/Stepper';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { Checkbox } from '../../components/ui/Checkbox';
 import { Button } from '../../components/ui/Button';
 import { useSessionStore, useToastStore } from '../../store';
 import { listProfiles, type SystemProfile } from '../../features/auth/services';
 import {
+  listCargos,
   registerPerson,
+  type Cargo,
   type MaritalStatus,
+  type PaymentFrequency,
+  type PaymentType,
   type RegistrationPayload,
   type Sex,
 } from '../../features/registration/services';
@@ -21,10 +26,12 @@ import { FORM_MESSAGES } from '../../constants';
 const STEPS = [
   { label: 'Datos personales', description: 'Identificación y contacto' },
   { label: 'Cuenta de usuario', description: 'Credenciales y perfiles' },
+  { label: 'Datos laborales', description: 'Cargo y contrato' },
   { label: 'Confirmación', description: 'Revisión final' },
 ];
 
-const PROFILE_MANAGER_NAMES = ['Superusuario', 'Administrador', 'RRHH'];
+const PROFILE_MANAGER_NAMES = ['Superusuario', 'RRHH'];
+const PRIVILEGED_PROFILE_NAMES = ['Superusuario', 'Administrador', 'RRHH'];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -36,6 +43,17 @@ const MARITAL_STATUS_LABEL: Record<MaritalStatus, string> = {
   DIVORCIADO: 'Divorciado/a',
   VIUDO: 'Viudo/a',
   CONCUBINO: 'Concubino/a',
+};
+
+const PAYMENT_TYPE_LABEL: Record<PaymentType, string> = {
+  POR_HORA: 'Por hora',
+  SALARIO_FIJO: 'Salario fijo',
+};
+
+const PAYMENT_FREQUENCY_LABEL: Record<PaymentFrequency, string> = {
+  SEMANAL: 'Semanal',
+  QUINCENAL: 'Quincenal',
+  MENSUAL: 'Mensual',
 };
 
 interface FormValues {
@@ -53,6 +71,14 @@ interface FormValues {
   username: string;
   password: string;
   confirmPassword: string;
+  cargoId: string;
+  fechaInicio: string;
+  tipoPago: '' | PaymentType;
+  frecuenciaPago: '' | PaymentFrequency;
+  monto: string;
+  horasSemanales: string;
+  fechaFin: string;
+  motivo: string;
 }
 
 const INITIAL_VALUES: FormValues = {
@@ -70,9 +96,25 @@ const INITIAL_VALUES: FormValues = {
   username: '',
   password: '',
   confirmPassword: '',
+  cargoId: '',
+  fechaInicio: '',
+  tipoPago: '',
+  frecuenciaPago: '',
+  monto: '',
+  horasSemanales: '',
+  fechaFin: '',
+  motivo: '',
 };
 
+const PERSONAL_KEYS = ['cedula', 'primer_nombre', 'primer_apellido', 'email'];
+const ACCOUNT_KEYS = ['username', 'password', 'confirmPassword', 'profiles'];
+
 const optionalText = (value: string) => value.trim() || undefined;
+
+const positiveNumber = (value: string) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+};
 
 export function AdminRegistration() {
   const push = useToastStore((state) => state.push);
@@ -86,6 +128,9 @@ export function AdminRegistration() {
   const [profiles, setProfiles] = useState<SystemProfile[]>([]);
   const [selectedProfiles, setSelectedProfiles] = useState<number[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [cargos, setCargos] = useState<Cargo[]>([]);
+  const [cargosLoading, setCargosLoading] = useState(true);
+  const [includeLaboral, setIncludeLaboral] = useState(true);
 
   const canListProfiles = useMemo(() => {
     if (!user) return false;
@@ -93,11 +138,15 @@ export function AdminRegistration() {
     return user.profiles.some((profile) => PROFILE_MANAGER_NAMES.includes(profile.nombre));
   }, [user]);
 
+  const canAssignPrivilegedProfiles = user?.activeProfile.nombre === 'Superusuario';
+
   useEffect(() => {
     if (!canListProfiles) {
       setProfilesLoading(false);
+      setCargosLoading(false);
       setProfiles([]);
       setSelectedProfiles([]);
+      setCargos([]);
       push('La sesión actual no tiene autorización para registrar usuarios.', 'error');
       return;
     }
@@ -106,9 +155,12 @@ export function AdminRegistration() {
     void listProfiles()
       .then((list) => {
         if (!active) return;
-        setProfiles(list);
-        const empleado = list.find((profile) => profile.nombre === 'Empleado');
-        if (empleado) setSelectedProfiles([empleado.id]);
+        const assignable = canAssignPrivilegedProfiles
+          ? list
+          : list.filter((profile) => !PRIVILEGED_PROFILE_NAMES.includes(profile.nombre));
+        setProfiles(assignable);
+        const empleado = assignable.find((profile) => profile.nombre === 'Empleado');
+        setSelectedProfiles(empleado ? [empleado.id] : []);
       })
       .catch((error: unknown) => {
         if (active) push(error instanceof Error ? error.message : 'No se pudieron cargar los perfiles.', 'error');
@@ -116,10 +168,22 @@ export function AdminRegistration() {
       .finally(() => {
         if (active) setProfilesLoading(false);
       });
+
+    void listCargos()
+      .then((list) => {
+        if (active) setCargos(list);
+      })
+      .catch((error: unknown) => {
+        if (active) push(error instanceof Error ? error.message : 'No se pudieron cargar los cargos.', 'error');
+      })
+      .finally(() => {
+        if (active) setCargosLoading(false);
+      });
+
     return () => {
       active = false;
     };
-  }, [canListProfiles, push]);
+  }, [canAssignPrivilegedProfiles, canListProfiles, push]);
 
   const set = (patch: Partial<FormValues>) => setValues((current) => ({ ...current, ...patch }));
 
@@ -141,6 +205,19 @@ export function AdminRegistration() {
       if (values.confirmPassword !== values.password) next.confirmPassword = FORM_MESSAGES.passwordMismatch;
       if (!selectedProfiles.length) next.profiles = 'Selecciona al menos un perfil.';
     }
+    if (targetStep === 2 && includeLaboral) {
+      if (!values.cargoId) next.cargoId = FORM_MESSAGES.required;
+      if (!values.fechaInicio) next.fechaInicio = FORM_MESSAGES.required;
+      if (!values.tipoPago) next.tipoPago = FORM_MESSAGES.required;
+      if (!values.frecuenciaPago) next.frecuenciaPago = FORM_MESSAGES.required;
+      if (!positiveNumber(values.monto)) next.monto = 'Ingresa un monto mayor que cero.';
+      if (values.tipoPago === 'POR_HORA' && !positiveNumber(values.horasSemanales)) {
+        next.horasSemanales = 'Ingresa las horas semanales (mayor que cero).';
+      }
+      if (values.fechaFin && values.fechaInicio && values.fechaFin < values.fechaInicio) {
+        next.fechaFin = 'La fecha de fin no puede ser anterior al inicio.';
+      }
+    }
     return next;
   };
 
@@ -156,7 +233,7 @@ export function AdminRegistration() {
     primer_apellido: values.primer_apellido.trim(),
     username: values.username.trim(),
     password: values.password,
-    perfiles: selectedProfiles,
+    perfiles: selectedProfiles.filter((id) => profiles.some((profile) => profile.id === id)),
     segundo_nombre: optionalText(values.segundo_nombre),
     segundo_apellido: optionalText(values.segundo_apellido),
     fecha_nacimiento: optionalText(values.fecha_nacimiento),
@@ -165,17 +242,31 @@ export function AdminRegistration() {
     nro_tlf: optionalText(values.nro_tlf),
     email: optionalText(values.email),
     direccion: optionalText(values.direccion),
+    laboral:
+      includeLaboral && values.cargoId && values.fechaInicio && values.tipoPago && values.frecuenciaPago
+        ? {
+            cargo_id: Number(values.cargoId),
+            fecha_inicio: values.fechaInicio,
+            tipo_pago: values.tipoPago,
+            frecuencia_pago: values.frecuenciaPago,
+            monto: Number(values.monto),
+            horas_semanales:
+              values.tipoPago === 'POR_HORA' ? positiveNumber(values.horasSemanales) : undefined,
+            fecha_fin: optionalText(values.fechaFin),
+            motivo: optionalText(values.motivo),
+          }
+        : undefined,
   });
 
   const submit = async () => {
-    const nextErrors = [0, 1].reduce<Record<string, string>>(
+    const nextErrors = [0, 1, 2].reduce<Record<string, string>>(
       (all, currentStep) => ({ ...all, ...validate(currentStep) }),
       {},
     );
     if (Object.keys(nextErrors).length) {
       setErrors(nextErrors);
-      const personalKeys = ['cedula', 'primer_nombre', 'primer_apellido', 'email'];
-      setStep(Object.keys(nextErrors).some((key) => personalKeys.includes(key)) ? 0 : 1);
+      const keys = Object.keys(nextErrors);
+      setStep(keys.some((key) => PERSONAL_KEYS.includes(key)) ? 0 : keys.some((key) => ACCOUNT_KEYS.includes(key)) ? 1 : 2);
       return;
     }
     setBusy(true);
@@ -194,6 +285,7 @@ export function AdminRegistration() {
     setErrors({});
     setStep(0);
     setDone(false);
+    setIncludeLaboral(true);
     const empleado = profiles.find((profile) => profile.nombre === 'Empleado');
     setSelectedProfiles(empleado ? [empleado.id] : []);
   };
@@ -203,9 +295,37 @@ export function AdminRegistration() {
     .map((profile) => profile.nombre)
     .join(', ');
 
+  const selectedCargo = cargos.find((cargo) => String(cargo.id) === values.cargoId);
+
+  const summaryRows = [
+    ['Cédula', values.cedula],
+    ['Nombres', [values.primer_nombre, values.segundo_nombre].filter(Boolean).join(' ')],
+    ['Apellidos', [values.primer_apellido, values.segundo_apellido].filter(Boolean).join(' ')],
+    ['Fecha de nacimiento', values.fecha_nacimiento],
+    ['Sexo', values.sexo ? SEX_LABEL[values.sexo] : ''],
+    ['Estado civil', values.estado_civil ? MARITAL_STATUS_LABEL[values.estado_civil] : ''],
+    ['Teléfono', values.nro_tlf],
+    ['Correo', values.email],
+    ['Dirección', values.direccion],
+    ['Usuario', values.username],
+    ['Perfiles', profileNames],
+    ...(includeLaboral
+      ? [
+          ['Cargo', selectedCargo?.nombre ?? ''],
+          ['Inicio del contrato', values.fechaInicio],
+          ['Fin del contrato', values.fechaFin],
+          ['Tipo de pago', values.tipoPago ? PAYMENT_TYPE_LABEL[values.tipoPago] : ''],
+          ['Frecuencia de pago', values.frecuenciaPago ? PAYMENT_FREQUENCY_LABEL[values.frecuenciaPago] : ''],
+          ['Monto', values.monto ? `$${Number(values.monto).toFixed(2)}` : ''],
+          ['Horas semanales', values.tipoPago === 'POR_HORA' ? values.horasSemanales : ''],
+          ['Motivo', values.motivo],
+        ]
+      : []),
+  ];
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Registrar personas" description="Crea la persona, su cuenta de acceso y asigna sus perfiles." />
+      <PageHeader title="Registrar personas" description="Crea la persona, su cuenta de acceso, asigna sus perfiles y registra su contrato." />
       <motion.div variants={staggerContainer(0.05)} initial="hidden" animate="show">
         <Card padding="lg" className="space-y-7">
           {done ? (
@@ -288,6 +408,11 @@ export function AdminRegistration() {
                       {!profilesLoading && profiles.length === 0 && (
                         <p className="text-xs text-text-muted">No hay perfiles disponibles.</p>
                       )}
+                      {!profilesLoading && !canAssignPrivilegedProfiles && profiles.length > 0 && (
+                        <p className="text-xs text-text-muted">
+                          Solo un Superusuario puede asignar perfiles administrativos.
+                        </p>
+                      )}
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                         {profiles.map((profile) => (
                           <label key={profile.id} className="flex items-start gap-3 rounded-lg border border-border p-3 text-sm">
@@ -318,20 +443,84 @@ export function AdminRegistration() {
                 )}
 
                 {step === 2 && (
+                  <>
+                    <div>
+                      <h2 className="text-base font-semibold text-text">Datos laborales</h2>
+                      <p className="mt-1 text-sm text-text-secondary">
+                        Cargo y condiciones del contrato. Puedes registrar a la persona sin contrato por ahora.
+                      </p>
+                    </div>
+                    <Checkbox
+                      name="include-laboral"
+                      label="Registrar contrato laboral ahora"
+                      checked={includeLaboral}
+                      onChange={(checked) => {
+                        setIncludeLaboral(checked);
+                        if (!checked) {
+                          setErrors((current) => {
+                            const nextErrors = { ...current };
+                            ['cargoId', 'fechaInicio', 'tipoPago', 'frecuenciaPago', 'monto', 'horasSemanales', 'fechaFin'].forEach(
+                              (key) => delete nextErrors[key],
+                            );
+                            return nextErrors;
+                          });
+                        }
+                      }}
+                    />
+                    {includeLaboral && (
+                      <>
+                        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                          <Select
+                            name="cargo"
+                            label="Cargo"
+                            value={values.cargoId}
+                            options={cargos.map((cargo) => ({ value: String(cargo.id), label: cargo.nombre }))}
+                            disabled={cargosLoading}
+                            placeholder={cargosLoading ? 'Cargando cargos...' : 'Selecciona un cargo'}
+                            error={errors.cargoId}
+                            onChange={(value) => set({ cargoId: value })}
+                          />
+                          <Input name="fecha-inicio" label="Fecha de inicio" type="date" value={values.fechaInicio} error={errors.fechaInicio} onChange={(value) => set({ fechaInicio: value })} />
+                          <Select
+                            name="tipo-pago"
+                            label="Tipo de pago"
+                            value={values.tipoPago}
+                            options={(Object.keys(PAYMENT_TYPE_LABEL) as PaymentType[]).map((value) => ({
+                              value,
+                              label: PAYMENT_TYPE_LABEL[value],
+                            }))}
+                            error={errors.tipoPago}
+                            onChange={(value) => set({ tipoPago: value as FormValues['tipoPago'] })}
+                          />
+                          <Select
+                            name="frecuencia-pago"
+                            label="Frecuencia de pago"
+                            value={values.frecuenciaPago}
+                            options={(Object.keys(PAYMENT_FREQUENCY_LABEL) as PaymentFrequency[]).map((value) => ({
+                              value,
+                              label: PAYMENT_FREQUENCY_LABEL[value],
+                            }))}
+                            error={errors.frecuenciaPago}
+                            onChange={(value) => set({ frecuenciaPago: value as FormValues['frecuenciaPago'] })}
+                          />
+                          <Input name="monto" label="Monto" type="number" min="0" step="0.01" value={values.monto} error={errors.monto} onChange={(value) => set({ monto: value })} />
+                          {values.tipoPago === 'POR_HORA' && (
+                            <Input name="horas-semanales" label="Horas semanales" type="number" min="0" step="0.5" value={values.horasSemanales} error={errors.horasSemanales} onChange={(value) => set({ horasSemanales: value })} />
+                          )}
+                          <Input name="fecha-fin" label="Fecha de fin (opcional)" type="date" value={values.fechaFin} error={errors.fechaFin} onChange={(value) => set({ fechaFin: value })} />
+                          <Input name="motivo" label="Motivo del salario (opcional)" value={values.motivo} onChange={(value) => set({ motivo: value })} />
+                        </div>
+                        {!cargosLoading && cargos.length === 0 && (
+                          <p className="text-xs text-text-muted">No hay cargos activos disponibles.</p>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+
+                {step === 3 && (
                   <dl className="grid grid-cols-1 gap-x-8 gap-y-4 rounded-xl border border-border bg-surface-soft/70 p-5 sm:grid-cols-2">
-                    {[
-                      ['Cédula', values.cedula],
-                      ['Nombres', [values.primer_nombre, values.segundo_nombre].filter(Boolean).join(' ')],
-                      ['Apellidos', [values.primer_apellido, values.segundo_apellido].filter(Boolean).join(' ')],
-                      ['Fecha de nacimiento', values.fecha_nacimiento],
-                      ['Sexo', values.sexo ? SEX_LABEL[values.sexo] : ''],
-                      ['Estado civil', values.estado_civil ? MARITAL_STATUS_LABEL[values.estado_civil] : ''],
-                      ['Teléfono', values.nro_tlf],
-                      ['Correo', values.email],
-                      ['Dirección', values.direccion],
-                      ['Usuario', values.username],
-                      ['Perfiles', profileNames],
-                    ].map(([label, value]) => (
+                    {summaryRows.map(([label, value]) => (
                       <div key={label} className="min-w-0">
                         <dt className="text-xs font-semibold uppercase tracking-wider text-text-muted">{label}</dt>
                         <dd className="mt-1 truncate text-sm text-text">{value || '—'}</dd>

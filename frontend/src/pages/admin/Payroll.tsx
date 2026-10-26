@@ -8,13 +8,25 @@ import { Select } from '../../components/ui/Select';
 import { StatCard } from '../../components/ui/StatCard';
 import { Badge } from '../../components/ui/Badge';
 import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
+import { Modal } from '../../components/ui/Modal';
+import { Button } from '../../components/ui/Button';
 import { useEmployeesStore, usePayrollStore, useToastStore } from '../../store';
 import { PAYROLL_STATUS_LABEL, PAYROLL_STATUS_TONE, TOAST_MESSAGES } from '../../constants';
 import { formatCurrency } from '../../utils';
 import type { PayrollPeriodType, PayrollReceipt, PayrollStatus } from '../../types';
 
+interface PendingStatus {
+  ids: string[];
+  status: PayrollStatus;
+  title: string;
+  description: string;
+  message: string;
+}
+
 export function AdminPayroll() {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const [pendingStatus, setPendingStatus] = useState<PendingStatus | null>(null);
+  const [statusBusy, setStatusBusy] = useState(false);
   const push = useToastStore((state) => state.push);
 
   const periodType = usePayrollStore((state) => state.periodType);
@@ -113,12 +125,30 @@ export function AdminPayroll() {
     setSelectedKeys((current) => (current.length === receipts.length ? [] : receipts.map((item) => item.id)));
   };
 
-  const applyStatus = async (status: PayrollStatus, message: string) => {
+  const requestStatus = (
+    status: PayrollStatus,
+    title: string,
+    description: string,
+    message: string,
+  ) => {
     const ids = selectedKeys.length > 0 ? selectedKeys : receipts.map((item) => item.id);
     if (ids.length === 0) return;
-    await setStatus(ids, status);
-    setSelectedKeys([]);
-    push(message);
+    setPendingStatus({ ids, status, title, description, message });
+  };
+
+  const confirmStatus = async () => {
+    if (!pendingStatus || statusBusy) return;
+    setStatusBusy(true);
+    try {
+      await setStatus(pendingStatus.ids, pendingStatus.status);
+      setSelectedKeys([]);
+      setPendingStatus(null);
+      push(pendingStatus.message);
+    } catch (error) {
+      push(error instanceof Error ? error.message : 'No se pudo actualizar la nómina.', 'error');
+    } finally {
+      setStatusBusy(false);
+    }
   };
 
   return (
@@ -165,22 +195,46 @@ export function AdminPayroll() {
           <div className="flex flex-wrap gap-2.5">
             <button
               type="button"
-              onClick={() => void applyStatus('aprobada', TOAST_MESSAGES.payrollApproved)}
-              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text"
+              disabled={statusBusy || receipts.length === 0}
+              onClick={() =>
+                requestStatus(
+                  'aprobada',
+                  'Aprobar nómina',
+                  'La nómina seleccionada quedará aprobada y lista para pago.',
+                  TOAST_MESSAGES.payrollApproved,
+                )
+              }
+              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text disabled:cursor-default disabled:opacity-60"
             >
               Aprobar
             </button>
             <button
               type="button"
-              onClick={() => void applyStatus('pagada', TOAST_MESSAGES.payrollPaid)}
-              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text"
+              disabled={statusBusy || receipts.length === 0}
+              onClick={() =>
+                requestStatus(
+                  'pagada',
+                  'Marcar nómina como pagada',
+                  'La nómina seleccionada quedará registrada como pagada.',
+                  TOAST_MESSAGES.payrollPaid,
+                )
+              }
+              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text disabled:cursor-default disabled:opacity-60"
             >
               Marcar como pagada
             </button>
             <button
               type="button"
-              onClick={() => void applyStatus('borrador', TOAST_MESSAGES.payrollGenerated)}
-              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text"
+              disabled={statusBusy || receipts.length === 0}
+              onClick={() =>
+                requestStatus(
+                  'borrador',
+                  'Regenerar nómina',
+                  'La nómina volverá a borrador y podrá recalcularse.',
+                  TOAST_MESSAGES.payrollGenerated,
+                )
+              }
+              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text disabled:cursor-default disabled:opacity-60"
             >
               Regenerar
             </button>
@@ -201,6 +255,35 @@ export function AdminPayroll() {
           />
         </motion.div>
       </motion.div>
+
+      <Modal
+        open={pendingStatus !== null}
+        title={pendingStatus?.title ?? 'Confirmar acción'}
+        description={pendingStatus?.description}
+        size="sm"
+        onClose={() => {
+          if (!statusBusy) setPendingStatus(null);
+        }}
+        footer={
+          <>
+            <button
+              type="button"
+              disabled={statusBusy}
+              onClick={() => setPendingStatus(null)}
+              className="h-11 rounded-button border border-border bg-surface-soft px-5 text-sm font-medium text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text disabled:cursor-default disabled:opacity-60"
+            >
+              Cancelar
+            </button>
+            <Button
+              state={statusBusy ? 'loading' : 'idle'}
+              disabled={!pendingStatus}
+              onClick={() => void confirmStatus()}
+            >
+              Confirmar
+            </Button>
+          </>
+        }
+      />
     </div>
   );
 }

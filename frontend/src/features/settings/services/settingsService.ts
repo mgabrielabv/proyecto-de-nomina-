@@ -1,5 +1,6 @@
 import { MUTATION_LATENCY_MAX, MUTATION_LATENCY_MIN } from '../../../constants';
 import { delay, randomLatency } from '../../../mocks';
+import { ApiError, execute } from '../../auth/services/apiClient';
 
 export interface AppPreferences {
   language: string;
@@ -34,8 +35,13 @@ export async function savePreferences(preferences: AppPreferences): Promise<AppP
 }
 
 export async function changePassword(current: string, next: string): Promise<{ ok: boolean; error?: string }> {
-  await delay(randomLatency(MUTATION_LATENCY_MIN, MUTATION_LATENCY_MAX));
-  if (current.trim().length < 8) return { ok: false, error: 'La contraseña actual no es válida.' };
-  if (next.length < 8) return { ok: false, error: 'La contraseña nueva debe tener al menos 8 caracteres.' };
-  return { ok: true };
+  try {
+    await execute('Security', 'User', 'cambiarClave', [current, next]);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { ok: false, error: error.message };
+    }
+    return { ok: false, error: 'No se pudo conectar con el servidor.' };
+  }
 }

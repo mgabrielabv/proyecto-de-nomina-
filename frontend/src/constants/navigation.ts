@@ -47,6 +47,14 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    id: 'registro',
+    label: 'Gestión de personas',
+    roles: ['rrhh'],
+    items: [
+      { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
+    ],
+  },
+  {
     id: 'administracion',
     label: 'Administración',
     roles: ['superuser'],
@@ -67,5 +75,6 @@ export const NAV_SECTIONS: NavSection[] = [
 // colapsado, es el único cuyos iconos se muestran.
 export const ROLE_SECTION_ID: Record<UserRole, string> = {
   user: 'personal',
+  rrhh: 'registro',
   superuser: 'administracion',
 };

@@ -1,7 +1,7 @@
 import { AUTH_ERROR_MESSAGES, SESSION_DELAY } from '../../../constants';
 import { MOCK_ACCOUNTS, EMPLOYEES } from '../../../mocks';
 import { delay, profileToRole, sortProfilesByPriority } from '../../../utils';
-import { ApiError, execute } from './apiClient';
+import { ApiError, execute, loginRequest, logoutRequest } from './apiClient';
 import type { AuthResult, LoginCredentials, ProfileRef } from '../types';
 import type { SessionUser } from '../../../types';
 
@@ -14,6 +14,8 @@ interface BackendSession {
   profiles: ProfileRef[];
   debeCambiarClave: boolean;
 }
+
+const AUTH_FAILED_STATUSES = new Set([401, 403, 423]);
 
 // Mapea la sesión del backend al usuario del frontend. El perfil activo es el
 // de mayor prioridad (Superusuario primero); el rol se deriva de su nombre.
@@ -30,22 +32,31 @@ function toSessionUser(sesion: BackendSession): SessionUser {
     activeProfile,
     jobTitle: '',
     departmentId: '',
+    mustChangePassword: Boolean(sesion.debeCambiarClave),
   };
 }
 
 export async function signIn(payload: LoginCredentials): Promise<AuthResult> {
   try {
-    const sesion = await execute<BackendSession>('Session', 'Session', 'login', [
+    const sesion = await loginRequest<BackendSession>(
       payload.username.trim(),
       payload.password,
-    ]);
+    );
     return { ok: true, user: toSessionUser(sesion) };
   } catch (error) {
     if (error instanceof ApiError) {
-      return { ok: false, error: error.message || AUTH_ERROR_MESSAGES.credentialsInvalid };
+      const message = AUTH_FAILED_STATUSES.has(error.status)
+        ? AUTH_ERROR_MESSAGES.credentialsInvalid
+        : error.message || AUTH_ERROR_MESSAGES.credentialsInvalid;
+      return { ok: false, error: message };
     }
     return { ok: false, error: AUTH_ERROR_MESSAGES.networkError };
   }
+}
+
+export async function getSession(): Promise<SessionUser | null> {
+  const sesion = await execute<BackendSession | null>('Session', 'Session', 'getSession', []);
+  return sesion ? toSessionUser(sesion) : null;
 }
 
 export async function signUp(): Promise<AuthResult> {
@@ -78,7 +89,7 @@ export async function signOut(): Promise<void> {
   // logout es idempotente en el backend; aunque falle (red caída), el store
   // local se limpia igualmente desde sessionStore.
   try {
-    await execute('Session', 'Session', 'logout', []);
+    await logoutRequest();
   } catch {
     // Se ignora: sin sesión viva no hay nada que destruir del lado servidor.
   }

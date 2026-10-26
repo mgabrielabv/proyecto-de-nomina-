@@ -33,6 +33,7 @@ export function useLoginForm(onSuccess?: (user: SessionUser) => void): UseLoginF
           window.setTimeout(() => onSuccess?.(result.user), 320);
         } else {
           setSubmitState('idle');
+          form.clearField('password');
           setServerError(result.error);
         }
       });

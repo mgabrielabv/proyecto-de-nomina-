@@ -11,6 +11,7 @@ export interface UseFormResult<T extends object> {
   touched: Partial<Record<keyof T, boolean>>;
   getError: (field: keyof T) => string | undefined;
   setField: (field: keyof T, value: string) => void;
+  clearField: (field: keyof T) => void;
   handleBlur: (field: keyof T) => void;
   submitAndValidate: () => boolean;
   reset: () => void;
@@ -33,6 +34,12 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
     setTouched((current) => ({ ...current, [field]: true }));
   }, []);
 
+  const clearField = useCallback((field: keyof T) => {
+    setValues((current) => ({ ...current, [field]: '' }) as T);
+    setTouched((current) => ({ ...current, [field]: false }));
+    setSubmitted(false);
+  }, []);
+
   const handleBlur = useCallback((field: keyof T) => {
     setTouched((current) => ({ ...current, [field]: true }));
   }, []);
@@ -48,5 +55,5 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
     setSubmitted(false);
   }, [config.initialValues]);
 
-  return { values, touched, getError, setField, handleBlur, submitAndValidate, reset };
+  return { values, touched, getError, setField, clearField, handleBlur, submitAndValidate, reset };
 }
