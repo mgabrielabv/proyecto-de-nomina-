@@ -1,1 +1,1 @@
-export { fetchPeriods, fetchReceipts, setReceiptsStatus } from './payrollService';
+export * from './payrollService';

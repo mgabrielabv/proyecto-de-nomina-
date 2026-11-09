@@ -6,3 +6,5 @@ export { useRequestsStore } from './requestsStore';
 export { useSessionStore } from './sessionStore';
 export { useToastStore, type ToastItem, type ToastTone } from './toastStore';
 export { useUiStore } from './uiStore';
+export { useMenuStore } from './menuStore';
+

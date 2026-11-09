@@ -6,11 +6,11 @@ import { LoginPage } from '../pages/LoginPage';
 import {
   UserAttendance,
   UserDashboard,
-  UserPayroll,
   UserProfile,
   UserRequests,
   UserSettings,
 } from '../pages/user';
+
 import {
   AdminAttendance,
   AdminDashboard,
@@ -21,6 +21,16 @@ import {
   AdminReports,
   AdminRequests,
 } from '../pages/admin';
+import {
+  PeriodsPage,
+  HoursPage,
+  NovedadesPage,
+  LoansPage,
+  ConceptsPage,
+  CargosPage,
+  AffiliationsPage,
+  MyReceiptsPage,
+} from '../pages/payroll';
 import { useSessionStore } from '../store';
 import { getRoleHomePath } from '../utils';
 
@@ -31,15 +41,32 @@ function AppRoutes() {
     <Routes>
       <Route path={ROUTES.login} element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout title="Inicio" />}>
+        {/* Rutas compartidas / personales (accesibles para Empleado y demás roles) */}
+        <Route element={<DashboardLayout title="Mi Espacio" />}>
           <Route path={ROUTES.dashboard} element={<UserDashboard />} />
           <Route path={ROUTES.profile} element={<UserProfile />} />
-          <Route path={ROUTES.payslips} element={<UserPayroll />} />
+          <Route path={ROUTES.payslips} element={<MyReceiptsPage />} />
+          <Route path={ROUTES.payrollMisRecibos} element={<MyReceiptsPage />} />
           <Route path={ROUTES.attendance} element={<UserAttendance />} />
           <Route path={ROUTES.requests} element={<UserRequests />} />
           <Route path={ROUTES.settings} element={<UserSettings />} />
         </Route>
-        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.dashboard} />}>
+
+        {/* Subsistema Payroll (Superusuario, Administrador, RRHH) */}
+        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
+          <Route element={<DashboardLayout title="Nómina" />}>
+            <Route path={ROUTES.payrollPeriodos} element={<PeriodsPage />} />
+            <Route path={ROUTES.payrollHoras} element={<HoursPage />} />
+            <Route path={ROUTES.payrollNovedades} element={<NovedadesPage />} />
+            <Route path={ROUTES.payrollPrestamos} element={<LoansPage />} />
+            <Route path={ROUTES.payrollConceptos} element={<ConceptsPage />} />
+            <Route path={ROUTES.payrollCargos} element={<CargosPage />} />
+            <Route path={ROUTES.payrollAfiliaciones} element={<AffiliationsPage />} />
+          </Route>
+        </Route>
+
+        {/* Panel administrativo de gestión de personas y sistema */}
+        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Panel administrativo" />}>
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
             <Route path={ROUTES.adminEmployees} element={<AdminEmployees />} />
@@ -50,7 +77,8 @@ function AppRoutes() {
             <Route path={ROUTES.adminReports} element={<AdminReports />} />
           </Route>
         </Route>
-        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.dashboard} />}>
+
+        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Registrar personas" />}>
             <Route path={ROUTES.adminRegistration} element={<AdminRegistration />} />
           </Route>
@@ -68,6 +96,7 @@ function AppRoutes() {
     </Routes>
   );
 }
+
 
 export function AppRouter() {
   return (

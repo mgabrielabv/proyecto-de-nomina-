@@ -5,9 +5,12 @@ import { usePayrollStore } from './payrollStore';
 import { useRequestsStore } from './requestsStore';
 import { useToastStore } from './toastStore';
 import { useUiStore } from './uiStore';
+import { useMenuStore } from './menuStore';
 
 export function resetAppData(): void {
+  useMenuStore.getState().clearMenu();
   useAttendanceStore.setState({
+
     entries: [],
     today: null,
     loading: false,

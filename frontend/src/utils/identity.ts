@@ -17,29 +17,29 @@ export function getGreeting(date: Date = new Date()): string {
 }
 
 export function getRoleHomePath(role: UserRole): string {
-  if (role === 'superuser') return ROUTES.adminHome;
-  if (role === 'rrhh') return ROUTES.adminRegistration;
-  return ROUTES.dashboard;
+  if (role === 'superuser') return ROUTES.payrollPeriodos;
+  if (role === 'rrhh') return ROUTES.payrollPeriodos;
+  return ROUTES.payrollMisRecibos;
 }
 
 // Traduce el nombre del perfil del backend al rol del frontend.
 export function profileToRole(nombre: string): UserRole {
-  if (nombre === 'Superusuario') return 'superuser';
+  if (nombre === 'Superusuario' || nombre === 'Administrador') return 'superuser';
   if (nombre === 'RRHH') return 'rrhh';
   return 'user';
 }
 
-// Ordena los perfiles por prioridad: Superusuario, RRHH y luego el resto de
-// forma estable por id. Se usa para pre-seleccionar el perfil activo y para
-// poblar el selector tras el login multi-perfil.
+// Ordena los perfiles por prioridad: Superusuario, Administrador, RRHH y luego Empleado/resto
 export function sortProfilesByPriority(profiles: ProfileRef[]): ProfileRef[] {
   const prioridad = (nombre: string) => {
     if (nombre === 'Superusuario') return 0;
-    if (nombre === 'RRHH') return 1;
-    return 2;
+    if (nombre === 'Administrador') return 1;
+    if (nombre === 'RRHH') return 2;
+    return 3;
   };
   return [...profiles].sort((a, b) => prioridad(a.nombre) - prioridad(b.nombre) || a.id - b.id);
 }
+
 
 export function slugify(value: string): string {
   return value

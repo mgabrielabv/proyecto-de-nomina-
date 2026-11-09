@@ -14,6 +14,17 @@ export const ROUTES = {
   adminRequests: '/admin/requests',
   adminDepartments: '/admin/departments',
   adminReports: '/admin/reports',
+  adminPermissions: '/admin/permissions',
+  // Rutas del subsistema Payroll
+
+  payrollPeriodos: '/payroll/periodos',
+  payrollHoras: '/payroll/horas',
+  payrollNovedades: '/payroll/novedades',
+  payrollPrestamos: '/payroll/prestamos',
+  payrollConceptos: '/payroll/conceptos',
+  payrollCargos: '/payroll/cargos',
+  payrollAfiliaciones: '/payroll/afiliaciones',
+  payrollMisRecibos: '/payroll/mis-recibos',
 } as const;
 
 export const PROTECTED_BASE = ROUTES.dashboard;
@@ -34,4 +45,15 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.adminRequests]: 'Solicitudes',
   [ROUTES.adminDepartments]: 'Departamentos y cargos',
   [ROUTES.adminReports]: 'Reportes',
+  [ROUTES.adminPermissions]: 'Asignación de Permisos',
+  [ROUTES.payrollPeriodos]: 'Periodos de Nómina',
+
+  [ROUTES.payrollHoras]: 'Horas Trabajadas',
+  [ROUTES.payrollNovedades]: 'Novedades de Nómina',
+  [ROUTES.payrollPrestamos]: 'Préstamos al Personal',
+  [ROUTES.payrollConceptos]: 'Conceptos Salariales',
+  [ROUTES.payrollCargos]: 'Tarifas por Cargo',
+  [ROUTES.payrollAfiliaciones]: 'Afiliaciones a Aportes de Ley',
+  [ROUTES.payrollMisRecibos]: 'Mis Recibos de Nómina',
 };
+

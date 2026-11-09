@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { listCollapseVariants } from '../../../animations/variants';
 import { NAV_SECTIONS, ROLE_SECTION_ID } from '../../../constants';
+import { useMenuStore } from '../../../store';
 import type { UserRole } from '../../../types';
 import { cn } from '../../../utils';
 import { SidebarItem } from './SidebarItem';
@@ -15,23 +16,39 @@ export interface SidebarNavProps {
   className?: string;
 }
 
-// Navegación modular: cada grupo es un acordeón. El grupo del perfil activo se
-// abre por defecto y es el único visible en el modo colapsado (solo iconos),
-// reduciendo la carga visual del sidebar.
+// Navegación dinámica: el menú se arma desde Security/Menu/getOptions en el servidor,
+// filtrado según los perfiles activos de la sesión.
 export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }: SidebarNavProps) {
   const reduce = useReducedMotion();
-  const sections = NAV_SECTIONS.filter((section) => section.roles.includes(role));
-  const activeSectionId = ROLE_SECTION_ID[role];
+  const dynamicSections = useMenuStore((state) => state.sections);
+  const fetchMenu = useMenuStore((state) => state.fetchMenu);
+
+  useEffect(() => {
+    void fetchMenu();
+  }, [fetchMenu, role]);
+
+
+  // Si el backend ya devolvió opciones de menú, se usan esas de forma obligatoria.
+  // Si aún está cargando y no hay opciones, usamos el fallback.
+  const sections = dynamicSections.length > 0
+    ? dynamicSections
+    : NAV_SECTIONS.filter((section) => section.roles.includes(role));
+
+  const activeSectionId = dynamicSections.length > 0
+    ? dynamicSections[0]?.id
+    : ROLE_SECTION_ID[role];
 
   const [openId, setOpenId] = useState<string | null>(activeSectionId);
 
   useEffect(() => {
-    setOpenId(activeSectionId);
+    if (activeSectionId) {
+      setOpenId(activeSectionId);
+    }
   }, [activeSectionId]);
 
-  // Colapsado: solo los iconos del grupo del perfil activo, sin cabeceras.
+  // Colapsado: solo los iconos del grupo activo, sin cabeceras.
   if (collapsed) {
-    const section = sections.find((item) => item.id === activeSectionId) ?? sections[0];
+    const section = sections.find((item) => item.id === openId) ?? sections[0];
     return (
       <nav aria-label="Navegación principal" className={cn('space-y-1', className)}>
         <ul className="space-y-1">
@@ -104,3 +121,4 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
     </nav>
   );
 }
+
