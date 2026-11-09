@@ -42,6 +42,9 @@ export interface QuitarPermisoResponse {
 }
 
 export const PermissionService = {
+  listarPerfiles: () =>
+    execute<PerfilItem[]>('Security', 'User', 'listarPerfiles', []),
+
   listarMetodos: () =>
     execute<MetodoCatalogoItem[]>('Security', 'Admin', 'listarMetodos', []),
 
@@ -60,4 +63,5 @@ export const PermissionService = {
       metodoId,
     ]),
 };
+
 

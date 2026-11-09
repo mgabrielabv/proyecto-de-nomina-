@@ -20,7 +20,9 @@ import {
   AdminRegistration,
   AdminReports,
   AdminRequests,
+  PermissionsPage,
 } from '../pages/admin';
+
 import {
   PeriodsPage,
   HoursPage,
@@ -69,6 +71,7 @@ function AppRoutes() {
         <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Panel administrativo" />}>
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
+            <Route path={ROUTES.adminPermissions} element={<PermissionsPage />} />
             <Route path={ROUTES.adminEmployees} element={<AdminEmployees />} />
             <Route path={ROUTES.adminPayroll} element={<AdminPayroll />} />
             <Route path={ROUTES.adminAttendance} element={<AdminAttendance />} />
@@ -77,6 +80,7 @@ function AppRoutes() {
             <Route path={ROUTES.adminReports} element={<AdminReports />} />
           </Route>
         </Route>
+
 
         <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Registrar personas" />}>

@@ -6,3 +6,5 @@ export { AdminPayroll } from './Payroll';
 export { AdminRegistration } from './Registration';
 export { AdminReports } from './Reports';
 export { AdminRequests } from './Requests';
+export { PermissionsPage } from './PermissionsPage';
+

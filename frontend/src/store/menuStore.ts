@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { SecurityService, type MenuOption } from '../features/payroll/services';
+import { useSessionStore } from './sessionStore';
 import type { NavItem, NavSection } from '../constants';
 
 export interface DynamicNavOption extends MenuOption {
@@ -31,6 +32,7 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   MisRecibos: { path: '/payroll/mis-recibos', icon: Receipt },
   'Registrar personas': { path: '/admin/registration', icon: UserPlus },
   Registro: { path: '/admin/registration', icon: UserPlus },
+  Permisos: { path: '/admin/permissions', icon: ShieldCheck },
 };
 
 interface MenuState {
@@ -52,7 +54,24 @@ export const useMenuStore = create<MenuState>((set) => ({
     set({ loading: true, error: null });
     try {
       const rawOptions = await SecurityService.getMenuOptions();
-      const options = Array.isArray(rawOptions) ? rawOptions : [];
+      let options = Array.isArray(rawOptions) ? [...rawOptions] : [];
+
+      // La opción "Permisos" aparece en el menú solo para Superusuario
+      const user = useSessionStore.getState().user;
+      const isSuperuser = user?.profiles?.some((p) => p.nombre === 'Superusuario');
+
+      if (isSuperuser) {
+        if (!options.some((o) => o.nombre === 'Permisos')) {
+          options.push({
+            id: 9999,
+            nombre: 'Permisos',
+            descripcion: 'Asignación de permisos por método',
+            subsistema: 'Security',
+          });
+        }
+      } else {
+        options = options.filter((o) => o.nombre !== 'Permisos');
+      }
 
       // Agrupar por subsistema
       const groups = new Map<string, NavItem[]>();
@@ -92,4 +111,5 @@ export const useMenuStore = create<MenuState>((set) => ({
 
   clearMenu: () => set({ options: [], sections: [], loading: false, error: null }),
 }));
+
 

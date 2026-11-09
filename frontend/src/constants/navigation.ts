@@ -60,8 +60,10 @@ export const NAV_SECTIONS: NavSection[] = [
     roles: ['superuser'],
     items: [
       { label: 'Panel general', path: ROUTES.adminHome, icon: ShieldCheck },
+      { label: 'Permisos', path: ROUTES.adminPermissions, icon: ShieldCheck },
       { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
       { label: 'Empleados', path: ROUTES.adminEmployees, icon: Users },
+
       { label: 'Nómina', path: ROUTES.adminPayroll, icon: Wallet },
       { label: 'Asistencia', path: ROUTES.adminAttendance, icon: CalendarCheck },
       { label: 'Solicitudes', path: ROUTES.adminRequests, icon: ClipboardList },
