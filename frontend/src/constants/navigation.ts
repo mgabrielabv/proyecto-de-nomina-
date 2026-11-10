@@ -52,6 +52,7 @@ export const NAV_SECTIONS: NavSection[] = [
     roles: ['rrhh'],
     items: [
       { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
+      { label: 'Usuarios', path: ROUTES.adminUsuarios, icon: UserRound },
     ],
   },
   {
@@ -61,6 +62,8 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: 'Panel general', path: ROUTES.adminHome, icon: ShieldCheck },
       { label: 'Permisos', path: ROUTES.adminPermissions, icon: ShieldCheck },
+      { label: 'Perfiles', path: ROUTES.adminPerfiles, icon: Users },
+      { label: 'Usuarios', path: ROUTES.adminUsuarios, icon: UserRound },
       { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
       { label: 'Empleados', path: ROUTES.adminEmployees, icon: Users },
 

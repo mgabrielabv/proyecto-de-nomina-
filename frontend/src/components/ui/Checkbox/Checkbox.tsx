@@ -4,29 +4,51 @@ import { cn } from '../../../utils';
 export interface CheckboxProps {
   name: string;
   label: string;
+  description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  disabled?: boolean;
   className?: string;
 }
 
-export function Checkbox({ name, label, checked, onChange, className }: CheckboxProps) {
+export function Checkbox({
+  name,
+  label,
+  description,
+  checked,
+  onChange,
+  disabled = false,
+  className,
+}: CheckboxProps) {
   return (
-    <label htmlFor={name} className={cn('group flex cursor-pointer select-none items-center gap-2.5', className)}>
+    <label
+      htmlFor={name}
+      className={cn(
+        'group flex select-none items-start gap-2.5',
+        disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+        className,
+      )}
+    >
       <input
         id={name}
         name={name}
         type="checkbox"
         checked={checked}
+        disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}
         className="peer sr-only"
       />
       <motion.span
-        whileTap={{ scale: 0.9 }}
+        whileTap={disabled ? undefined : { scale: 0.9 }}
         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
         className={cn(
-          'grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors duration-150',
+          'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors duration-150',
           'peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface',
-          checked ? 'border-accent bg-accent' : 'border-border bg-surface-soft group-hover:border-border-strong',
+          checked
+            ? 'border-accent bg-accent'
+            : disabled
+              ? 'border-border bg-surface-soft'
+              : 'border-border bg-surface-soft group-hover:border-border-strong',
         )}
       >
         <motion.svg viewBox="0 0 12 12" className="h-3 w-3 text-accent-text" initial={false} animate={checked ? 'checked' : 'unchecked'}>
@@ -44,7 +66,12 @@ export function Checkbox({ name, label, checked, onChange, className }: Checkbox
           />
         </motion.svg>
       </motion.span>
-      <span className="text-sm text-text-secondary">{label}</span>
+      <span className="min-w-0">
+        <span className="block text-sm leading-6 text-text-secondary">{label}</span>
+        {description && (
+          <span className="block text-xs leading-relaxed text-text-muted">{description}</span>
+        )}
+      </span>
     </label>
   );
 }

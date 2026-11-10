@@ -15,6 +15,8 @@ export const ROUTES = {
   adminDepartments: '/admin/departments',
   adminReports: '/admin/reports',
   adminPermissions: '/admin/permissions',
+  adminPerfiles: '/admin/perfiles',
+  adminUsuarios: '/admin/usuarios',
   // Rutas del subsistema Payroll
 
   payrollPeriodos: '/payroll/periodos',
@@ -46,6 +48,8 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.adminDepartments]: 'Departamentos y cargos',
   [ROUTES.adminReports]: 'Reportes',
   [ROUTES.adminPermissions]: 'Asignación de Permisos',
+  [ROUTES.adminPerfiles]: 'Perfiles',
+  [ROUTES.adminUsuarios]: 'Usuarios',
   [ROUTES.payrollPeriodos]: 'Periodos de Nómina',
 
   [ROUTES.payrollHoras]: 'Horas Trabajadas',

@@ -9,7 +9,7 @@ import type { SessionUser } from '../../../types';
 // (autoriza en el servidor) y el nombre (decide el rol en el frontend). No
 // incluye email, cargo ni departamento: esos datos viven en Persona/Empleado.
 interface BackendSession {
-  userID: number;
+  userID: string; // UUID del usuario
   userName: string;
   profiles: ProfileRef[];
   debeCambiarClave: boolean;
@@ -24,7 +24,7 @@ function toSessionUser(sesion: BackendSession): SessionUser {
   const activeProfile: ProfileRef = profiles[0] ?? { id: 0, nombre: '' };
 
   return {
-    id: String(sesion.userID),
+    id: sesion.userID,
     name: sesion.userName,
     email: '',
     role: profileToRole(activeProfile.nombre),

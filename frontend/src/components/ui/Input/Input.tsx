@@ -88,6 +88,7 @@ export function Input(props: InputProps) {
           aria-describedby={error ? errorId : undefined}
           className={cn(
             'h-full w-full bg-transparent pb-1.5 pl-4 pt-6 text-[15px] text-text caret-accent outline-none placeholder:text-text-muted',
+            'disabled:cursor-not-allowed disabled:text-text-muted',
             trailing ? 'pr-12' : 'pr-4',
           )}
         />

@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   Receipt,
   UserPlus,
+  UserRound,
+  Users,
   FileText,
   type LucideIcon,
 } from 'lucide-react';
@@ -30,9 +32,12 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Cargos: { path: '/payroll/cargos', icon: Briefcase },
   Afiliaciones: { path: '/payroll/afiliaciones', icon: ShieldCheck },
   MisRecibos: { path: '/payroll/mis-recibos', icon: Receipt },
+  registrar: { path: '/admin/registration', icon: UserPlus },
   'Registrar personas': { path: '/admin/registration', icon: UserPlus },
   Registro: { path: '/admin/registration', icon: UserPlus },
   Permisos: { path: '/admin/permissions', icon: ShieldCheck },
+  Perfiles: { path: '/admin/perfiles', icon: Users },
+  Usuarios: { path: '/admin/usuarios', icon: UserRound },
 };
 
 interface MenuState {

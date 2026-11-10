@@ -7,4 +7,6 @@ export { AdminRegistration } from './Registration';
 export { AdminReports } from './Reports';
 export { AdminRequests } from './Requests';
 export { PermissionsPage } from './PermissionsPage';
+export { ProfilesPage } from './ProfilesPage';
+export { UsersPage } from './UsersPage';
 

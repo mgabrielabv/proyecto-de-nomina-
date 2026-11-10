@@ -1,5 +1,5 @@
 import { ROUTES } from '../constants';
-import type { ProfileRef, UserRole } from '../types';
+import type { ProfileRef, SessionUser, UserRole } from '../types';
 
 export function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -22,23 +22,33 @@ export function getRoleHomePath(role: UserRole): string {
   return ROUTES.payrollMisRecibos;
 }
 
-// Traduce el nombre del perfil del backend al rol del frontend.
+// Traduce el nombre del perfil del backend al rol del frontend. El backend
+// devuelve "GerenteRRHH" (y por compatibilidad "RRHH"); ambos mapean a 'rrhh'.
 export function profileToRole(nombre: string): UserRole {
   if (nombre === 'Superusuario' || nombre === 'Administrador') return 'superuser';
-  if (nombre === 'RRHH') return 'rrhh';
+  if (nombre === 'RRHH' || nombre === 'GerenteRRHH') return 'rrhh';
   return 'user';
 }
 
-// Ordena los perfiles por prioridad: Superusuario, Administrador, RRHH y luego Empleado/resto
+// Ordena los perfiles por prioridad: Superusuario, Administrador, RRHH (o
+// GerenteRRHH) y luego Empleado/resto.
 export function sortProfilesByPriority(profiles: ProfileRef[]): ProfileRef[] {
   const prioridad = (nombre: string) => {
     if (nombre === 'Superusuario') return 0;
     if (nombre === 'Administrador') return 1;
-    if (nombre === 'RRHH') return 2;
+    if (nombre === 'RRHH' || nombre === 'GerenteRRHH') return 2;
     return 3;
   };
   return [...profiles].sort((a, b) => prioridad(a.nombre) - prioridad(b.nombre) || a.id - b.id);
 }
+
+// Comprobaciones por nombre de perfil. El nombre decide qué muestra la UI;
+// el id viaja en el payload y el servidor siempre valida el permiso real.
+export const hasProfile = (user: SessionUser | null, nombre: string): boolean =>
+  Boolean(user?.profiles?.some((p) => p.nombre === nombre));
+
+export const hasAnyProfile = (user: SessionUser | null, nombres: string[]): boolean =>
+  Boolean(user?.profiles?.some((p) => nombres.includes(p.nombre)));
 
 
 export function slugify(value: string): string {

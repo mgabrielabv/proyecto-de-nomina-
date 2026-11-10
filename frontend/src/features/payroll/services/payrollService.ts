@@ -48,7 +48,7 @@ export interface PersonaItem {
   primer_apellido: string;
   segundo_apellido?: string | null;
   email?: string | null;
-  usuario_id?: number | null;
+  usuario_id?: string | null; // UUID del usuario asociado (o null si no tiene)
   username?: string | null;
   usuario_activo?: boolean | null;
   cargo?: string | null;

@@ -15,5 +15,5 @@ export {
   formatFechaLocal,
   formatDateTime,
 } from './date';
-export { getGreeting, getInitials, getRoleHomePath, profileToRole, slugify, sortProfilesByPriority } from './identity';
+export { getGreeting, getInitials, getRoleHomePath, hasAnyProfile, hasProfile, profileToRole, slugify, sortProfilesByPriority } from './identity';
 

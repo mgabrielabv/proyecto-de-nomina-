@@ -21,6 +21,8 @@ import {
   AdminReports,
   AdminRequests,
   PermissionsPage,
+  ProfilesPage,
+  UsersPage,
 } from '../pages/admin';
 
 import {
@@ -72,6 +74,7 @@ function AppRoutes() {
           <Route element={<DashboardLayout title="Panel administrativo" />}>
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
             <Route path={ROUTES.adminPermissions} element={<PermissionsPage />} />
+            <Route path={ROUTES.adminPerfiles} element={<ProfilesPage />} />
             <Route path={ROUTES.adminEmployees} element={<AdminEmployees />} />
             <Route path={ROUTES.adminPayroll} element={<AdminPayroll />} />
             <Route path={ROUTES.adminAttendance} element={<AdminAttendance />} />
@@ -85,6 +88,13 @@ function AppRoutes() {
         <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Registrar personas" />}>
             <Route path={ROUTES.adminRegistration} element={<AdminRegistration />} />
+          </Route>
+        </Route>
+
+        {/* Usuarios y asignación de perfiles (Superusuario, Administrador, GerenteRRHH) */}
+        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
+          <Route element={<DashboardLayout title="Usuarios" />}>
+            <Route path={ROUTES.adminUsuarios} element={<UsersPage />} />
           </Route>
         </Route>
       </Route>
