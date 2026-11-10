@@ -1,8 +1,6 @@
 import {
-  BarChart3,
   CalendarCheck,
   ClipboardList,
-  FolderCog,
   LayoutDashboard,
   Settings,
   ShieldCheck,
@@ -66,13 +64,8 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Usuarios', path: ROUTES.adminUsuarios, icon: UserRound },
       { label: 'Opciones', path: ROUTES.adminOpciones, icon: Settings },
       { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
-      { label: 'Empleados', path: ROUTES.adminEmployees, icon: Users },
-
-      { label: 'Nómina', path: ROUTES.adminPayroll, icon: Wallet },
-      { label: 'Asistencia', path: ROUTES.adminAttendance, icon: CalendarCheck },
-      { label: 'Solicitudes', path: ROUTES.adminRequests, icon: ClipboardList },
-      { label: 'Departamentos', path: ROUTES.adminDepartments, icon: FolderCog },
-      { label: 'Reportes', path: ROUTES.adminReports, icon: BarChart3 },
+      // La nómina real vive en el subsistema Payroll, no en la maqueta.
+      { label: 'Nómina', path: ROUTES.payrollPeriodos, icon: Wallet },
     ],
   },
 ];

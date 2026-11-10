@@ -23,6 +23,7 @@ import {
   type PermisoMetodoItem,
 } from '../../features/admin/services/permissionService';
 import type { PerfilItem } from '../../features/payroll/services';
+import { hasProfile } from '../../utils';
 import { cn } from '../../utils';
 
 export function PermissionsPage() {
@@ -31,7 +32,7 @@ export function PermissionsPage() {
 
   // Comprobar si la sesión actual tiene el perfil "Superusuario"
   const isSuperuser = useMemo(() => {
-    return Boolean(user?.profiles?.some((p) => p.nombre === 'Superusuario'));
+    return hasProfile(user, 'Superusuario');
   }, [user]);
 
   const [perfiles, setPerfiles] = useState<PerfilItem[]>([]);

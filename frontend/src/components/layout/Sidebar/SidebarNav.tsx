@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, MenuIcon, RotateCw } from 'lucide-react';
 import { listCollapseVariants } from '../../../animations/variants';
 import { NAV_SECTIONS, ROLE_SECTION_ID } from '../../../constants';
+import type { NavSection } from '../../../constants';
 import { useMenuStore } from '../../../store';
 import type { UserRole } from '../../../types';
 import { cn } from '../../../utils';
@@ -16,29 +17,42 @@ export interface SidebarNavProps {
   className?: string;
 }
 
-// Navegación dinámica: el menú se arma desde Security/Menu/getOptions en el servidor,
-// filtrado según los perfiles activos de la sesión.
+// Navegación dinámica: el menú se arma desde Security/Menu/getOptions en el
+// servidor, filtrado según los perfiles activos de la sesión. El fallback
+// estático solo se usa mientras carga la primera respuesta (para no
+// parpadear); si el backend responde vacío o con error, se muestra el estado
+// correspondiente en lugar de opciones hardcodeadas.
 export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }: SidebarNavProps) {
   const reduce = useReducedMotion();
   const dynamicSections = useMenuStore((state) => state.sections);
+  const menuLoading = useMenuStore((state) => state.loading);
+  const menuError = useMenuStore((state) => state.error);
   const fetchMenu = useMenuStore((state) => state.fetchMenu);
 
   useEffect(() => {
     void fetchMenu();
   }, [fetchMenu, role]);
 
+  const hasDynamicOptions = dynamicSections.length > 0;
 
-  // Si el backend ya devolvió opciones de menú, se usan esas de forma obligatoria.
-  // Si aún está cargando y no hay opciones, usamos el fallback.
-  const sections = dynamicSections.length > 0
+  // Estados del menú:
+  // - Cargando: fallback estático para no parpadear.
+  // - Con opciones del servidor: se usan esas, sin excepción.
+  // - Sin opciones y sin error: estado vacío (el perfil no tiene opciones).
+  // - Con error: mensaje y botón de reintento.
+  const sections: NavSection[] = hasDynamicOptions
     ? dynamicSections
-    : NAV_SECTIONS.filter((section) => section.roles.includes(role));
+    : menuLoading
+      ? NAV_SECTIONS.filter((section) => section.roles.includes(role))
+      : [];
 
-  const activeSectionId = dynamicSections.length > 0
+  const activeSectionId = hasDynamicOptions
     ? dynamicSections[0]?.id
-    : ROLE_SECTION_ID[role];
+    : menuLoading
+      ? ROLE_SECTION_ID[role]
+      : null;
 
-  const [openId, setOpenId] = useState<string | null>(activeSectionId);
+  const [openId, setOpenId] = useState<string | null>(activeSectionId ?? null);
 
   useEffect(() => {
     if (activeSectionId) {
@@ -46,8 +60,40 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
     }
   }, [activeSectionId]);
 
+  // Estado vacío / de error: nada que renderizar en el acordeón.
+  const renderEstado = (titulo: string, descripcion: string, esError: boolean) => (
+    <div className={cn('rounded-xl border p-4 text-center', className)}>
+      {esError ? (
+        <RotateCw className="mx-auto mb-2 h-5 w-5 text-error" aria-hidden />
+      ) : (
+        <MenuIcon className="mx-auto mb-2 h-5 w-5 text-text-muted" aria-hidden />
+      )}
+      <p className="text-xs font-semibold text-text">{titulo}</p>
+      <p className="mt-1 text-[11px] leading-relaxed text-text-muted">{descripcion}</p>
+      {esError && (
+        <button
+          type="button"
+          onClick={() => void fetchMenu()}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-[11px] font-medium text-text transition hover:border-border-strong hover:bg-surface"
+        >
+          <RotateCw className="h-3 w-3" />
+          Reintentar
+        </button>
+      )}
+    </div>
+  );
+
   // Colapsado: solo los iconos del grupo activo, sin cabeceras.
   if (collapsed) {
+    if (!menuLoading && !hasDynamicOptions) {
+      return renderEstado(
+        menuError ? 'Menú no disponible' : 'Sin opciones',
+        menuError
+          ? 'No se pudo cargar el menú.'
+          : 'Tu perfil no tiene opciones de menú asignadas.',
+        Boolean(menuError),
+      );
+    }
     const section = sections.find((item) => item.id === openId) ?? sections[0];
     return (
       <nav aria-label="Navegación principal" className={cn('space-y-1', className)}>
@@ -68,6 +114,42 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
 
   return (
     <nav aria-label="Navegación principal" className={cn('space-y-1', className)}>
+      <AnimatePresence initial={false}>
+        {!menuLoading && !hasDynamicOptions && (
+          <motion.div
+            key="menu-estado"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={cn('rounded-xl border p-4 text-center')}
+          >
+            {menuError ? (
+              <>
+                <RotateCw className="mx-auto mb-2 h-5 w-5 text-error" aria-hidden />
+                <p className="text-xs font-semibold text-text">Menú no disponible</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-text-muted">{menuError}</p>
+                <button
+                  type="button"
+                  onClick={() => void fetchMenu()}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-[11px] font-medium text-text transition hover:border-border-strong hover:bg-surface"
+                >
+                  <RotateCw className="h-3 w-3" />
+                  Reintentar
+                </button>
+              </>
+            ) : (
+              <>
+                <MenuIcon className="mx-auto mb-2 h-5 w-5 text-text-muted" aria-hidden />
+                <p className="text-xs font-semibold text-text">Sin opciones de menú</p>
+                <p className="mt-1 text-[11px] leading-relaxed text-text-muted">
+                  Tu perfil no tiene opciones de menú asignadas.
+                </p>
+              </>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {sections.map((section) => {
         const open = openId === section.id;
         const contentId = `sidebar-section-${section.id}`;
@@ -121,4 +203,3 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
     </nav>
   );
 }
-

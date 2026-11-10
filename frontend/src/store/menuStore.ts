@@ -12,11 +12,9 @@ import {
   UserRound,
   Users,
   SlidersHorizontal,
-  FileText,
   type LucideIcon,
 } from 'lucide-react';
 import { SecurityService, type MenuOption } from '../features/payroll/services';
-import { useSessionStore } from './sessionStore';
 import type { NavItem, NavSection } from '../constants';
 
 export interface DynamicNavOption extends MenuOption {
@@ -24,6 +22,9 @@ export interface DynamicNavOption extends MenuOption {
   icon: LucideIcon;
 }
 
+// Mapa de opciones de menú a rutas del frontend. El servidor es la fuente de
+// verdad: no se inyectan opciones que el backend no devolvió y una opción sin
+// pantalla simplemente se omite del sidebar.
 const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Periodos: { path: '/payroll/periodos', icon: CalendarCheck },
   Horas: { path: '/payroll/horas', icon: Clock },
@@ -40,6 +41,13 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Perfiles: { path: '/admin/perfiles', icon: Users },
   Usuarios: { path: '/admin/usuarios', icon: UserRound },
   Opciones: { path: '/admin/opciones', icon: SlidersHorizontal },
+};
+
+// Etiqueta visible por subsistema; el resto se muestra tal cual.
+const SUBSISTEMA_LABEL: Record<string, string> = {
+  Payroll: 'Nómina',
+  Security: 'Seguridad',
+  Session: 'Sesión',
 };
 
 interface MenuState {
@@ -61,34 +69,22 @@ export const useMenuStore = create<MenuState>((set) => ({
     set({ loading: true, error: null });
     try {
       const rawOptions = await SecurityService.getMenuOptions();
-      let options = Array.isArray(rawOptions) ? [...rawOptions] : [];
+      const options = Array.isArray(rawOptions) ? [...rawOptions] : [];
 
-      // La opción "Permisos" aparece en el menú solo para Superusuario
-      const user = useSessionStore.getState().user;
-      const isSuperuser = user?.profiles?.some((p) => p.nombre === 'Superusuario');
-
-      if (isSuperuser) {
-        if (!options.some((o) => o.nombre === 'Permisos')) {
-          options.push({
-            id: 9999,
-            nombre: 'Permisos',
-            descripcion: 'Asignación de permisos por método',
-            subsistema: 'Security',
-          });
-        }
-      } else {
-        options = options.filter((o) => o.nombre !== 'Permisos');
-      }
-
-      // Agrupar por subsistema
+      // Agrupar por subsistema conservando el orden de llegada: el backend ya
+      // devuelve las opciones filtradas por los perfiles de la sesión y
+      // ordenadas por subsistema y orden. Las opciones sin ruta conocida se
+      // omiten (existen en la BD pero no tienen pantalla en el frontend).
       const groups = new Map<string, NavItem[]>();
+      const ignoradas: string[] = [];
 
       options.forEach((opt) => {
-        const config = MENU_ROUTE_MAP[opt.nombre] ?? {
-          path: `/payroll/${opt.nombre.toLowerCase()}`,
-          icon: FileText,
-        };
-        const subsistema = opt.subsistema || 'Nómina';
+        const config = MENU_ROUTE_MAP[opt.nombre];
+        if (!config) {
+          ignoradas.push(opt.nombre);
+          return;
+        }
+        const subsistema = opt.subsistema || 'Otros';
         const items = groups.get(subsistema) ?? [];
         items.push({
           label: opt.nombre,
@@ -98,25 +94,30 @@ export const useMenuStore = create<MenuState>((set) => ({
         groups.set(subsistema, items);
       });
 
+      if (ignoradas.length > 0) {
+        console.warn(
+          '[menu] Opciones sin ruta en el frontend, se omiten del sidebar:',
+          ignoradas.join(', '),
+        );
+      }
+
       const sections: NavSection[] = Array.from(groups.entries()).map(([sub, items], idx) => ({
         id: `subsystem-${idx}-${sub.toLowerCase()}`,
-        label: sub === 'Payroll' ? 'Nómina' : sub,
+        label: SUBSISTEMA_LABEL[sub] ?? sub,
         items,
         roles: ['user', 'rrhh', 'superuser'],
       }));
 
       set({ options, sections, loading: false });
-    } catch (err: any) {
+    } catch (err) {
       set({
         options: [],
         sections: [],
         loading: false,
-        error: err?.message ?? 'No se pudo cargar el menú',
+        error: err instanceof Error ? err.message : 'No se pudo cargar el menú',
       });
     }
   },
 
   clearMenu: () => set({ options: [], sections: [], loading: false, error: null }),
 }));
-
-
