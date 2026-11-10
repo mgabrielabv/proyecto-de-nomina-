@@ -410,7 +410,7 @@ export function PeriodsPage() {
             name="frecuencia"
             label="Frecuencia"
             value={frecuencia}
-            onChange={(val) => setFrecuencia(val as any)}
+            onChange={(val) => setFrecuencia(val as 'SEMANAL' | 'QUINCENAL' | 'MENSUAL')}
             options={[
               { value: 'QUINCENAL', label: 'Quincenal' },
               { value: 'MENSUAL', label: 'Mensual' },
@@ -582,7 +582,7 @@ export function PeriodsPage() {
             name="metodoPago"
             label="Método de pago"
             value={metodoPago}
-            onChange={(val) => setMetodoPago(val as any)}
+            onChange={(val) => setMetodoPago(val as 'TRANSFERENCIA' | 'PAGO_MOVIL' | 'EFECTIVO' | 'CHEQUE')}
             options={[
               { value: 'TRANSFERENCIA', label: 'Transferencia bancaria' },
               { value: 'PAGO_MOVIL', label: 'Pago móvil' },

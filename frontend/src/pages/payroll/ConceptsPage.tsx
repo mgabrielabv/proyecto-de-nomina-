@@ -339,7 +339,7 @@ export function ConceptsPage() {
         <Tabs
           layoutId="conceptos-tabs"
           value={tab}
-          onChange={(val) => setTab(val as any)}
+          onChange={(val) => setTab(val as 'catalogo' | 'recurrentes')}
           items={[
             { value: 'catalogo', label: 'Catálogo de conceptos' },
             { value: 'recurrentes', label: 'Conceptos recurrentes por empleado' },
@@ -449,7 +449,7 @@ export function ConceptsPage() {
             name="tipoValor"
             label="Tipo de cálculo"
             value={tipoValor}
-            onChange={(val) => setTipoValor(val as any)}
+            onChange={(val) => setTipoValor(val as 'MONTO_FIJO' | 'PORCENTAJE_SALARIO')}
             options={[
               { value: 'MONTO_FIJO', label: 'Monto fijo' },
               { value: 'PORCENTAJE_SALARIO', label: 'Porcentaje de salario' },
