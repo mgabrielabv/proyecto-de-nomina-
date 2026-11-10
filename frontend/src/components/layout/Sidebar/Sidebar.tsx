@@ -31,7 +31,10 @@ export function Sidebar({ collapsed, variant = 'desktop' }: SidebarProps) {
         <BrandMark collapsed={collapsed && variant === 'desktop'} />
       </div>
 
-      <div className="sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
+      {/* El nav posee su propio scroll: los paneles se deslizan dentro de un
+          viewport recortado (overflow: hidden), así que el padding y el
+          scroll viven en cada panel, no acá. */}
+      <div className="min-h-0 flex-1">
         <SidebarNav
           role={user.role}
           collapsed={isCollapsed}

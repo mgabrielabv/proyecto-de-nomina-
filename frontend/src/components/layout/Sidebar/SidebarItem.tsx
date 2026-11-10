@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import type { NavItem } from '../../../constants';
 import { cn } from '../../../utils';
 
@@ -8,9 +9,12 @@ export interface SidebarItemProps {
   collapsed: boolean;
   layoutId: string;
   onNavigate?: () => void;
+  /** Variantes heredadas del panel para la entrada escalonada de las filas;
+      sin ella la fila no participa en la animación del panel. */
+  rowVariants?: Variants;
 }
 
-export function SidebarItem({ item, collapsed, layoutId, onNavigate }: SidebarItemProps) {
+export function SidebarItem({ item, collapsed, layoutId, onNavigate, rowVariants }: SidebarItemProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const reduce = useReducedMotion();
@@ -27,6 +31,7 @@ export function SidebarItem({ item, collapsed, layoutId, onNavigate }: SidebarIt
       <motion.button
         type="button"
         onClick={handleClick}
+        variants={rowVariants}
         aria-current={active ? 'page' : undefined}
         aria-label={collapsed ? item.label : undefined}
         title={collapsed ? item.label : undefined}
