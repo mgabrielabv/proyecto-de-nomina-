@@ -20,6 +20,7 @@ import {
   AdminRegistration,
   AdminReports,
   AdminRequests,
+  OptionsPage,
   PermissionsPage,
   ProfilesPage,
   UsersPage,
@@ -75,6 +76,7 @@ function AppRoutes() {
             <Route path={ROUTES.adminHome} element={<AdminDashboard />} />
             <Route path={ROUTES.adminPermissions} element={<PermissionsPage />} />
             <Route path={ROUTES.adminPerfiles} element={<ProfilesPage />} />
+            <Route path={ROUTES.adminOpciones} element={<OptionsPage />} />
             <Route path={ROUTES.adminEmployees} element={<AdminEmployees />} />
             <Route path={ROUTES.adminPayroll} element={<AdminPayroll />} />
             <Route path={ROUTES.adminAttendance} element={<AdminAttendance />} />

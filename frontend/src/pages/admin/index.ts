@@ -9,4 +9,5 @@ export { AdminRequests } from './Requests';
 export { PermissionsPage } from './PermissionsPage';
 export { ProfilesPage } from './ProfilesPage';
 export { UsersPage } from './UsersPage';
+export { OptionsPage } from './OptionsPage';
 

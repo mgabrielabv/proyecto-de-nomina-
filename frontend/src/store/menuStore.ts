@@ -11,6 +11,7 @@ import {
   UserPlus,
   UserRound,
   Users,
+  SlidersHorizontal,
   FileText,
   type LucideIcon,
 } from 'lucide-react';
@@ -38,6 +39,7 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Permisos: { path: '/admin/permissions', icon: ShieldCheck },
   Perfiles: { path: '/admin/perfiles', icon: Users },
   Usuarios: { path: '/admin/usuarios', icon: UserRound },
+  Opciones: { path: '/admin/opciones', icon: SlidersHorizontal },
 };
 
 interface MenuState {

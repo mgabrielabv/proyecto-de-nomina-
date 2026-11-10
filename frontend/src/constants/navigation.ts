@@ -64,6 +64,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: 'Permisos', path: ROUTES.adminPermissions, icon: ShieldCheck },
       { label: 'Perfiles', path: ROUTES.adminPerfiles, icon: Users },
       { label: 'Usuarios', path: ROUTES.adminUsuarios, icon: UserRound },
+      { label: 'Opciones', path: ROUTES.adminOpciones, icon: Settings },
       { label: 'Registrar personas', path: ROUTES.adminRegistration, icon: UserPlus },
       { label: 'Empleados', path: ROUTES.adminEmployees, icon: Users },
 

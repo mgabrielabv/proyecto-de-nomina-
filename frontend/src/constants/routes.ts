@@ -17,6 +17,7 @@ export const ROUTES = {
   adminPermissions: '/admin/permissions',
   adminPerfiles: '/admin/perfiles',
   adminUsuarios: '/admin/usuarios',
+  adminOpciones: '/admin/opciones',
   // Rutas del subsistema Payroll
 
   payrollPeriodos: '/payroll/periodos',
@@ -50,6 +51,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.adminPermissions]: 'Asignación de Permisos',
   [ROUTES.adminPerfiles]: 'Perfiles',
   [ROUTES.adminUsuarios]: 'Usuarios',
+  [ROUTES.adminOpciones]: 'Opciones de menú',
   [ROUTES.payrollPeriodos]: 'Periodos de Nómina',
 
   [ROUTES.payrollHoras]: 'Horas Trabajadas',
