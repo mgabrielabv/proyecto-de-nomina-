@@ -20,9 +20,13 @@ import {
   type Afiliacion,
   type PersonaItem,
 } from '../../features/payroll/services';
-import { formatFechaLocal } from '../../utils';
+import { formatFechaLocal, toISODate } from '../../utils';
+import { AFILIACION_ESTADO_LABEL, AFILIACION_ESTADO_TONE, type AfiliacionEstado } from '../../constants';
 
 
+// TODO(Anexo D): el backend aún no expone un método para listar tipo_aporte_ley
+// (código, nombre, entidad). Se mantienen los cuatro tipos documentados con sus
+// ids conocidos; cuando exista el catálogo, este selector debe alimentarse de él.
 const TIPOS_APORTE = [
   { value: '1', label: '1 - SSO (Seguro Social Obligatorio)' },
   { value: '2', label: '2 - Paro Forzoso (Régimen Prestacional de Empleo)' },
@@ -43,14 +47,14 @@ export function AffiliationsPage() {
   const [tipoAporteId, setTipoAporteId] = useState('1');
   const [nroAfiliacion, setNroAfiliacion] = useState('');
   const [fechaInscripcion, setFechaInscripcion] = useState(
-    new Date().toISOString().slice(0, 10),
+    toISODate(new Date()),
   );
   const [createError, setCreateError] = useState<string | null>(null);
 
   // Modal Dar de Baja
   const [bajaId, setBajaId] = useState<string | null>(null);
   const [fechaBaja, setFechaBaja] = useState(
-    new Date().toISOString().slice(0, 10),
+    toISODate(new Date()),
   );
 
   const pushToast = useToastStore((s) => s.push);
@@ -189,11 +193,14 @@ export function AffiliationsPage() {
     {
       key: 'estado',
       header: 'Estado',
-      render: (row) => (
-        <Badge tone={row.estado === 'ACTIVO' ? 'success' : 'error'}>
-          {row.estado}
-        </Badge>
-      ),
+      render: (row) => {
+        const estado = row.estado as AfiliacionEstado;
+        return (
+          <Badge tone={AFILIACION_ESTADO_TONE[estado] ?? 'neutral'} dot>
+            {AFILIACION_ESTADO_LABEL[estado] ?? row.estado}
+          </Badge>
+        );
+      },
       sortValue: (row) => row.estado,
     },
     {

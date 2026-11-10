@@ -15,6 +15,12 @@ import {
   type LineaReciboDetalle,
 } from '../../features/payroll/services';
 import { formatMoney, formatFechaLocal } from '../../utils';
+import {
+  RECIBO_ESTADO_LABEL,
+  RECIBO_ESTADO_TONE,
+  FRECUENCIA_LABEL,
+  METODO_PAGO_LABEL,
+} from '../../constants';
 
 
 export function MyReceiptsPage() {
@@ -69,7 +75,9 @@ export function MyReceiptsPage() {
           <p className="font-semibold text-text">
             {formatFechaLocal(row.fecha_inicio)} — {formatFechaLocal(row.fecha_fin)}
           </p>
-          <span className="text-xs text-text-muted">{row.frecuencia || 'Nómina regular'}</span>
+          <span className="text-xs text-text-muted">
+            {(row.frecuencia && FRECUENCIA_LABEL[row.frecuencia as keyof typeof FRECUENCIA_LABEL]) || 'Nómina regular'}
+          </span>
         </div>
       ),
       sortValue: (row) => row.fecha_inicio || '',
@@ -119,8 +127,8 @@ export function MyReceiptsPage() {
       key: 'estado',
       header: 'Estado',
       render: (row) => (
-        <Badge tone={row.estado === 'PAGADO' ? 'success' : 'warning'}>
-          {row.estado}
+        <Badge tone={RECIBO_ESTADO_TONE[row.estado] ?? 'neutral'}>
+          {RECIBO_ESTADO_LABEL[row.estado] ?? row.estado}
         </Badge>
       ),
       sortValue: (row) => row.estado,
@@ -203,8 +211,8 @@ export function MyReceiptsPage() {
               <div>
                 <span className="text-[11px] font-semibold text-text-muted uppercase">Estado</span>
                 <p className="mt-0.5 text-sm font-medium text-text">
-                  <Badge tone={selectedReceipt.estado === 'PAGADO' ? 'success' : 'warning'}>
-                    {selectedReceipt.estado}
+                  <Badge tone={RECIBO_ESTADO_TONE[selectedReceipt.estado] ?? 'neutral'}>
+                    {RECIBO_ESTADO_LABEL[selectedReceipt.estado] ?? selectedReceipt.estado}
                   </Badge>
                 </p>
               </div>
@@ -223,7 +231,10 @@ export function MyReceiptsPage() {
               <div>
                 <span className="text-[11px] font-semibold text-text-muted uppercase">Método / Ref</span>
                 <p className="mt-0.5 text-sm font-medium text-text">
-                  {selectedReceipt.metodo_pago || '—'} {selectedReceipt.referencia_pago ? `(${selectedReceipt.referencia_pago})` : ''}
+                  {selectedReceipt.metodo_pago
+                    ? METODO_PAGO_LABEL[selectedReceipt.metodo_pago as keyof typeof METODO_PAGO_LABEL] ?? selectedReceipt.metodo_pago
+                    : '—'}{' '}
+                  {selectedReceipt.referencia_pago ? `(${selectedReceipt.referencia_pago})` : ''}
                 </p>
               </div>
             </div>

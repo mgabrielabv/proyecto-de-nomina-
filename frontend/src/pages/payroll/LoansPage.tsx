@@ -23,7 +23,8 @@ import {
   type PersonaItem,
   type LoanSaldoResult,
 } from '../../features/payroll/services';
-import { formatMoney, formatFechaLocal } from '../../utils';
+import { formatMoney, formatFechaLocal, toISODate } from '../../utils';
+import { PRESTAMO_ESTADO_LABEL, PRESTAMO_ESTADO_TONE } from '../../constants';
 
 
 export function LoansPage() {
@@ -38,7 +39,7 @@ export function LoansPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [targetPersonaId, setTargetPersonaId] = useState('');
   const [fechaOtorgamiento, setFechaOtorgamiento] = useState(
-    new Date().toISOString().slice(0, 10),
+    toISODate(new Date()),
   );
   const [montoTotal, setMontoTotal] = useState('');
   const [nroCuotas, setNroCuotas] = useState('12');
@@ -239,15 +240,11 @@ export function LoansPage() {
     {
       key: 'estado',
       header: 'Estado',
-      render: (row) => {
-        const tones = {
-          SOLICITADO: 'warning',
-          ACTIVO: 'success',
-          PAGADO: 'neutral',
-          ANULADO: 'error',
-        } as const;
-        return <Badge tone={tones[row.estado] ?? 'neutral'}>{row.estado}</Badge>;
-      },
+      render: (row) => (
+        <Badge tone={PRESTAMO_ESTADO_TONE[row.estado] ?? 'neutral'}>
+          {PRESTAMO_ESTADO_LABEL[row.estado] ?? row.estado}
+        </Badge>
+      ),
       sortValue: (row) => row.estado,
     },
     {
@@ -529,7 +526,7 @@ export function LoansPage() {
         open={Boolean(anularId)}
         onClose={() => setAnularId(null)}
         title="¿Anular préstamo?"
-        description="Solo es posible anular préstamos en estado SOLICITADO o ACTIVO que no tengan cuotas descontadas en recibos pagados."
+        description="Solo es posible anular préstamos en estado Solicitado o Activo que no tengan cuotas descontadas en recibos pagados."
         size="sm"
         footer={
           <>
@@ -548,7 +545,7 @@ export function LoansPage() {
         }
       >
         <p className="text-sm text-text-secondary">
-          El estado del préstamo cambiará a <strong>ANULADO</strong>.
+          El estado del préstamo cambiará a <strong>Anulado</strong>.
         </p>
       </Modal>
     </div>

@@ -179,7 +179,7 @@ export function PermissionsPage() {
       if (isEditingOwnProfile) {
         pushToast(
           'Atención: Has revocado un permiso de tu propio perfil. Tus siguientes llamadas a este método darán 403.',
-          'warning' as any,
+          'info',
         );
       }
     } catch (err: any) {

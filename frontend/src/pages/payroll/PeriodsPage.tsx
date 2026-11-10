@@ -22,7 +22,27 @@ import {
   type ReciboItem,
   type ReciboResumen,
 } from '../../features/payroll/services';
-import { formatMoney, formatFechaLocal, formatDateTime } from '../../utils';
+import {
+  formatMoney,
+  formatFechaLocal,
+  formatDateTime,
+  toISODate,
+} from '../../utils';
+import {
+  FRECUENCIA_LABEL,
+  PERIODO_ESTADO_LABEL,
+  PERIODO_ESTADO_TONE,
+  RECIBO_ESTADO_LABEL,
+  RECIBO_ESTADO_TONE,
+  type PeriodoEstado,
+  type ReciboEstado,
+} from '../../constants';
+
+// Los DECIMAL del backend llegan como texto: sumar en céntimos con enteros y
+// dividir solo al mostrar. Nunca `+= Number(...)` sobre strings de dinero.
+const aCentavos = (valor: string | null | undefined): number =>
+  Math.round(Number(valor ?? 0) * 100);
+const deCentavos = (centavos: number): number => centavos / 100;
 
 
 export function PeriodsPage() {
@@ -46,7 +66,7 @@ export function PeriodsPage() {
 
   // Modal Pagar Periodo
   const [payOpen, setPayOpen] = useState(false);
-  const [fechaPago, setFechaPago] = useState(new Date().toISOString().slice(0, 10));
+  const [fechaPago, setFechaPago] = useState(toISODate(new Date()));
   const [metodoPago, setMetodoPago] = useState<'TRANSFERENCIA' | 'PAGO_MOVIL' | 'EFECTIVO' | 'CHEQUE'>('TRANSFERENCIA');
   const [referenciaPago, setReferenciaPago] = useState('');
   const [payError, setPayError] = useState<string | null>(null);
@@ -125,23 +145,23 @@ export function PeriodsPage() {
       const res = await PeriodService.procesar(selectedPeriod.id);
       pushToast('Nómina procesada exitosamente', 'success');
 
-      // Calcular resumen
+      // Calcular resumen. El dinero llega como texto decimal: se suma en
+      // céntimos con enteros y se divide solo para mostrar.
       const recibos: ReciboResumen[] = res.recibos ?? [];
-      let totalAsig = 0;
-      let totalDed = 0;
-      let totalNet = 0;
+      let centAsig = 0;
+      let centDed = 0;
+      let centNet = 0;
       recibos.forEach((r: ReciboResumen) => {
-        totalAsig += Number(r.total_asignaciones || 0);
-        totalDed += Number(r.total_deducciones || 0);
-        totalNet += Number(r.monto_total || 0);
+        centAsig += aCentavos(r.total_asignaciones);
+        centDed += aCentavos(r.total_deducciones);
+        centNet += aCentavos(r.monto_total);
       });
-
 
       setProcessSummary({
         recibosCount: recibos.length,
-        totalAsignaciones: totalAsig,
-        totalDeducciones: totalDed,
-        montoTotal: totalNet,
+        totalAsignaciones: deCentavos(centAsig),
+        totalDeducciones: deCentavos(centDed),
+        montoTotal: deCentavos(centNet),
       });
 
       await loadPeriods();
@@ -165,6 +185,9 @@ export function PeriodsPage() {
         fechaPago,
         metodoPago,
         referenciaPago || null,
+        // Sin catálogo de cuentas bancarias todavía: null hace que el backend
+        // use la cuenta principal activa. Ver Anexo D del prompt.
+        null,
       );
       pushToast(`Periodo pagado con éxito (${res.recibosPagados} recibos actualizados)`, 'success');
       setPayOpen(false);
@@ -197,7 +220,11 @@ export function PeriodsPage() {
     {
       key: 'frecuencia',
       header: 'Frecuencia',
-      render: (row) => <span className="font-semibold text-text">{row.frecuencia}</span>,
+      render: (row) => (
+        <span className="font-semibold text-text">
+          {FRECUENCIA_LABEL[row.frecuencia] ?? row.frecuencia}
+        </span>
+      ),
       sortValue: (row) => row.frecuencia,
     },
     {
@@ -221,14 +248,10 @@ export function PeriodsPage() {
       key: 'estado',
       header: 'Estado',
       render: (row) => {
-        const tones = {
-          BORRADOR: 'neutral',
-          PROCESADO: 'warning',
-          PAGADO: 'success',
-        } as const;
+        const estado = row.estado as PeriodoEstado;
         return (
-          <Badge tone={tones[row.estado] ?? 'neutral'}>
-            {row.estado}
+          <Badge tone={PERIODO_ESTADO_TONE[estado] ?? 'neutral'}>
+            {PERIODO_ESTADO_LABEL[estado] ?? row.estado}
           </Badge>
         );
       },
@@ -309,11 +332,14 @@ export function PeriodsPage() {
     {
       key: 'estado',
       header: 'Estado',
-      render: (row) => (
-        <Badge tone={row.estado === 'PAGADO' ? 'success' : 'neutral'}>
-          {row.estado}
-        </Badge>
-      ),
+      render: (row) => {
+        const estado = row.estado as ReciboEstado;
+        return (
+          <Badge tone={RECIBO_ESTADO_TONE[estado] ?? 'neutral'}>
+            {RECIBO_ESTADO_LABEL[estado] ?? row.estado}
+          </Badge>
+        );
+      },
     },
   ];
 
@@ -435,14 +461,14 @@ export function PeriodsPage() {
               <span className="text-xs text-text-muted">Estado actual:</span>
               <Badge
                 tone={
-                  selectedPeriod?.estado === 'PAGADO'
-                    ? 'success'
-                    : selectedPeriod?.estado === 'PROCESADO'
-                    ? 'warning'
+                  selectedPeriod
+                    ? PERIODO_ESTADO_TONE[selectedPeriod.estado as PeriodoEstado] ?? 'neutral'
                     : 'neutral'
                 }
               >
-                {selectedPeriod?.estado}
+                {selectedPeriod
+                  ? PERIODO_ESTADO_LABEL[selectedPeriod.estado as PeriodoEstado] ?? selectedPeriod.estado
+                  : '—'}
               </Badge>
             </div>
 

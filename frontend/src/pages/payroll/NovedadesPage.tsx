@@ -25,7 +25,14 @@ import {
   type PersonaItem,
   type ConceptoCatalogo,
 } from '../../features/payroll/services';
-import { formatMoney, formatFechaLocal } from '../../utils';
+import { formatMoney, formatFechaLocal, toISODate } from '../../utils';
+import {
+  NOVEDAD_ESTADO_LABEL,
+  NOVEDAD_ESTADO_TONE,
+  FRECUENCIA_LABEL,
+  PERIODO_ESTADO_LABEL,
+  TIPO_CONCEPTO_LABEL,
+} from '../../constants';
 
 
 export function NovedadesPage() {
@@ -45,7 +52,7 @@ export function NovedadesPage() {
   const [tipoInput, setTipoInput] = useState<'monto' | 'cantidad'>('monto');
   const [monto, setMonto] = useState('');
   const [cantidad, setCantidad] = useState('');
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const [fecha, setFecha] = useState(toISODate(new Date()));
   const [observacion, setObservacion] = useState('');
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -204,7 +211,7 @@ export function NovedadesPage() {
           <p className="font-medium text-text">
             [{row.codigo}] {row.nombre_concepto}
           </p>
-          <span className="text-xs text-text-muted">{row.tipo_concepto}</span>
+          <span className="text-xs text-text-muted">{TIPO_CONCEPTO_LABEL[row.tipo_concepto] ?? row.tipo_concepto}</span>
         </div>
       ),
       sortValue: (row) => row.nombre_concepto,
@@ -245,15 +252,11 @@ export function NovedadesPage() {
     {
       key: 'estado',
       header: 'Estado',
-      render: (row) => {
-        const tones = {
-          PENDIENTE: 'warning',
-          APROBADA: 'success',
-          RECHAZADA: 'error',
-          APLICADA: 'neutral',
-        } as const;
-        return <Badge tone={tones[row.estado] ?? 'neutral'}>{row.estado}</Badge>;
-      },
+      render: (row) => (
+        <Badge tone={NOVEDAD_ESTADO_TONE[row.estado] ?? 'neutral'}>
+          {NOVEDAD_ESTADO_LABEL[row.estado] ?? row.estado}
+        </Badge>
+      ),
       sortValue: (row) => row.estado,
     },
 
@@ -302,7 +305,7 @@ export function NovedadesPage() {
 
   const periodOptions = periods.map((p) => ({
     value: p.id,
-    label: `${p.frecuencia} (${formatFechaLocal(p.fecha_inicio)} — ${formatFechaLocal(p.fecha_fin)}) [${p.estado}]`,
+    label: `${FRECUENCIA_LABEL[p.frecuencia] ?? p.frecuencia} (${formatFechaLocal(p.fecha_inicio)} — ${formatFechaLocal(p.fecha_fin)}) · ${PERIODO_ESTADO_LABEL[p.estado] ?? p.estado}`,
   }));
 
   const personaOptions = personas.map((per) => ({
@@ -312,7 +315,7 @@ export function NovedadesPage() {
 
   const conceptOptions = concepts.map((c) => ({
     value: String(c.id),
-    label: `[${c.codigo}] ${c.nombre_concepto} (${c.tipo_concepto})`,
+    label: `[${c.codigo}] ${c.nombre_concepto} (${TIPO_CONCEPTO_LABEL[c.tipo_concepto] ?? c.tipo_concepto})`,
   }));
 
   return (
@@ -377,7 +380,7 @@ export function NovedadesPage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         title="Registrar novedad en periodo"
-        description="Solo se pueden registrar novedades en periodos con estado BORRADOR."
+        description="Solo se pueden registrar novedades en periodos con estado Borrador."
         size="md"
         footer={
           <>

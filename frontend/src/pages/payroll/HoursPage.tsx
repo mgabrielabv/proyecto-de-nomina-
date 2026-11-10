@@ -17,7 +17,8 @@ import {
   type PeriodoNomina,
   type PersonaItem,
 } from '../../features/payroll/services';
-import { formatFechaLocal, formatDateTime } from '../../utils';
+import { formatFechaLocal, formatDateTime, toISODate } from '../../utils';
+import { FRECUENCIA_LABEL, PERIODO_ESTADO_LABEL } from '../../constants';
 
 
 export function HoursPage() {
@@ -31,7 +32,7 @@ export function HoursPage() {
   // Modal Registrar Horas
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedPersonaId, setSelectedPersonaId] = useState('');
-  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
+  const [fecha, setFecha] = useState(toISODate(new Date()));
   const [horasNormales, setHorasNormales] = useState('8');
   const [horasExtra, setHorasExtra] = useState('0');
   const [observacion, setObservacion] = useState('');
@@ -235,7 +236,7 @@ export function HoursPage() {
 
   const periodOptions = periods.map((p) => ({
     value: p.id,
-    label: `${p.frecuencia} (${formatFechaLocal(p.fecha_inicio)} — ${formatFechaLocal(p.fecha_fin)}) [${p.estado}]`,
+    label: `${FRECUENCIA_LABEL[p.frecuencia] ?? p.frecuencia} (${formatFechaLocal(p.fecha_inicio)} — ${formatFechaLocal(p.fecha_fin)}) · ${PERIODO_ESTADO_LABEL[p.estado] ?? p.estado}`,
   }));
 
   const personaOptions = personas.map((per) => ({

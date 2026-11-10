@@ -24,7 +24,12 @@ import {
   type ConceptoRecurrenteDetalle,
   type PersonaItem,
 } from '../../features/payroll/services';
-import { formatMoney, formatFechaLocal } from '../../utils';
+import { formatMoney, formatFechaLocal, toISODate } from '../../utils';
+import {
+  TIPO_CONCEPTO_LABEL,
+  TIPO_CONCEPTO_TONE,
+  TIPO_VALOR_LABEL,
+} from '../../constants';
 
 
 export function ConceptsPage() {
@@ -44,7 +49,7 @@ export function ConceptsPage() {
   const [tipoValor, setTipoValor] = useState<'MONTO_FIJO' | 'PORCENTAJE_SALARIO'>('MONTO_FIJO');
   const [valor, setValor] = useState('');
   const [vigenteDesde, setVigenteDesde] = useState(
-    new Date().toISOString().slice(0, 10),
+    toISODate(new Date()),
   );
   const [vigenteHasta, setVigenteHasta] = useState('');
   const [observacion, setObservacion] = useState('');
@@ -53,7 +58,7 @@ export function ConceptsPage() {
   // Modal Cerrar Vigencia
   const [quitarId, setQuitarId] = useState<string | null>(null);
   const [fechaHastaCierre, setFechaHastaCierre] = useState(
-    new Date().toISOString().slice(0, 10),
+    toISODate(new Date()),
   );
 
   const pushToast = useToastStore((s) => s.push);
@@ -182,14 +187,11 @@ export function ConceptsPage() {
     {
       key: 'tipo_concepto',
       header: 'Tipo',
-      render: (row) => {
-        const tones = {
-          ASIGNACION: 'success',
-          DEDUCCION: 'error',
-          APORTE_PATRONAL: 'warning',
-        } as const;
-        return <Badge tone={tones[row.tipo_concepto] ?? 'neutral'}>{row.tipo_concepto}</Badge>;
-      },
+      render: (row) => (
+        <Badge tone={TIPO_CONCEPTO_TONE[row.tipo_concepto] ?? 'neutral'}>
+          {TIPO_CONCEPTO_LABEL[row.tipo_concepto] ?? row.tipo_concepto}
+        </Badge>
+      ),
       sortValue: (row) => row.tipo_concepto,
     },
 
@@ -235,7 +237,7 @@ export function ConceptsPage() {
           <p className="font-medium text-text">
             [{row.codigo}] {row.nombre_concepto}
           </p>
-          <span className="text-xs text-text-muted">{row.tipo_concepto}</span>
+          <span className="text-xs text-text-muted">{TIPO_CONCEPTO_LABEL[row.tipo_concepto] ?? row.tipo_concepto}</span>
         </div>
       ),
       sortValue: (row) => row.nombre_concepto,
@@ -245,7 +247,7 @@ export function ConceptsPage() {
       header: 'Modalidad',
       render: (row) => (
         <span className="text-xs text-text-secondary">
-          {row.tipo_valor === 'PORCENTAJE_SALARIO' ? 'Porcentaje de salario' : 'Monto fijo'}
+          {TIPO_VALOR_LABEL[row.tipo_valor] ?? row.tipo_valor}
         </span>
       ),
     },
@@ -314,7 +316,7 @@ export function ConceptsPage() {
 
   const conceptOptions = catalogo.map((c) => ({
     value: String(c.id),
-    label: `[${c.codigo}] ${c.nombre_concepto} (${c.tipo_concepto})`,
+    label: `[${c.codigo}] ${c.nombre_concepto} (${TIPO_CONCEPTO_LABEL[c.tipo_concepto] ?? c.tipo_concepto})`,
   }));
 
   return (
