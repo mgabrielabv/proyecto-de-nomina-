@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
@@ -6,17 +6,24 @@ import { ChevronLeft, ChevronRight, MenuIcon, RotateCw } from 'lucide-react';
 import { EASE_SIDEBAR, NAV_SECTIONS } from '../../../constants';
 import type { NavSection } from '../../../constants';
 import { useMenuStore } from '../../../store';
-import type { UserRole } from '../../../types';
 import { cn } from '../../../utils';
 import { SidebarItem } from './SidebarItem';
 
 export interface SidebarNavProps {
-  role: UserRole;
+  perfilId: number;
   collapsed: boolean;
   layoutId: string;
   onNavigate?: () => void;
   className?: string;
 }
+
+// Fallback estático que se dibuja solo mientras llega la primera respuesta del
+// servidor. Es el bloque común a todo usuario autenticado ("Mi espacio"): no
+// incluye opciones de Seguridad ni de Nómina, porque el menú real depende del
+// perfil activo y lo decide el backend.
+const FALLBACK_SECTIONS: NavSection[] = NAV_SECTIONS.filter(
+  (section) => section.id === 'personal',
+);
 
 // Desplazamiento del panel al entrar/salir: corto (24-32px) y combinado con
 // fade, no el ancho completo del sidebar.
@@ -66,40 +73,45 @@ const rowVariantsFor = (index: number, reduce: boolean): Variants => ({
 });
 
 // Navegación por paneles con deslizamiento. El menú se arma desde
-// Security/Menu/getOptions en el servidor, filtrado según los perfiles
-// activos de la sesión. El primer subsistema (Nómina) es el panel principal;
-// los siguientes (Seguridad) se alcanzan desde el enlace de cambio anclado
-// abajo. El encabezado de cada panel dice dónde está el usuario y el enlace
-// inferior dice a dónde puede ir; ambos conviven con el logo y el bloque de
-// usuario, que son fijos y no se animan. El fallback estático solo se usa
-// mientras carga la primera respuesta (para no parpadear); si el backend
-// responde vacío o con error, se muestra el estado correspondiente en lugar
-// de opciones hardcodeadas.
-export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }: SidebarNavProps) {
+// Security/Menu/getOptions en el servidor, filtrado según el perfil activo
+// del usuario. El primer subsistema (Nómina) es el panel principal; los
+// siguientes (Seguridad) se alcanzan desde el enlace de cambio anclado abajo.
+// El encabezado de cada panel dice dónde está el usuario y el enlace inferior
+// dice a dónde puede ir; ambos conviven con el logo y el bloque de usuario,
+// que son fijos y no se animan. El fallback estático solo se usa mientras
+// carga la primera respuesta (para no parpadear); si el backend responde
+// vacío o con error, se muestra el estado correspondiente en lugar de
+// opciones hardcodeadas.
+export function SidebarNav({ perfilId, collapsed, layoutId, onNavigate, className }: SidebarNavProps) {
   const location = useLocation();
   // useReducedMotion devuelve boolean | null; null significa "sin
   // preferencia declarada", que se trata como movimiento permitido.
   const reduce = useReducedMotion() ?? false;
   const dynamicSections = useMenuStore((state) => state.sections);
+  const menuPerfilId = useMenuStore((state) => state.perfilId);
   const menuLoading = useMenuStore((state) => state.loading);
   const menuError = useMenuStore((state) => state.error);
   const fetchMenu = useMenuStore((state) => state.fetchMenu);
 
   useEffect(() => {
-    void fetchMenu();
-  }, [fetchMenu, role]);
+    void fetchMenu(perfilId);
+  }, [fetchMenu, perfilId]);
 
-  const hasDynamicOptions = dynamicSections.length > 0;
+  const hasDynamicOptions = menuPerfilId === perfilId && dynamicSections.length > 0;
+  // Al cambiar de perfil, entre el render y el efecto que pide el menú hay un
+  // instante en que las secciones todavía son del perfil anterior. Se trata
+  // como "cargando" para mostrar el fallback genérico en vez del estado vacío.
+  const menuPending = menuLoading || menuPerfilId !== perfilId;
 
   // Estados del menú:
-  // - Cargando: fallback estático para no parpadear.
+  // - Cargando (o cambio de perfil en curso): fallback genérico para no parpadear.
   // - Con opciones del servidor: se usan esas, sin excepción.
-  // - Sin opciones y sin error: estado vacío (el perfil no tiene opciones).
+  // - Sin opciones: estado vacío (el perfil no tiene opciones).
   // - Con error: mensaje y botón de reintento.
   const sections: NavSection[] = hasDynamicOptions
     ? dynamicSections
-    : menuLoading
-      ? NAV_SECTIONS.filter((section) => section.roles.includes(role))
+    : menuPending
+      ? FALLBACK_SECTIONS
       : [];
 
   // Panel activo: 0 es el principal (Nómina), los siguientes son los
@@ -110,10 +122,17 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
   // disparado por el usuario: la carga inicial y la llegada del menú se
   // dibujan en su posición final, sin animación.
   const [canAnimate, setCanAnimate] = useState(false);
+  const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   // El índice visible siempre queda dentro del rango de secciones actuales:
   // el fallback de carga puede tener más paneles que el menú real.
   const activeIndexShown = sections.length > 0 ? Math.min(activeIndex, sections.length - 1) : 0;
+
+  useEffect(() => {
+    panelRefs.current.forEach((panel, index) => {
+      if (panel) panel.inert = index !== activeIndexShown;
+    });
+  }, [activeIndexShown, sections.length]);
 
   // Cambio de panel por interacción (enlace de cambio o Escape).
   const goToPanel = (index: number) => {
@@ -155,7 +174,7 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
       {esError && (
         <button
           type="button"
-          onClick={() => void fetchMenu()}
+          onClick={() => void fetchMenu(perfilId, true)}
           className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-[11px] font-medium text-text transition hover:border-border-strong hover:bg-surface"
         >
           <RotateCw className="h-3 w-3" />
@@ -168,7 +187,7 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
   // Colapsado: solo los iconos del panel activo, sin encabezado ni enlace de
   // cambio (para cambiar de panel hay que expandir).
   if (collapsed) {
-    if (!menuLoading && !hasDynamicOptions) {
+    if (!menuPending && sections.length === 0) {
       return (
         <nav
           aria-label="Navegación principal"
@@ -204,7 +223,7 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
   }
 
   // Sin secciones (y sin carga en curso): estado vacío o de error.
-  if (!menuLoading && !hasDynamicOptions) {
+  if (!menuPending && sections.length === 0) {
     return (
       <nav
         aria-label="Navegación principal"
@@ -234,19 +253,18 @@ export function SidebarNav({ role, collapsed, layoutId, onNavigate, className }:
 
           return (
             <motion.div
-              key={`panel-${index}`}
+              key={section.id}
               initial={false}
               animate={state}
               variants={panelVariants(reduce)}
               transition={canAnimate ? { duration: PANEL_DURATION, ease: EASE_SIDEBAR } : { duration: 0 }}
-              aria-hidden={hidden || undefined}
-              // React 18 no tipa el atributo booleano inert en JSX: se
-              // asigna como propiedad del DOM para que el panel oculto no
-              // reciba foco, clics ni lectores de pantalla.
               ref={(el) => {
-                if (el) el.inert = hidden;
+                panelRefs.current[index] = el;
               }}
-              className="absolute inset-0 flex flex-col"
+              className={cn(
+                'absolute inset-0 flex flex-col',
+                hidden ? 'pointer-events-none' : 'pointer-events-auto',
+              )}
             >
               {/* Encabezado de sección: dónde estoy. No es interactivo; misma
                   altura y posición en todos los paneles y hace crossfade

@@ -71,9 +71,10 @@ function AppRoutes() {
           </Route>
         </Route>
 
-        {/* Horas extras: exclusivo de Superusuario. Administrador comparte el
-            rol 'superuser', por eso la pantalla además valida por nombre. */}
-        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.payrollMisRecibos} />}>
+        {/* Horas extras: Superusuario y RRHH. Administrador comparte el rol
+            'superuser', por eso la pantalla además valida por nombre de
+            perfil; el backend igualmente valida el permiso del método. */}
+        <Route element={<RoleRoute allow={['superuser', 'rrhh']} fallback={ROUTES.payrollMisRecibos} />}>
           <Route element={<DashboardLayout title="Nómina" />}>
             <Route path={ROUTES.payrollHorasExtras} element={<OvertimePage />} />
           </Route>

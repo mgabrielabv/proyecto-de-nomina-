@@ -7,9 +7,10 @@ import { SidebarNav } from './SidebarNav';
 export interface SidebarProps {
   collapsed: boolean;
   variant?: 'desktop' | 'mobile';
+  onNavigate?: () => void;
 }
 
-export function Sidebar({ collapsed, variant = 'desktop' }: SidebarProps) {
+export function Sidebar({ collapsed, variant = 'desktop', onNavigate }: SidebarProps) {
   const user = useSessionStore((state) => state.user);
 
   if (!user) return null;
@@ -36,9 +37,10 @@ export function Sidebar({ collapsed, variant = 'desktop' }: SidebarProps) {
           scroll viven en cada panel, no acá. */}
       <div className="min-h-0 flex-1">
         <SidebarNav
-          role={user.role}
+          perfilId={user.activeProfile.id}
           collapsed={isCollapsed}
           layoutId={layoutId}
+          onNavigate={onNavigate}
         />
       </div>
 

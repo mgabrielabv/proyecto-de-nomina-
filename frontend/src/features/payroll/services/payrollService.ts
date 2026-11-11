@@ -529,8 +529,13 @@ export const ReceiptService = {
  * ============================================================================== */
 
 export const SecurityService = {
-  getMenuOptions: () =>
-    execute<MenuOption[]>('Security', 'Menu', 'getOptions', []),
+  getMenuOptions: (perfilId?: number) =>
+    execute<MenuOption[]>(
+      'Security',
+      'Menu',
+      'getOptions',
+      perfilId === undefined ? [] : [perfilId],
+    ),
 
   listarPersonas: () =>
     execute<PersonaItem[]>('Security', 'User', 'listarPersonas', []),

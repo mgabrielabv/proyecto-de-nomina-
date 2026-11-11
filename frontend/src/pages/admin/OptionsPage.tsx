@@ -45,6 +45,15 @@ const ORDEN_MAX = 32767;
 export function OptionsPage() {
   const user = useSessionStore((state) => state.user);
   const pushToast = useToastStore((s) => s.push);
+  const activePerfilId = user?.activeProfile.id;
+
+  // El sidebar se pide por perfil activo, no por rol. Refresca la caché de
+  // ese perfil cuando la administración cambia sus opciones.
+  const refrescarMenu = () => {
+    if (activePerfilId !== undefined) {
+      void useMenuStore.getState().fetchMenu(activePerfilId, true);
+    }
+  };
 
   // Pantalla exclusiva de Superusuario (el rol 'superuser' también lo cumple
   // Administrador, por eso la comprobación es por nombre de perfil).
@@ -245,7 +254,7 @@ export function OptionsPage() {
       cerrarModal();
       await loadCatalogo();
       // El nombre cambió en el menú: refrescar el sidebar en caliente.
-      void useMenuStore.getState().fetchMenu();
+      refrescarMenu();
     } catch (err) {
       // 409 (nombre repetido / renombrar protegida): junto al campo.
       const message = err instanceof Error ? err.message : 'Error al editar la opción';
@@ -268,7 +277,7 @@ export function OptionsPage() {
       setOpcionDesactivar(null);
       await loadCatalogo();
       // El menú de los usuarios cambia en caliente.
-      void useMenuStore.getState().fetchMenu();
+      refrescarMenu();
     } catch (err) {
       // 409 (opción protegida): mensaje del backend tal cual.
       const message = err instanceof Error ? err.message : 'Error al cambiar el estado de la opción';
@@ -302,7 +311,7 @@ export function OptionsPage() {
       );
       setQuitarPendiente(null);
       // Si afectó el menú del propio usuario, refrescar el sidebar.
-      void useMenuStore.getState().fetchMenu();
+      refrescarMenu();
       // Contadores de la tabla del catálogo: recarga para consistencia.
       void loadCatalogo();
     } catch (err) {
@@ -340,7 +349,7 @@ export function OptionsPage() {
             }
           : prev,
       );
-      if (esPerfilPropio) void useMenuStore.getState().fetchMenu();
+      if (esPerfilPropio) refrescarMenu();
       void loadCatalogo();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Error al asignar la opción';

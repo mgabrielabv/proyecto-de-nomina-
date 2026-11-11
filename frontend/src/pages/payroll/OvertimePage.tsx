@@ -17,16 +17,16 @@ import {
   type PeriodoNomina,
   type PersonaItem,
 } from '../../features/payroll/services';
-import { formatFechaLocal, formatDateTime, hasProfile, toISODate } from '../../utils';
+import { formatFechaLocal, formatDateTime, hasAnyProfile, toISODate } from '../../utils';
 import { FRECUENCIA_LABEL, PERIODO_ESTADO_LABEL } from '../../constants';
 
-// Pantalla exclusiva de Superusuario. Administrador comparte el rol
-// 'superuser' en el frontend, así que la comprobación fina es por nombre de
-// perfil; el backend igualmente valida el permiso real del método.
+// Pantalla de Superusuario y RRHH. Administrador comparte el rol 'superuser'
+// en el frontend, así que la comprobación fina es por nombre de perfil; el
+// backend igualmente valida el permiso real del método.
 export function OvertimePage() {
   const user = useSessionStore((state) => state.user);
   const pushToast = useToastStore((s) => s.push);
-  const esSuperusuario = hasProfile(user, 'Superusuario');
+  const puedeGestionarExtras = hasAnyProfile(user, ['Superusuario', 'RRHH', 'GerenteRRHH']);
 
   const [periods, setPeriods] = useState<PeriodoNomina[]>([]);
   const [personas, setPersonas] = useState<PersonaItem[]>([]);
@@ -48,7 +48,7 @@ export function OvertimePage() {
   const [quitarRegistro, setQuitarRegistro] = useState<RegistroHorasPeriodo | null>(null);
 
   useEffect(() => {
-    if (!esSuperusuario) {
+    if (!puedeGestionarExtras) {
       setLoading(false);
       return;
     }
@@ -79,7 +79,7 @@ export function OvertimePage() {
     return () => {
       active = false;
     };
-  }, [esSuperusuario, pushToast]);
+  }, [puedeGestionarExtras, pushToast]);
 
   const loadExtras = async (periodoId: string) => {
     if (!periodoId) {
@@ -98,11 +98,11 @@ export function OvertimePage() {
   };
 
   useEffect(() => {
-    if (!esSuperusuario) return;
+    if (!puedeGestionarExtras) return;
     if (selectedPeriodId) {
       void loadExtras(selectedPeriodId);
     }
-  }, [selectedPeriodId, esSuperusuario]);
+  }, [selectedPeriodId, puedeGestionarExtras]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,7 +237,7 @@ export function OvertimePage() {
     },
   ];
 
-  if (!esSuperusuario) {
+  if (!puedeGestionarExtras) {
     return (
       <div className="space-y-6">
         <PageHeader title="Horas Extras" description="Acceso restringido." />
@@ -245,8 +245,9 @@ export function OvertimePage() {
           <ShieldAlert className="mx-auto h-12 w-12 text-error" />
           <h2 className="mt-4 text-xl font-bold text-text">Acceso Restringido</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
-            Esta pantalla es de uso exclusivo para el perfil <strong>Superusuario</strong>.
-            Las horas normales se registran desde la pantalla <strong>Horas</strong>.
+            Esta pantalla es de uso exclusivo para los perfiles <strong>Superusuario</strong> y{' '}
+            <strong>RRHH</strong>. Las horas normales se registran desde la pantalla{' '}
+            <strong>Horas</strong>.
           </p>
         </div>
       </div>
