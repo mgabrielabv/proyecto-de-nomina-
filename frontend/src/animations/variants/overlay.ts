@@ -9,7 +9,9 @@ export const overlayVariants: Variants = {
 
 export const modalVariants: Variants = {
   hidden: { opacity: 0, scale: 0.94, y: 18, filter: 'blur(10px)' },
-  show: { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 320, damping: 28 } },
+  // Tween, no spring: un spring sobre filter puede sobrepasar 0 y generar
+  // keyframes inválidos (blur(-0.05px)) que rompen la animación del modal.
+  show: { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.32, ease: EASE_OUT } },
   exit: { opacity: 0, scale: 0.96, y: 10, filter: 'blur(8px)', transition: { duration: 0.2, ease: 'easeIn' } },
 };
 

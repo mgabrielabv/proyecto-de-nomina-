@@ -3,7 +3,9 @@ import { EASE_OUT } from '../../constants';
 
 export const toastVariants: Variants = {
   hidden: { opacity: 0, y: -24, scale: 0.94, filter: 'blur(8px)' },
-  show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { type: 'spring', stiffness: 380, damping: 28 } },
+  // Tween, no spring: un spring sobre filter puede sobrepasar 0 y generar
+  // keyframes inválidos (blur(-0.05px)) que rompen la animación del toast.
+  show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { duration: 0.3, ease: EASE_OUT } },
   exit: { opacity: 0, x: 40, scale: 0.96, transition: { duration: 0.2, ease: 'easeIn' } },
 };
 

@@ -30,21 +30,21 @@ export function Input(props: InputProps) {
   const errorId = `${name}-error`;
 
   useEffect(() => {
-    if (error && error !== previousError.current) {
+    // Solo la sacudida es imperativa; se dispara después del montaje para no
+    // romper con el ciclo de StrictMode (controls.start antes de montar lanza).
+    if (error && error !== previousError.current && !reduce) {
       void controls.start('shake');
     }
     previousError.current = error ?? null;
-  }, [error, controls]);
+  }, [error, controls, reduce]);
 
   const handleFocus = () => {
     setFocused(true);
-    if (!reduce) void controls.start('rest');
   };
 
   const handleBlur = () => {
     setFocused(false);
     onBlurField?.();
-    if (!reduce) void controls.start('rest');
   };
 
   return (
