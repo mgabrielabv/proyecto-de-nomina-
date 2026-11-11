@@ -313,6 +313,25 @@ export const HoursService = {
 
   eliminar: (id: string) =>
     execute<{ ok: boolean; id: string }>('Payroll', 'Hours', 'eliminar', [id]),
+
+  registrarExtra: (
+    personaId: string,
+    fecha: string,
+    horasExtra: number,
+    observacion: string | null = null,
+  ) =>
+    execute<RegistroHoras>('Payroll', 'Hours', 'registrarExtra', [
+      personaId,
+      fecha,
+      horasExtra,
+      observacion,
+    ]),
+
+  listarExtrasPorPeriodo: (periodoId: string) =>
+    execute<RegistroHorasPeriodo[]>('Payroll', 'Hours', 'listarExtrasPorPeriodo', [periodoId]),
+
+  quitarExtra: (id: string) =>
+    execute<{ ok: boolean; id: string; eliminado: boolean }>('Payroll', 'Hours', 'quitarExtra', [id]),
 };
 
 export const AffiliationService = {

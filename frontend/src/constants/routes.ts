@@ -22,6 +22,7 @@ export const ROUTES = {
 
   payrollPeriodos: '/payroll/periodos',
   payrollHoras: '/payroll/horas',
+  payrollHorasExtras: '/payroll/horas-extras',
   payrollNovedades: '/payroll/novedades',
   payrollPrestamos: '/payroll/prestamos',
   payrollConceptos: '/payroll/conceptos',
@@ -55,6 +56,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.payrollPeriodos]: 'Periodos de Nómina',
 
   [ROUTES.payrollHoras]: 'Horas Trabajadas',
+  [ROUTES.payrollHorasExtras]: 'Horas Extras',
   [ROUTES.payrollNovedades]: 'Novedades de Nómina',
   [ROUTES.payrollPrestamos]: 'Préstamos al Personal',
   [ROUTES.payrollConceptos]: 'Conceptos Salariales',

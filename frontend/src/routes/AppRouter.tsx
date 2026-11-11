@@ -29,6 +29,7 @@ import {
 import {
   PeriodsPage,
   HoursPage,
+  OvertimePage,
   NovedadesPage,
   LoansPage,
   ConceptsPage,
@@ -67,6 +68,14 @@ function AppRoutes() {
             <Route path={ROUTES.payrollConceptos} element={<ConceptsPage />} />
             <Route path={ROUTES.payrollCargos} element={<CargosPage />} />
             <Route path={ROUTES.payrollAfiliaciones} element={<AffiliationsPage />} />
+          </Route>
+        </Route>
+
+        {/* Horas extras: exclusivo de Superusuario. Administrador comparte el
+            rol 'superuser', por eso la pantalla además valida por nombre. */}
+        <Route element={<RoleRoute allow={['superuser']} fallback={ROUTES.payrollMisRecibos} />}>
+          <Route element={<DashboardLayout title="Nómina" />}>
+            <Route path={ROUTES.payrollHorasExtras} element={<OvertimePage />} />
           </Route>
         </Route>
 

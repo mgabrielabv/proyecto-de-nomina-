@@ -28,6 +28,7 @@ export interface DynamicNavOption extends MenuOption {
 const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Periodos: { path: '/payroll/periodos', icon: CalendarCheck },
   Horas: { path: '/payroll/horas', icon: Clock },
+  HorasExtras: { path: '/payroll/horas-extras', icon: Clock },
   Novedades: { path: '/payroll/novedades', icon: ClipboardList },
   Prestamos: { path: '/payroll/prestamos', icon: PiggyBank },
   Conceptos: { path: '/payroll/conceptos', icon: Layers },
