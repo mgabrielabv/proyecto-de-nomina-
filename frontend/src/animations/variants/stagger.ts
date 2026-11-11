@@ -9,12 +9,12 @@ export function staggerContainer(staggerChildren = 0.06, delayChildren = 0): Var
 }
 
 export const fadeUpItem: Variants = {
-  hidden: { opacity: 0, y: 14, filter: 'blur(6px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.5, ease: EASE_OUT } },
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE_OUT } },
 };
 
 export const fadeSwapVariants: Variants = {
-  hidden: { opacity: 0, y: 8, filter: 'blur(4px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.3, ease: EASE_OUT } },
-  exit: { opacity: 0, y: -8, filter: 'blur(4px)', transition: { duration: 0.18, ease: 'easeIn' } },
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE_OUT } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.18, ease: 'easeIn' } },
 };

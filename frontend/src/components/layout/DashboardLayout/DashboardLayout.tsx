@@ -68,7 +68,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
       </motion.div>
 
       <Drawer open={drawerOpen && isMobile} title="Menú" onClose={() => setDrawerOpen(false)} side="left" width="280px">
-        <Sidebar collapsed={false} variant="mobile" />
+        <Sidebar collapsed={false} variant="mobile" onNavigate={() => setDrawerOpen(false)} />
       </Drawer>
     </div>
   );
