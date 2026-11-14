@@ -455,6 +455,10 @@ const auditFields = (pageLabel) => {
     if (label && placeholder && !floated && !value) {
       issues.push('placeholder visible con la etiqueta en reposo (se superponen)');
     }
+    const isDateOrTime = ['date', 'time', 'datetime-local', 'month', 'week'].includes(type);
+    if (label && isDateOrTime && !floated) {
+      issues.push('campo de fecha con etiqueta en reposo (se superpone con la máscara nativa del navegador)');
+    }
     if (!aria && !placeholder) {
       issues.push('sin nombre accesible ni placeholder');
     }

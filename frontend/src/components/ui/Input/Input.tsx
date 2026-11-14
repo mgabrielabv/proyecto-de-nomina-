@@ -26,7 +26,20 @@ export function Input(props: InputProps) {
   const controls = useAnimationControls();
   const [focused, setFocused] = useState(false);
   const previousError = useRef<string | null | undefined>(null);
-  const floated = focused || value.length > 0;
+  // Los tipos de fecha y hora nativos del navegador siempre muestran una
+  // máscara (p. ej. mm/dd/yyyy o --:--) o indicador de calendario aun cuando
+  // el campo esté vacío y sin foco. Para evitar que la etiqueta quede
+  // dibujada en reposo encima de esa máscara, la etiqueta debe permanecer
+  // siempre en la posición superior flotante.
+  const isDateOrTimeType = [
+    'date',
+    'time',
+    'datetime-local',
+    'month',
+    'week',
+  ].includes(restProps.type ?? '');
+  const hasValue = Boolean(value && String(value).length > 0);
+  const floated = isDateOrTimeType || focused || hasValue;
   const errorId = `${name}-error`;
 
   useEffect(() => {
@@ -87,8 +100,9 @@ export function Input(props: InputProps) {
           // La etiqueta flotante ocupa el centro del campo cuando está en
           // reposo. El placeholder solo puede aparecer cuando la etiqueta ya
           // subió (foco o valor), de lo contrario ambos textos se dibujan en
-          // la misma línea y se vuelven ilegibles.
-          placeholder={floated ? restProps.placeholder : undefined}
+          // la misma línea y se vuelven ilegibles. En campos de fecha/hora,
+          // la máscara nativa del navegador sustituye cualquier placeholder.
+          placeholder={floated && !isDateOrTimeType ? restProps.placeholder : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
