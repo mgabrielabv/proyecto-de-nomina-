@@ -84,10 +84,15 @@ export function Input(props: InputProps) {
           onChange={(event) => onChange(event.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          // La etiqueta flotante ocupa el centro del campo cuando está en
+          // reposo. El placeholder solo puede aparecer cuando la etiqueta ya
+          // subió (foco o valor), de lo contrario ambos textos se dibujan en
+          // la misma línea y se vuelven ilegibles.
+          placeholder={floated ? restProps.placeholder : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            'h-full w-full bg-transparent pb-1.5 pl-4 pt-6 text-[15px] text-text caret-accent outline-none placeholder:text-text-muted',
+            'h-full w-full truncate bg-transparent pb-1.5 pl-4 pt-6 text-[15px] text-text caret-accent outline-none placeholder:text-text-secondary placeholder:text-ellipsis',
             'disabled:cursor-not-allowed disabled:text-text-muted',
             trailing ? 'pr-12' : 'pr-4',
           )}

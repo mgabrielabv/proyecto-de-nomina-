@@ -191,6 +191,7 @@ export function SidebarNav({ perfilId, collapsed, layoutId, onNavigate, classNam
       return (
         <nav
           aria-label="Navegación principal"
+          aria-busy={menuPending}
           className={cn('sidebar-scroll h-full overflow-y-auto px-3 py-4', className)}
         >
           {renderEstado(
@@ -205,6 +206,7 @@ export function SidebarNav({ perfilId, collapsed, layoutId, onNavigate, classNam
     return (
       <nav
         aria-label="Navegación principal"
+        aria-busy={menuPending}
         className={cn('sidebar-scroll h-full overflow-y-auto px-3 py-4', className)}
       >
         <ul className="space-y-1">
@@ -227,6 +229,7 @@ export function SidebarNav({ perfilId, collapsed, layoutId, onNavigate, classNam
     return (
       <nav
         aria-label="Navegación principal"
+        aria-busy={menuPending}
         className={cn('sidebar-scroll h-full overflow-y-auto px-3 py-4', className)}
       >
         {renderEstado(
@@ -242,7 +245,11 @@ export function SidebarNav({ perfilId, collapsed, layoutId, onNavigate, classNam
     'flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-text-muted transition-colors duration-200 hover:bg-surface-soft hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface';
 
   return (
-    <nav aria-label="Navegación principal" className={cn('flex h-full min-h-0 flex-col', className)}>
+    <nav
+      aria-label="Navegación principal"
+      aria-busy={menuPending}
+      className={cn('flex h-full min-h-0 flex-col', className)}
+    >
       {/* Viewport de los paneles: altura estable (flex-1 + overflow hidden),
           así el contenedor no salta aunque un panel tenga menos filas que el
           otro. Recorta los paneles inactivos mientras se deslizan. */}

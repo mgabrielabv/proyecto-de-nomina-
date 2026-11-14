@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ShieldAlert,
-  Search,
   RotateCw,
   AlertTriangle,
   Lock,
@@ -12,10 +11,11 @@ import {
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AsyncError } from '../../components/ui/AsyncError';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
-import { Input } from '../../components/ui/Input';
+import { SearchInput } from '../../components/ui/Input/SearchInput';
 import { Select } from '../../components/ui/Select';
 import { useSessionStore, useToastStore } from '../../store';
 import {
@@ -37,6 +37,8 @@ export function PermissionsPage() {
 
   const [loadingPerfiles, setLoadingPerfiles] = useState(true);
   const [loadingMetodos, setLoadingMetodos] = useState(false);
+  const [errorPerfiles, setErrorPerfiles] = useState<string | null>(null);
+  const [errorMetodos, setErrorMetodos] = useState<string | null>(null);
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
 
   // Buscador
@@ -61,44 +63,46 @@ export function PermissionsPage() {
   }, [selectedPerfilId, user]);
 
   // Cargar lista de perfiles al montar (solo si es Superusuario)
+  const loadPerfiles = async () => {
+    setLoadingPerfiles(true);
+    setErrorPerfiles(null);
+    try {
+      const perfilesList = await PermissionService.listarPerfiles();
+      const validList = Array.isArray(perfilesList) ? perfilesList : [];
+      setPerfiles(validList);
+      if (validList.length > 0) {
+        setSelectedPerfilId(validList[0].id);
+      }
+    } catch (err: any) {
+      const message = err?.message ?? 'Error al cargar perfiles';
+      setErrorPerfiles(message);
+      pushToast(message, 'error');
+    } finally {
+      setLoadingPerfiles(false);
+    }
+  };
+
   useEffect(() => {
     if (!isSuperuser) {
       setLoadingPerfiles(false);
       return;
     }
-
-    let active = true;
-    void (async () => {
-      setLoadingPerfiles(true);
-      try {
-        const perfilesList = await PermissionService.listarPerfiles();
-        if (!active) return;
-        const validList = Array.isArray(perfilesList) ? perfilesList : [];
-        setPerfiles(validList);
-        if (validList.length > 0) {
-          setSelectedPerfilId(validList[0].id);
-        }
-      } catch (err: any) {
-        pushToast(err?.message ?? 'Error al cargar perfiles', 'error');
-      } finally {
-        if (active) setLoadingPerfiles(false);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [isSuperuser, pushToast]);
+    void loadPerfiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuperuser]);
 
   // Cargar catálogo de métodos y permisos cada vez que cambia el perfil seleccionado
   const loadPermisos = async (perfilId: number) => {
     setLoadingMetodos(true);
+    setErrorMetodos(null);
     setMetodos([]); // descartar estado anterior
     try {
       const res = await PermissionService.listarPermisosMetodo(perfilId);
       setMetodos(res.metodos ?? []);
     } catch (err: any) {
-      pushToast(err?.message ?? 'Error al cargar permisos del perfil', 'error');
+      const message = err?.message ?? 'Error al cargar permisos del perfil';
+      setErrorMetodos(message);
+      pushToast(message, 'error');
       if (err?.status === 404) {
         // Recargar la lista de perfiles si el perfil no existe
         const perfilesList = await PermissionService.listarPerfiles();
@@ -275,6 +279,13 @@ export function PermissionsPage() {
       />
 
 
+      {errorPerfiles && !loadingPerfiles ? (
+        <AsyncError
+          message={errorPerfiles}
+          onRetry={() => void loadPerfiles()}
+          retrying={loadingPerfiles}
+        />
+      ) : (
       <motion.div
         variants={staggerContainer(0.05)}
         initial="hidden"
@@ -299,15 +310,16 @@ export function PermissionsPage() {
             />
           </div>
 
-          {/* Buscador de métodos */}
+          {/* Buscador de métodos: sin etiqueta visible; el nombre accesible va
+              en aria-label y el placeholder solo describe el filtro. */}
           <div className="lg:col-span-7">
-            <Input
+            <SearchInput
               name="search"
-              label="Buscar métodos"
-              placeholder="Filtrar por subsistema, clase, método o descripción..."
+              ariaLabel="Buscar métodos"
+              placeholder="Buscar por subsistema, clase o método..."
               value={searchQuery}
               onChange={(val) => setSearchQuery(val)}
-              trailing={<Search className="h-4 w-4 text-text-muted" />}
+              size="md"
             />
           </div>
         </motion.div>
@@ -350,7 +362,15 @@ export function PermissionsPage() {
         </motion.div>
 
         {/* Catálogo agrupado por SUBSISTEMA > CLASE > METODOS */}
-        {loadingMetodos ? (
+        {errorMetodos && !loadingMetodos ? (
+          <AsyncError
+            message={errorMetodos}
+            onRetry={() => {
+              if (selectedPerfilId) void loadPermisos(selectedPerfilId);
+            }}
+            retrying={loadingMetodos}
+          />
+        ) : loadingMetodos ? (
           <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-surface-soft text-text-muted">
             <RotateCw className="h-7 w-7 animate-spin text-accent" />
             <p className="text-sm">Cargando catálogo de permisos...</p>
@@ -491,6 +511,7 @@ export function PermissionsPage() {
           </div>
         )}
       </motion.div>
+      )}
 
       {/* Modal de confirmación para desmarcar (revocar) permiso */}
       <Modal

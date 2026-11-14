@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Search, ShieldAlert, UserCog, UserPlus } from 'lucide-react';
+import { ShieldAlert, UserCog, UserPlus } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AsyncError } from '../../components/ui/AsyncError';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
 import { Modal } from '../../components/ui/Modal';
-import { Input } from '../../components/ui/Input';
+import { SearchInput } from '../../components/ui/Input/SearchInput';
 import { Checkbox } from '../../components/ui/Checkbox';
 import { useSessionStore, useToastStore } from '../../store';
 import {
@@ -39,6 +40,7 @@ export function UsersPage() {
   const [personas, setPersonas] = useState<PersonaItem[]>([]);
   const [perfilesPorUsuario, setPerfilesPorUsuario] = useState<Record<string, PerfilAsignado[]>>({});
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState('');
 
   // Modal de gestión de perfiles
@@ -51,45 +53,44 @@ export function UsersPage() {
   const [modalBusy, setModalBusy] = useState(false);
   const [confirmarGuardar, setConfirmarGuardar] = useState(false);
 
+  const loadPersonas = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const personasList = await ProfileAdminService.listarPersonas();
+      // UsersPage administra usuarios: se excluyen las personas sin usuario.
+      const conUsuario = (personasList ?? []).filter((p) => Boolean(p.usuario_id));
+      setPersonas(conUsuario);
+
+      // Perfiles actuales por usuario (solo si la sesión puede listarlos).
+      if (puedeListarPerfiles && conUsuario.length > 0) {
+        const resultados = await Promise.allSettled(
+          conUsuario.map((p) => ProfileAdminService.listarPerfilesUsuario(p.usuario_id as string)),
+        );
+        const mapa: Record<string, PerfilAsignado[]> = {};
+        resultados.forEach((resultado, index) => {
+          const usuarioId = conUsuario[index].usuario_id;
+          if (resultado.status === 'fulfilled' && usuarioId) {
+            mapa[usuarioId] = resultado.value.perfiles ?? [];
+          }
+        });
+        setPerfilesPorUsuario(mapa);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error al cargar usuarios';
+      setError(message);
+      pushToast(message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!puedeVer) {
       setLoading(false);
       return;
     }
-    let active = true;
-    void (async () => {
-      setLoading(true);
-      try {
-        const personasList = await ProfileAdminService.listarPersonas();
-        if (!active) return;
-        // UsersPage administra usuarios: se excluyen las personas sin usuario.
-        const conUsuario = (personasList ?? []).filter((p) => Boolean(p.usuario_id));
-        setPersonas(conUsuario);
-
-        // Perfiles actuales por usuario (solo si la sesión puede listarlos).
-        if (puedeListarPerfiles && conUsuario.length > 0) {
-          const resultados = await Promise.allSettled(
-            conUsuario.map((p) => ProfileAdminService.listarPerfilesUsuario(p.usuario_id as string)),
-          );
-          if (!active) return;
-          const mapa: Record<string, PerfilAsignado[]> = {};
-          resultados.forEach((resultado, index) => {
-            const usuarioId = conUsuario[index].usuario_id;
-            if (resultado.status === 'fulfilled' && usuarioId) {
-              mapa[usuarioId] = resultado.value.perfiles ?? [];
-            }
-          });
-          setPerfilesPorUsuario(mapa);
-        }
-      } catch (err) {
-        pushToast(err instanceof Error ? err.message : 'Error al cargar usuarios', 'error');
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => {
-      active = false;
-    };
+    void loadPersonas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [puedeVer, puedeListarPerfiles]);
 
@@ -359,30 +360,34 @@ export function UsersPage() {
       >
         <motion.div variants={fadeUpItem}>
           <div className="max-w-md">
-            <Input
+            <SearchInput
               name="buscarUsuario"
-              label="Buscar usuario"
+              ariaLabel="Buscar usuario"
               placeholder="Cédula, nombre o username..."
               value={busqueda}
               onChange={(val) => setBusqueda(val)}
-              trailing={<Search className="h-4 w-4 text-text-muted" />}
+              size="md"
             />
           </div>
         </motion.div>
 
         <motion.div variants={fadeUpItem}>
-          <ResponsiveTable
-            columns={columns}
-            rows={personasFiltradas}
-            rowKey={(r) => r.id}
-            caption="Personas con usuario registrado"
-            loading={loading}
-            emptyMessage={
-              personas.length === 0
-                ? 'No hay personas con usuario registrado.'
-                : 'Ningún usuario coincide con la búsqueda.'
-            }
-          />
+          {error && !loading ? (
+            <AsyncError message={error} onRetry={() => void loadPersonas()} retrying={loading} />
+          ) : (
+            <ResponsiveTable
+              columns={columns}
+              rows={personasFiltradas}
+              rowKey={(r) => r.id}
+              caption="Personas con usuario registrado"
+              loading={loading}
+              emptyMessage={
+                personas.length === 0
+                  ? 'No hay personas con usuario registrado.'
+                  : 'Ningún usuario coincide con la búsqueda.'
+              }
+            />
+          )}
         </motion.div>
       </motion.div>
 

@@ -83,12 +83,14 @@ export function Topbar({ title, description, sidebarCollapsed = false, onToggleS
           </button>
           <input
             type="search"
+            id="topbar-busqueda"
+            name="busquedaGlobal"
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Buscar en la plataforma"
             aria-label="Búsqueda"
             className={cn(
-              'h-9 w-full rounded-lg border border-border bg-surface-soft px-3 text-sm text-text outline-none transition-all duration-200 placeholder:text-text-muted focus:border-accent focus:shadow-input-focus lg:pl-9',
+              'h-9 w-full rounded-lg border border-border bg-surface-soft px-3 text-sm text-text outline-none transition-all duration-200 placeholder:text-text-secondary focus:border-accent focus:shadow-input-focus lg:pl-9',
               expandedSearch ? 'pl-9' : 'hidden lg:block',
             )}
           />

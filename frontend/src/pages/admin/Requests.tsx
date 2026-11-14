@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { SearchInput } from '../../components/ui/Input/SearchInput';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Tabs } from '../../components/ui/Tabs';
@@ -156,15 +156,13 @@ export function AdminRequests() {
               { ...TAB_ITEMS[3], count: counts.rechazada },
             ]}
           />
-          <div className="relative w-full max-w-xs">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" aria-hidden />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
+          <div className="w-full max-w-xs">
+            <SearchInput
+              name="request-search"
+              ariaLabel="Buscar solicitudes"
               placeholder="Buscar por persona o tipo"
-              aria-label="Buscar solicitudes"
-              className="h-11 w-full rounded-button border border-border bg-surface-soft pl-10 pr-4 text-sm text-text outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-accent"
+              value={search}
+              onChange={setSearch}
             />
           </div>
         </motion.div>
@@ -236,7 +234,7 @@ export function AdminRequests() {
                 value={comment}
                 onChange={(event) => setComment(event.target.value)}
                 placeholder="Añade una nota opcional"
-                className="w-full rounded-input border border-border bg-surface-soft px-4 py-3 text-sm text-text outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-accent"
+                className="w-full rounded-input border border-border bg-surface-soft px-4 py-3 text-sm text-text outline-none transition-colors duration-200 placeholder:text-text-secondary focus:border-accent"
               />
             </div>
 

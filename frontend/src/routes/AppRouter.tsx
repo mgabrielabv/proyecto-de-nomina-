@@ -1,8 +1,9 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ROUTES } from '../constants';
 import { ProtectedRoute, RoleRoute } from '../components/guards';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { LoginPage } from '../pages/LoginPage';
+import { NotFoundPage } from '../pages/system';
 import {
   UserAttendance,
   UserDashboard,
@@ -37,12 +38,8 @@ import {
   AffiliationsPage,
   MyReceiptsPage,
 } from '../pages/payroll';
-import { useSessionStore } from '../store';
-import { getRoleHomePath } from '../utils';
 
 function AppRoutes() {
-  const user = useSessionStore((state) => state.user);
-
   return (
     <Routes>
       <Route path={ROUTES.login} element={<LoginPage />} />
@@ -110,15 +107,7 @@ function AppRoutes() {
           </Route>
         </Route>
       </Route>
-      <Route
-        path="*"
-        element={
-          <Navigate
-            to={user ? getRoleHomePath(user.role) : ROUTES.login}
-            replace
-          />
-        }
-      />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

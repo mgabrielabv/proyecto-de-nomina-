@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AsyncError } from '../../components/ui/AsyncError';
 import { Card } from '../../components/ui/Card';
 import { Stepper } from '../../components/ui/Stepper';
 import { Input } from '../../components/ui/Input';
@@ -128,8 +129,10 @@ export function AdminRegistration() {
   const [profiles, setProfiles] = useState<SystemProfile[]>([]);
   const [selectedProfiles, setSelectedProfiles] = useState<number[]>([]);
   const [profilesLoading, setProfilesLoading] = useState(true);
+  const [profilesError, setProfilesError] = useState<string | null>(null);
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [cargosLoading, setCargosLoading] = useState(true);
+  const [cargosError, setCargosError] = useState<string | null>(null);
   const [includeLaboral, setIncludeLaboral] = useState(true);
 
   const canListProfiles = useMemo(() => {
@@ -140,7 +143,7 @@ export function AdminRegistration() {
 
   const canAssignPrivilegedProfiles = user?.activeProfile.nombre === 'Superusuario';
 
-  useEffect(() => {
+  const cargarCatalogos = async () => {
     if (!canListProfiles) {
       setProfilesLoading(false);
       setCargosLoading(false);
@@ -151,39 +154,43 @@ export function AdminRegistration() {
       return;
     }
 
-    let active = true;
-    void listProfiles()
-      .then((list) => {
-        if (!active) return;
-        const assignable = canAssignPrivilegedProfiles
-          ? list
-          : list.filter((profile) => !PRIVILEGED_PROFILE_NAMES.includes(profile.nombre));
-        setProfiles(assignable);
-        const empleado = assignable.find((profile) => profile.nombre === 'Empleado');
-        setSelectedProfiles(empleado ? [empleado.id] : []);
-      })
-      .catch((error: unknown) => {
-        if (active) push(error instanceof Error ? error.message : 'No se pudieron cargar los perfiles.', 'error');
-      })
-      .finally(() => {
-        if (active) setProfilesLoading(false);
-      });
+    setProfilesLoading(true);
+    setCargosLoading(true);
+    setProfilesError(null);
+    setCargosError(null);
 
-    void listCargos()
-      .then((list) => {
-        if (active) setCargos(list);
-      })
-      .catch((error: unknown) => {
-        if (active) push(error instanceof Error ? error.message : 'No se pudieron cargar los cargos.', 'error');
-      })
-      .finally(() => {
-        if (active) setCargosLoading(false);
-      });
+    try {
+      const list = await listProfiles();
+      const assignable = canAssignPrivilegedProfiles
+        ? list
+        : list.filter((profile) => !PRIVILEGED_PROFILE_NAMES.includes(profile.nombre));
+      setProfiles(assignable);
+      const empleado = assignable.find((profile) => profile.nombre === 'Empleado');
+      setSelectedProfiles(empleado ? [empleado.id] : []);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'No se pudieron cargar los perfiles.';
+      setProfilesError(message);
+      push(message, 'error');
+    } finally {
+      setProfilesLoading(false);
+    }
 
-    return () => {
-      active = false;
-    };
-  }, [canAssignPrivilegedProfiles, canListProfiles, push]);
+    try {
+      const list = await listCargos();
+      setCargos(list);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'No se pudieron cargar los cargos.';
+      setCargosError(message);
+      push(message, 'error');
+    } finally {
+      setCargosLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void cargarCatalogos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canAssignPrivilegedProfiles, canListProfiles]);
 
   const set = (patch: Partial<FormValues>) => setValues((current) => ({ ...current, ...patch }));
 
@@ -344,6 +351,13 @@ export function AdminRegistration() {
           ) : (
             <>
               <Stepper steps={STEPS} current={step} onSelect={setStep} />
+              {(profilesError || cargosError) && (
+                <AsyncError
+                  message={[profilesError, cargosError].filter(Boolean).join(' ')}
+                  onRetry={() => void cargarCatalogos()}
+                  retrying={profilesLoading || cargosLoading}
+                />
+              )}
               <motion.div key={step} variants={fadeUpItem} initial="hidden" animate="show" className="space-y-5">
                 {step === 0 && (
                   <>
@@ -405,7 +419,7 @@ export function AdminRegistration() {
                     <fieldset className="space-y-3">
                       <legend className="text-sm font-semibold text-text">Perfiles</legend>
                       {profilesLoading && <p className="text-xs text-text-muted">Cargando perfiles...</p>}
-                      {!profilesLoading && profiles.length === 0 && (
+                      {!profilesLoading && !profilesError && profiles.length === 0 && (
                         <p className="text-xs text-text-muted">No hay perfiles disponibles.</p>
                       )}
                       {!profilesLoading && !canAssignPrivilegedProfiles && profiles.length > 0 && (

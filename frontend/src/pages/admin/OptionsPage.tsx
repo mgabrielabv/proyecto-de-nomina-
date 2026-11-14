@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AsyncError } from '../../components/ui/AsyncError';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
@@ -65,6 +66,7 @@ export function OptionsPage() {
   const [subsistemas, setSubsistemas] = useState<SubsistemaAdminItem[]>([]);
   const [opciones, setOpciones] = useState<OpcionAdminItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [catalogoError, setCatalogoError] = useState<string | null>(null);
 
   // Modales del catálogo
   const [modal, setModal] = useState<'crear' | 'editar' | null>(null);
@@ -86,6 +88,7 @@ export function OptionsPage() {
   const [perfilIdSeleccionado, setPerfilIdSeleccionado] = useState<string>('');
   const [permisos, setPermisos] = useState<PermisosOpcionResponse | null>(null);
   const [permisosLoading, setPermisosLoading] = useState(false);
+  const [permisosError, setPermisosError] = useState<string | null>(null);
   const [busyOpciones, setBusyOpciones] = useState<Set<number>>(new Set());
   const [quitarPendiente, setQuitarPendiente] = useState<PermisoOpcionItem | null>(null);
 
@@ -100,6 +103,7 @@ export function OptionsPage() {
 
   const loadCatalogo = async () => {
     setLoading(true);
+    setCatalogoError(null);
     try {
       // En paralelo: subsistemas (selector al crear) y opciones (tabla).
       const [subsistemasList, opcionesList] = await Promise.all([
@@ -109,7 +113,9 @@ export function OptionsPage() {
       setSubsistemas(subsistemasList ?? []);
       setOpciones(opcionesList ?? []);
     } catch (err) {
-      pushToast(err instanceof Error ? err.message : 'Error al cargar el catálogo de opciones', 'error');
+      const message = err instanceof Error ? err.message : 'Error al cargar el catálogo de opciones';
+      setCatalogoError(message);
+      pushToast(message, 'error');
     } finally {
       setLoading(false);
     }
@@ -138,12 +144,15 @@ export function OptionsPage() {
 
   const loadPermisos = async (perfilId: number) => {
     setPermisosLoading(true);
+    setPermisosError(null);
     setPermisos(null);
     try {
       const res = await OptionService.listarPermisosOpcion(perfilId);
       setPermisos(res);
     } catch (err) {
-      pushToast(err instanceof Error ? err.message : 'Error al cargar las opciones del perfil', 'error');
+      const message = err instanceof Error ? err.message : 'Error al cargar las opciones del perfil';
+      setPermisosError(message);
+      pushToast(message, 'error');
     } finally {
       setPermisosLoading(false);
     }
@@ -541,6 +550,12 @@ export function OptionsPage() {
             <div className="flex h-48 items-center justify-center text-sm text-text-muted">
               Cargando catálogo de opciones...
             </div>
+          ) : catalogoError ? (
+            <AsyncError
+              message={catalogoError}
+              onRetry={() => void loadCatalogo()}
+              retrying={loading}
+            />
           ) : opciones.length === 0 ? (
             <div className="rounded-2xl border border-border bg-surface-soft p-12 text-center">
               <ListTree className="mx-auto mb-3 h-10 w-10 text-text-muted" />
@@ -609,6 +624,14 @@ export function OptionsPage() {
               <div className="flex h-48 items-center justify-center text-sm text-text-muted">
                 Cargando opciones del perfil...
               </div>
+            ) : permisosError ? (
+              <AsyncError
+                message={permisosError}
+                onRetry={() => {
+                  if (perfilIdSeleccionado) void loadPermisos(Number(perfilIdSeleccionado));
+                }}
+                retrying={permisosLoading}
+              />
             ) : !permisos ? (
               <div className="rounded-2xl border border-border bg-surface-soft p-12 text-center text-sm text-text-secondary">
                 Selecciona un perfil para ver sus opciones.

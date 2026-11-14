@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
+import { AsyncError } from '../../components/ui/AsyncError';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
@@ -348,16 +349,22 @@ export function ProfilesPage() {
           </motion.div>
         )}
 
-        <motion.div variants={fadeUpItem}>
-          <ResponsiveTable
-            columns={columns}
-            rows={perfiles}
-            rowKey={(r) => String(r.id)}
-            caption="Catálogo de perfiles del sistema"
-            loading={loading}
-            emptyMessage={error ?? 'No hay perfiles registrados.'}
-          />
-        </motion.div>
+        {error && !loading ? (
+          <motion.div variants={fadeUpItem}>
+            <AsyncError message={error} onRetry={() => void loadPerfiles()} retrying={loading} />
+          </motion.div>
+        ) : (
+          <motion.div variants={fadeUpItem}>
+            <ResponsiveTable
+              columns={columns}
+              rows={perfiles}
+              rowKey={(r) => String(r.id)}
+              caption="Catálogo de perfiles del sistema"
+              loading={loading}
+              emptyMessage="No hay perfiles registrados."
+            />
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Modal Crear / Editar Perfil */}
