@@ -1,22 +1,16 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import type { Variants } from 'framer-motion';
 import { SPRING } from '../../../constants';
 import type { NavItem } from '../../../constants';
 import { cn } from '../../../utils';
-import { Tooltip } from '../../ui/Tooltip';
 
 export interface SidebarItemProps {
   item: NavItem;
-  collapsed: boolean;
   layoutId: string;
   onNavigate?: () => void;
-  /** Variantes heredadas del panel para la entrada escalonada de las filas;
-      sin ella la fila no participa en la animación del panel. */
-  rowVariants?: Variants;
 }
 
-export function SidebarItem({ item, collapsed, layoutId, onNavigate, rowVariants }: SidebarItemProps) {
+export function SidebarItem({ item, layoutId, onNavigate }: SidebarItemProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const reduce = useReducedMotion();
@@ -28,44 +22,29 @@ export function SidebarItem({ item, collapsed, layoutId, onNavigate, rowVariants
     onNavigate?.();
   };
 
-  const button = (
-    <motion.button
-      type="button"
-      onClick={handleClick}
-      variants={rowVariants}
-      aria-current={active ? 'page' : undefined}
-      aria-label={collapsed ? item.label : undefined}
-      whileHover={reduce ? undefined : { x: 2 }}
-      whileTap={reduce ? undefined : { scale: 0.985 }}
-      className={cn(
-        'group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200',
-        collapsed ? 'justify-center px-0' : 'px-3',
-        active ? 'text-text' : 'text-text-secondary hover:text-text',
-      )}
-    >
-      {active && (
-        <motion.span
-          layoutId={layoutId}
-          transition={reduce ? { duration: 0.01 } : SPRING.soft}
-          className="absolute inset-0 rounded-xl border border-border bg-surface shadow-sm"
-        />
-      )}
-      <Icon className="relative h-[18px] w-[18px] shrink-0" aria-hidden />
-      <span
-        aria-hidden={collapsed || undefined}
-        className={cn(
-          'relative overflow-hidden whitespace-nowrap transition-[max-width,opacity,margin] duration-300 ease-sidebar',
-          collapsed ? 'ml-0 max-w-0 opacity-0' : 'ml-3 max-w-[12rem] opacity-100',
-        )}
-      >
-        {item.label}
-      </span>
-    </motion.button>
-  );
-
   return (
     <li>
-      {collapsed ? <Tooltip content={item.label} side="right">{button}</Tooltip> : button}
+      <motion.button
+        type="button"
+        onClick={handleClick}
+        aria-current={active ? 'page' : undefined}
+        whileHover={reduce ? undefined : { x: 2 }}
+        whileTap={reduce ? undefined : { scale: 0.985 }}
+        className={cn(
+          'group relative flex w-full items-center rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-200',
+          active ? 'text-text' : 'text-text-secondary hover:text-text',
+        )}
+      >
+        {active && (
+          <motion.span
+            layoutId={layoutId}
+            transition={reduce ? { duration: 0.01 } : SPRING.soft}
+            className="absolute inset-0 rounded-xl border border-border bg-surface shadow-sm"
+          />
+        )}
+        <Icon className="relative h-[18px] w-[18px] shrink-0" aria-hidden />
+        <span className="relative ml-3 truncate">{item.label}</span>
+      </motion.button>
     </li>
   );
 }

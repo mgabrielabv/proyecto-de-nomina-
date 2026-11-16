@@ -48,3 +48,17 @@ Verificación manual recomendada en navegador (Chrome/Chromium). Ejecutar en `fr
 ## Responsive y contraste
 - [ ] Revisar 390px: sin overflow horizontal inesperado, controles tocables, menús/drawers usables.
 - [ ] Verificar contraste AA en textos, badges, estados hover/active/focus y bordes en claro/oscuro.
+
+## Sidebar (diseño actualizado: siempre expandido en escritorio)
+- [ ] **≥1024px (escritorio):** el sidebar está siempre expandido (~264px, etiquetas visibles). No existe botón/estado de colapso ni riel de solo íconos. El contenido principal ocupa el espacio restante (`flex-1 min-w-0`, `lg:pl` según `--sidebar-w`) sin recortes ni scroll horizontal.
+- [ ] **Secciones en acordeón:** los grupos (p. ej. Mi espacio, Nómina, Seguridad) son plegables. El grupo de la ruta activa se abre automáticamente al navegar. El estado abierto/cerrado se recuerda por sesión/perfil. Cada encabezado es un `<button>` con `aria-expanded` y `aria-controls`, el chevron rota y la altura se anima (`height: auto`).
+- [ ] **<1024px (móvil/tablet):** el sidebar se muestra como Drawer (botón de menú en Topbar). Se abre/cierra con backdrop, `Esc`, clic fuera y al navegar. El foco queda atrapado dentro mientras está abierto y se restaura al cerrar. Animación con tokens de movimiento (`SPRING.soft`).
+- [ ] **Anchos a revisar:** 1024px, 1280px y 1920px — nada se corta ni se desborda (incluidas tablas y Registro de personas). En 390px verificar el drawer, navegación y que no haya scroll horizontal inesperado.
+- [ ] **Sin regresiones:** cambio de tema, transiciones de ruta, foco/teclado en ítems del sidebar y scroll del contenido principal funcionan correctamente.
+
+## Sidebar (diseño actualizado: siempre expandido en escritorio)
+- [ ] **≥1024px (escritorio):** el sidebar está siempre expandido (~264px, etiquetas visibles). No existe botón/estado de colapso ni riel de solo íconos. El contenido principal ocupa el espacio restante (`flex-1 min-w-0`, `lg:pl` según `--sidebar-w`) sin recortes ni scroll horizontal.
+- [ ] **Secciones en acordeón:** los grupos (p. ej. Mi espacio, Nómina, Seguridad) son plegables. El grupo de la ruta activa se abre automáticamente al navegar. El estado abierto/cerrado se recuerda por sesión/perfil. Cada encabezado es un `<button>` con `aria-expanded` y `aria-controls`, el chevron rota y la altura se anima (`height: auto`).
+- [ ] **<1024px (móvil/tablet):** el sidebar se muestra como Drawer (botón de menú en Topbar). Se abre/cierra con backdrop, `Esc`, clic fuera y al navegar. El foco queda atrapado dentro mientras está abierto y se restaura al cerrar. Animación con tokens de movimiento (`SPRING.soft`).
+- [ ] **Anchos a revisar:** 1024px, 1280px y 1920px — nada se corta ni se desborda (incluidas tablas y Registro de personas). En 390px verificar el drawer, navegación y que no haya scroll horizontal inesperado.
+- [ ] **Sin regresiones:** cambio de tema, transiciones de ruta, foco/teclado en ítems del sidebar y scroll del contenido principal funcionan correctamente.

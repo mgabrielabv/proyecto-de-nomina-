@@ -11,13 +11,10 @@ import { Avatar } from '../../../ui/Avatar';
 
 export interface ProfileMenuProps {
   user: SessionUser;
-  collapsed: boolean;
 }
 
-// Footer modular del sidebar: reúne la identidad del usuario, el cambio de
-// perfil (solo si tiene varios) y las acciones de cuenta en un único menú.
-// Cambiar de perfil recalcula el rol y navega a la home de ese rol.
-export function ProfileMenu({ user, collapsed }: ProfileMenuProps) {
+// Footer modular del sidebar: identidad, cambio de perfil y acciones de cuenta.
+export function ProfileMenu({ user }: ProfileMenuProps) {
   const reduce = useReducedMotion();
   const navigate = useNavigate();
   const setActiveProfile = useSessionStore((state) => state.setActiveProfile);
@@ -47,29 +44,20 @@ export function ProfileMenu({ user, collapsed }: ProfileMenuProps) {
         onClick={() => setOpen((current) => !current)}
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label={collapsed ? `${user.name} · ${user.activeProfile.nombre}` : undefined}
         className={cn(
           'flex w-full items-center rounded-xl border border-transparent px-2.5 py-2.5 text-left transition-colors duration-200 hover:bg-surface-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface',
-          collapsed && 'justify-center px-0',
           open && 'bg-surface-soft',
         )}
       >
         <Avatar name={user.name} size="sm" />
-        <div
-          aria-hidden={collapsed || undefined}
-          className={cn(
-            'min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left transition-[max-width,opacity,margin] duration-300 ease-sidebar',
-            collapsed ? 'ml-0 max-w-0 opacity-0' : 'ml-3 max-w-[12rem] opacity-100',
-          )}
-        >
+        <div className="ml-3 min-w-0 flex-1 overflow-hidden whitespace-nowrap text-left">
           <p className="truncate text-sm font-semibold text-text">{user.name}</p>
           <p className="truncate text-xs text-text-muted">{user.activeProfile.nombre}</p>
         </div>
         <ChevronRight
           className={cn(
-            'h-4 w-4 shrink-0 overflow-hidden text-text-muted transition-[transform,opacity,max-width] duration-300 ease-sidebar',
+            'h-4 w-4 shrink-0 text-text-muted transition-transform duration-200 ease-sidebar',
             open && 'rotate-90',
-            collapsed ? 'max-w-0 opacity-0' : 'max-w-[1rem] opacity-100',
           )}
           aria-hidden
         />
@@ -83,10 +71,7 @@ export function ProfileMenu({ user, collapsed }: ProfileMenuProps) {
             initial={reduce ? false : 'hidden'}
             animate="show"
             exit={reduce ? undefined : 'exit'}
-            className={cn(
-              'absolute bottom-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-border bg-surface p-1.5 shadow-card',
-              collapsed ? 'left-3 w-56' : 'left-3 right-3',
-            )}
+            className="absolute bottom-[calc(100%+6px)] left-3 right-3 z-50 overflow-hidden rounded-xl border border-border bg-surface p-1.5 shadow-card"
           >
             {canSwitch && (
               <>

@@ -5,46 +5,35 @@ import { ProfileMenu } from './ProfileMenu';
 import { SidebarNav } from './SidebarNav';
 
 export interface SidebarProps {
-  collapsed: boolean;
   variant?: 'desktop' | 'mobile';
   onNavigate?: () => void;
 }
 
-export function Sidebar({ collapsed, variant = 'desktop', onNavigate }: SidebarProps) {
+export function Sidebar({ variant = 'desktop', onNavigate }: SidebarProps) {
   const user = useSessionStore((state) => state.user);
 
   if (!user) return null;
 
-  const isCollapsed = variant === 'mobile' ? false : collapsed;
   const layoutId = variant === 'mobile' ? 'sidebar-active-mobile' : 'sidebar-active';
 
   return (
     <aside
       className={cn(
-        'flex flex-col border-border bg-surface/95 backdrop-blur-xl',
+        'flex flex-col border-border bg-surface',
         variant === 'desktop'
-          ? 'fixed inset-y-0 left-0 z-40 hidden lg:flex border-r transition-[width] duration-300 ease-sidebar will-change-[width]'
+          ? 'fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-w,264px)] border-r lg:flex'
           : 'relative flex h-full w-full border-none bg-transparent',
       )}
-      style={variant === 'desktop' ? { width: collapsed ? 84 : 264 } : undefined}
     >
-      <div className={cn('flex h-20 items-center px-5', collapsed && variant === 'desktop' && 'justify-center px-0')}>
-        <BrandMark collapsed={collapsed && variant === 'desktop'} />
+      <div className="flex h-20 items-center px-5">
+        <BrandMark />
       </div>
 
-      {/* El nav posee su propio scroll: los paneles se deslizan dentro de un
-          viewport recortado (overflow: hidden), así que el padding y el
-          scroll viven en cada panel, no acá. */}
       <div className="min-h-0 flex-1">
-        <SidebarNav
-          perfilId={user.activeProfile.id}
-          collapsed={isCollapsed}
-          layoutId={layoutId}
-          onNavigate={onNavigate}
-        />
+        <SidebarNav perfilId={user.activeProfile.id} layoutId={layoutId} onNavigate={onNavigate} />
       </div>
 
-      <ProfileMenu user={user} collapsed={isCollapsed} />
+      <ProfileMenu user={user} />
     </aside>
   );
 }

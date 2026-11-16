@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bell, Menu, PanelLeft, Search, X } from 'lucide-react';
+import { Bell, Menu, Search, X } from 'lucide-react';
 import { dropdownVariants } from '../../../animations/variants';
 import { LIMITS } from '../../../constants';
 import { PageHeader } from '../../ui/PageHeader';
@@ -15,12 +15,10 @@ import { NotificationPanel } from '../NotificationPanel';
 export interface TopbarProps {
   title: string;
   description?: string;
-  sidebarCollapsed?: boolean;
-  onToggleSidebar?: () => void;
   onOpenDrawer: () => void;
 }
 
-export function Topbar({ title, description, sidebarCollapsed = false, onToggleSidebar, onOpenDrawer }: TopbarProps) {
+export function Topbar({ title, description, onOpenDrawer }: TopbarProps) {
   const user = useSessionStore((state) => state.user);
   const notifications = useUiStore((state) => state.notifications);
   const searchQuery = useUiStore((state) => state.searchQuery);
@@ -48,20 +46,6 @@ export function Topbar({ title, description, sidebarCollapsed = false, onToggleS
           <Menu className="h-5 w-5" aria-hidden />
         </button>
       </Tooltip>
-
-      {onToggleSidebar && (
-        <Tooltip content={sidebarCollapsed ? 'Expandir barra lateral' : 'Contraer barra lateral'}>
-          <button
-            type="button"
-            onClick={onToggleSidebar}
-            aria-label={sidebarCollapsed ? 'Expandir barra lateral' : 'Contraer barra lateral'}
-            aria-expanded={!sidebarCollapsed}
-            className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-text-secondary transition-colors duration-200 hover:border-border-strong hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface lg:flex"
-          >
-            <PanelLeft className="h-[18px] w-[18px]" aria-hidden />
-          </button>
-        </Tooltip>
-      )}
 
       <div className="min-w-0 flex-1">
         <div className="hidden min-w-0 lg:block">
