@@ -1,92 +1,98 @@
-src/pages/admin/Attendance.tsx:188:            <SearchInput
-src/pages/admin/Requests.tsx:160:            <SearchInput
-src/pages/admin/Requests.tsx:231:              <textarea
-src/pages/admin/ProfilesPage.tsx:398:          <Input
-src/pages/admin/ProfilesPage.tsx:416:          <Input
-src/pages/admin/UsersPage.tsx:363:            <SearchInput
-src/pages/admin/Departments.tsx:241:          <Input
-src/pages/admin/Departments.tsx:248:          <Input
-src/pages/admin/Departments.tsx:276:          <Input
-src/pages/admin/OptionsPage.tsx:786:          <Input
-src/pages/admin/OptionsPage.tsx:804:          <Input
-src/pages/admin/OptionsPage.tsx:816:          <Input
-src/pages/admin/Employees.tsx:159:            <SearchInput
-src/pages/admin/Registration.tsx:371:                      <Input name="cedula" label="Cédula" value={values.cedula} error={errors.cedula} onChange={(value) => set({ cedula: value })} />
-src/pages/admin/Registration.tsx:372:                      <Input name="primer-nombre" label="Primer nombre" value={values.primer_nombre} error={errors.primer_nombre} onChange={(value) => set({ primer_nombre: value })} />
-src/pages/admin/Registration.tsx:373:                      <Input name="segundo-nombre" label="Segundo nombre" value={values.segundo_nombre} onChange={(value) => set({ segundo_nombre: value })} />
-src/pages/admin/Registration.tsx:376:                      <Input name="primer-apellido" label="Primer apellido" value={values.primer_apellido} error={errors.primer_apellido} onChange={(value) => set({ primer_apellido: value })} />
-src/pages/admin/Registration.tsx:377:                      <Input name="segundo-apellido" label="Segundo apellido" value={values.segundo_apellido} onChange={(value) => set({ segundo_apellido: value })} />
-src/pages/admin/Registration.tsx:378:                      <Input name="birth-date" label="Fecha de nacimiento" type="date" value={values.fecha_nacimiento} onChange={(value) => set({ fecha_nacimiento: value })} />
-src/pages/admin/Registration.tsx:399:                      <Input name="phone" label="Teléfono" value={values.nro_tlf} onChange={(value) => set({ nro_tlf: value })} />
-src/pages/admin/Registration.tsx:400:                      <Input name="email" label="Correo electrónico" type="email" value={values.email} error={errors.email} onChange={(value) => set({ email: value })} />
-src/pages/admin/Registration.tsx:402:                    <Input name="address" label="Dirección" value={values.direccion} onChange={(value) => set({ direccion: value })} />
-src/pages/admin/Registration.tsx:415:                      <Input name="username" label="Nombre de usuario" value={values.username} error={errors.username} onChange={(value) => set({ username: value })} />
-src/pages/admin/Registration.tsx:416:                      <Input name="password" label="Contraseña" type="password" value={values.password} error={errors.password} onChange={(value) => set({ password: value })} />
-src/pages/admin/Registration.tsx:417:                      <Input name="confirm-password" label="Confirmar contraseña" type="password" value={values.confirmPassword} error={errors.confirmPassword} onChange={(value) => set({ confirmPassword: value })} />
-src/pages/admin/Registration.tsx:433:                            <input
-src/pages/admin/Registration.tsx:497:                          <Input name="fecha-inicio" label="Fecha de inicio" type="date" value={values.fechaInicio} error={errors.fechaInicio} onChange={(value) => set({ fechaInicio: value })} />
-src/pages/admin/Registration.tsx:520:                          <Input name="monto" label="Monto" type="number" min="0" step="0.01" value={values.monto} error={errors.monto} onChange={(value) => set({ monto: value })} />
-src/pages/admin/Registration.tsx:522:                            <Input name="horas-semanales" label="Horas semanales" type="number" min="0" step="0.5" value={values.horasSemanales} error={errors.horasSemanales} onChange={(value) => set({ horasSemanales: value })} />
-src/pages/admin/Registration.tsx:524:                          <Input name="fecha-fin" label="Fecha de fin (opcional)" type="date" value={values.fechaFin} error={errors.fechaFin} onChange={(value) => set({ fechaFin: value })} />
-src/pages/admin/Registration.tsx:525:                          <Input name="motivo" label="Motivo del salario (opcional)" value={values.motivo} onChange={(value) => set({ motivo: value })} />
-src/pages/admin/PermissionsPage.tsx:316:            <SearchInput
-src/pages/payroll/ConceptsPage.tsx:459:          <Input
-src/pages/payroll/ConceptsPage.tsx:472:            <Input
-src/pages/payroll/ConceptsPage.tsx:480:            <Input
-src/pages/payroll/ConceptsPage.tsx:489:          <Input
-src/pages/payroll/ConceptsPage.tsx:523:          <Input
-src/pages/payroll/PeriodsPage.tsx:463:            <Input
-src/pages/payroll/PeriodsPage.tsx:471:            <Input
-src/pages/payroll/PeriodsPage.tsx:481:          <Input
-src/pages/payroll/PeriodsPage.tsx:613:          <Input
-src/pages/payroll/PeriodsPage.tsx:635:          <Input
-src/pages/payroll/AffiliationsPage.tsx:328:          <Input
-src/pages/payroll/AffiliationsPage.tsx:337:          <Input
-src/pages/payroll/AffiliationsPage.tsx:372:          <Input
-src/pages/payroll/CargosPage.tsx:180:          <Input
-src/pages/payroll/OvertimePage.tsx:362:          <Input
-src/pages/payroll/OvertimePage.tsx:371:          <Input
-src/pages/payroll/OvertimePage.tsx:382:          <Input
-src/pages/payroll/HoursPage.tsx:343:          <Input
-src/pages/payroll/HoursPage.tsx:353:            <Input
-src/pages/payroll/HoursPage.tsx:363:            <Input
-src/pages/payroll/HoursPage.tsx:374:          <Input
-src/pages/payroll/NovedadesPage.tsx:426:          <Input
-src/pages/payroll/NovedadesPage.tsx:441:                <input
-src/pages/payroll/NovedadesPage.tsx:451:                <input
-src/pages/payroll/NovedadesPage.tsx:464:            <Input
-src/pages/payroll/NovedadesPage.tsx:476:            <Input
-src/pages/payroll/NovedadesPage.tsx:489:          <Input
-src/pages/payroll/PreNominaPage.tsx:528:          <Input
-src/pages/payroll/PreNominaPage.tsx:536:          <Input
-src/pages/payroll/PreNominaPage.tsx:600:            <Input
-src/pages/payroll/PreNominaPage.tsx:606:            <Input
-src/pages/payroll/LoansPage.tsx:420:          <Input
-src/pages/payroll/LoansPage.tsx:429:          <Input
-src/pages/payroll/LoansPage.tsx:442:            <Input
-src/pages/payroll/LoansPage.tsx:452:            <Input
-src/pages/user/Profile.tsx:110:              <Input
-src/pages/user/Profile.tsx:117:              <Input
-src/pages/user/Profile.tsx:125:              <Input
-src/pages/user/Profile.tsx:132:              <Input
-src/pages/user/Profile.tsx:139:              <Input name="profile-department" label="Departamento" value={departmentName} disabled onChange={() => undefined} />
-src/pages/user/Settings.tsx:174:              <Input
-src/pages/user/Settings.tsx:182:              <Input
-src/pages/user/Settings.tsx:190:              <Input
-src/pages/user/Requests.tsx:131:              <Input
-src/pages/user/Requests.tsx:139:              <Input
-src/pages/user/Requests.tsx:149:              <Input
-src/components/layout/Topbar/Topbar.tsx:84:          <input
-src/components/ui/Checkbox/Checkbox.tsx:32:      <input
-src/components/ui/Table/ResponsiveTable.tsx:86:                    <input
-src/components/ui/Table/ResponsiveTable.tsx:164:                            <input
-src/components/ui/Input/PasswordInput.tsx:16:    <Input
-src/components/ui/Input/SearchInput.tsx:47:      <input
-src/components/ui/Input/Input.tsx:12:export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'children'> {
-src/components/ui/Input/Input.tsx:92:        <input
-src/components/auth/LoginForm/LoginForm.tsx:35:        <Input
-src/components/auth/LoginForm/LoginForm.tsx:46:        <PasswordInput
-src/components/auth/RegisterForm/RegisterForm.tsx:32:        <Input
-src/components/auth/RegisterForm/RegisterForm.tsx:42:        <Input
-src/components/auth/RegisterForm/RegisterForm.tsx:54:        <PasswordInput
-src/components/auth/RegisterForm/RegisterForm.tsx:65:        <PasswordInput
+# Inventario de inputs (FASE 0) — estado FASE 1B/2
+
+**Leyenda:** `hecho` = límite/sanitización o componente base aplicado; `base` = cubierto por componente base (`Input`/`PasswordInput`/`SearchInput`/`Textarea`) con props; `parcial` = límite añadido pero sanitización de submit pendiente/revisar; `no-aplica` = no requiere límite de texto (date/select/checkbox/number con control específico o contenedor).
+
+**Nota:** barrido exhaustivo de sanitización en submit para los 92 casos no completado al 100%; se priorizaron auth, búsquedas, límites en componentes base, tabla/períodos y casos críticos. Revisar por formulario antes de producción.
+
+- [base (maxLength 100 por defecto)] src/pages/admin/Attendance.tsx:188:            <SearchInput
+- [base (maxLength 100 por defecto)] src/pages/admin/Requests.tsx:160:            <SearchInput
+- [parcial (migrar a ui/Textarea)] src/pages/admin/Requests.tsx:231:              <textarea
+- [parcial (LIMITS en campos editados; revisar submit)] src/pages/admin/ProfilesPage.tsx:398:          <Input
+- [parcial (LIMITS en campos editados; revisar submit)] src/pages/admin/ProfilesPage.tsx:416:          <Input
+- [base (maxLength 100 por defecto)] src/pages/admin/UsersPage.tsx:363:            <SearchInput
+- [pendiente] src/pages/admin/Departments.tsx:241:          <Input
+- [pendiente] src/pages/admin/Departments.tsx:248:          <Input
+- [pendiente] src/pages/admin/Departments.tsx:276:          <Input
+- [parcial (LIMITS en campos editados; revisar submit)] src/pages/admin/OptionsPage.tsx:786:          <Input
+- [parcial (LIMITS en campos editados; revisar submit)] src/pages/admin/OptionsPage.tsx:804:          <Input
+- [parcial (LIMITS en campos editados; revisar submit)] src/pages/admin/OptionsPage.tsx:816:          <Input
+- [base (maxLength 100 por defecto)] src/pages/admin/Employees.tsx:159:            <SearchInput
+- [pendiente] src/pages/admin/Registration.tsx:371:                      <Input name="cedula" label="Cédula" value={values.cedula} error={errors.cedula} onChange={(value) => set({ cedula: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:372:                      <Input name="primer-nombre" label="Primer nombre" value={values.primer_nombre} error={errors.primer_nombre} onChange={(value) => set({ primer_nombre: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:373:                      <Input name="segundo-nombre" label="Segundo nombre" value={values.segundo_nombre} onChange={(value) => set({ segundo_nombre: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:376:                      <Input name="primer-apellido" label="Primer apellido" value={values.primer_apellido} error={errors.primer_apellido} onChange={(value) => set({ primer_apellido: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:377:                      <Input name="segundo-apellido" label="Segundo apellido" value={values.segundo_apellido} onChange={(value) => set({ segundo_apellido: value })} />
+- [parcial/no-aplica (sin límite de texto; validar rango/obligatoriedad en submit)] src/pages/admin/Registration.tsx:378:                      <Input name="birth-date" label="Fecha de nacimiento" type="date" value={values.fecha_nacimiento} onChange={(value) => set({ fecha_nacimiento: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:399:                      <Input name="phone" label="Teléfono" value={values.nro_tlf} onChange={(value) => set({ nro_tlf: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:400:                      <Input name="email" label="Correo electrónico" type="email" value={values.email} error={errors.email} onChange={(value) => set({ email: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:402:                    <Input name="address" label="Dirección" value={values.direccion} onChange={(value) => set({ direccion: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:415:                      <Input name="username" label="Nombre de usuario" value={values.username} error={errors.username} onChange={(value) => set({ username: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:416:                      <Input name="password" label="Contraseña" type="password" value={values.password} error={errors.password} onChange={(value) => set({ password: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:417:                      <Input name="confirm-password" label="Confirmar contraseña" type="password" value={values.confirmPassword} error={errors.confirmPassword} onChange={(value) => set({ confirmPassword: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:433:                            <input
+- [parcial/no-aplica (sin límite de texto; validar rango/obligatoriedad en submit)] src/pages/admin/Registration.tsx:497:                          <Input name="fecha-inicio" label="Fecha de inicio" type="date" value={values.fechaInicio} error={errors.fechaInicio} onChange={(value) => set({ fechaInicio: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:520:                          <Input name="monto" label="Monto" type="number" min="0" step="0.01" value={values.monto} error={errors.monto} onChange={(value) => set({ monto: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:522:                            <Input name="horas-semanales" label="Horas semanales" type="number" min="0" step="0.5" value={values.horasSemanales} error={errors.horasSemanales} onChange={(value) => set({ horasSemanales: value })} />
+- [parcial/no-aplica (sin límite de texto; validar rango/obligatoriedad en submit)] src/pages/admin/Registration.tsx:524:                          <Input name="fecha-fin" label="Fecha de fin (opcional)" type="date" value={values.fechaFin} error={errors.fechaFin} onChange={(value) => set({ fechaFin: value })} />
+- [pendiente] src/pages/admin/Registration.tsx:525:                          <Input name="motivo" label="Motivo del salario (opcional)" value={values.motivo} onChange={(value) => set({ motivo: value })} />
+- [base (maxLength 100 por defecto)] src/pages/admin/PermissionsPage.tsx:316:            <SearchInput
+- [pendiente] src/pages/payroll/ConceptsPage.tsx:459:          <Input
+- [pendiente] src/pages/payroll/ConceptsPage.tsx:472:            <Input
+- [pendiente] src/pages/payroll/ConceptsPage.tsx:480:            <Input
+- [pendiente] src/pages/payroll/ConceptsPage.tsx:489:          <Input
+- [pendiente] src/pages/payroll/ConceptsPage.tsx:523:          <Input
+- [pendiente] src/pages/payroll/PeriodsPage.tsx:463:            <Input
+- [pendiente] src/pages/payroll/PeriodsPage.tsx:471:            <Input
+- [pendiente] src/pages/payroll/PeriodsPage.tsx:481:          <Input
+- [pendiente] src/pages/payroll/PeriodsPage.tsx:613:          <Input
+- [pendiente] src/pages/payroll/PeriodsPage.tsx:635:          <Input
+- [pendiente] src/pages/payroll/AffiliationsPage.tsx:328:          <Input
+- [pendiente] src/pages/payroll/AffiliationsPage.tsx:337:          <Input
+- [pendiente] src/pages/payroll/AffiliationsPage.tsx:372:          <Input
+- [pendiente] src/pages/payroll/CargosPage.tsx:180:          <Input
+- [pendiente] src/pages/payroll/OvertimePage.tsx:362:          <Input
+- [pendiente] src/pages/payroll/OvertimePage.tsx:371:          <Input
+- [pendiente] src/pages/payroll/OvertimePage.tsx:382:          <Input
+- [pendiente] src/pages/payroll/HoursPage.tsx:343:          <Input
+- [pendiente] src/pages/payroll/HoursPage.tsx:353:            <Input
+- [pendiente] src/pages/payroll/HoursPage.tsx:363:            <Input
+- [pendiente] src/pages/payroll/HoursPage.tsx:374:          <Input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:426:          <Input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:441:                <input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:451:                <input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:464:            <Input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:476:            <Input
+- [pendiente] src/pages/payroll/NovedadesPage.tsx:489:          <Input
+- [pendiente] src/pages/payroll/PreNominaPage.tsx:528:          <Input
+- [pendiente] src/pages/payroll/PreNominaPage.tsx:536:          <Input
+- [pendiente] src/pages/payroll/PreNominaPage.tsx:600:            <Input
+- [pendiente] src/pages/payroll/PreNominaPage.tsx:606:            <Input
+- [pendiente] src/pages/payroll/LoansPage.tsx:420:          <Input
+- [pendiente] src/pages/payroll/LoansPage.tsx:429:          <Input
+- [pendiente] src/pages/payroll/LoansPage.tsx:442:            <Input
+- [pendiente] src/pages/payroll/LoansPage.tsx:452:            <Input
+- [pendiente] src/pages/user/Profile.tsx:110:              <Input
+- [pendiente] src/pages/user/Profile.tsx:117:              <Input
+- [pendiente] src/pages/user/Profile.tsx:125:              <Input
+- [pendiente] src/pages/user/Profile.tsx:132:              <Input
+- [pendiente] src/pages/user/Profile.tsx:139:              <Input name="profile-department" label="Departamento" value={departmentName} disabled onChange={() => undefined} />
+- [pendiente] src/pages/user/Settings.tsx:174:              <Input
+- [pendiente] src/pages/user/Settings.tsx:182:              <Input
+- [pendiente] src/pages/user/Settings.tsx:190:              <Input
+- [pendiente] src/pages/user/Requests.tsx:131:              <Input
+- [pendiente] src/pages/user/Requests.tsx:139:              <Input
+- [pendiente] src/pages/user/Requests.tsx:149:              <Input
+- [hecho (maxLength búsqueda)] src/components/layout/Topbar/Topbar.tsx:84:          <input
+- [no-aplica] src/components/ui/Checkbox/Checkbox.tsx:32:      <input
+- [pendiente] src/components/ui/Table/ResponsiveTable.tsx:86:                    <input
+- [pendiente] src/components/ui/Table/ResponsiveTable.tsx:164:                            <input
+- [hecho/base] src/components/ui/Input/PasswordInput.tsx:16:    <Input
+- [base (maxLength 100 por defecto)] src/components/ui/Input/SearchInput.tsx:47:      <input
+- [pendiente] src/components/ui/Input/Input.tsx:12:export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'children'> {
+- [pendiente] src/components/ui/Input/Input.tsx:92:        <input
+- [hecho/base] src/components/auth/LoginForm/LoginForm.tsx:35:        <Input
+- [hecho/base] src/components/auth/LoginForm/LoginForm.tsx:46:        <PasswordInput
+- [hecho/base] src/components/auth/RegisterForm/RegisterForm.tsx:32:        <Input
+- [hecho/base] src/components/auth/RegisterForm/RegisterForm.tsx:42:        <Input
+- [hecho/base] src/components/auth/RegisterForm/RegisterForm.tsx:54:        <PasswordInput
+- [hecho/base] src/components/auth/RegisterForm/RegisterForm.tsx:65:        <PasswordInput

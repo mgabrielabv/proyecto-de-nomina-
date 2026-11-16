@@ -25,12 +25,16 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
   const [debouncedValues, setDebouncedValues] = useState<T>(config.initialValues);
   const fieldRefs = useRef<Partial<Record<keyof T, HTMLElement | null>>>({});
   const timers = useRef<Partial<Record<keyof T, number>>>({});
+  const mountedRef = useRef(true);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
+      mountedRef.current = false;
       Object.values(timers.current).forEach((t) => {
         if (typeof t === 'number') window.clearTimeout(t);
       });
+      timers.current = {};
     };
   }, []);
 
@@ -40,7 +44,6 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
   const getError = useCallback(
     (field: keyof T): string | undefined => {
       if (!touched[field] && !submitted) return undefined;
-      // While typing after touched: use debounced validation to avoid flicker
       if (touched[field] && !submitted) return errorsDebounced[field];
       return errorsNow[field];
     },
@@ -51,6 +54,7 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
     const prev = timers.current[field];
     if (typeof prev === 'number') window.clearTimeout(prev);
     timers.current[field] = window.setTimeout(() => {
+      if (!mountedRef.current) return;
       setDebouncedValues((current) => ({ ...current, [field]: (nextValues as any)[field] }) as T);
     }, 300);
   }, []);
@@ -59,11 +63,9 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
     (field: keyof T, value: string) => {
       setValues((current) => {
         const next = { ...current, [field]: value } as T;
-        // Only debounce-validate if already touched/submitted; do not mark touched on first type
         if (touched[field] || submitted) {
           scheduleDebounce(field, next);
         } else {
-          // keep debounced in sync silently so first blur shows correct error
           setDebouncedValues((d) => ({ ...d, [field]: value }) as T);
         }
         return next;
@@ -79,10 +81,16 @@ export function useForm<T extends object>(config: UseFormConfig<T>): UseFormResu
     setSubmitted(false);
   }, []);
 
-  const handleBlur = useCallback((field: keyof T) => {
-    setTouched((current) => ({ ...current, [field]: true }));
-    setDebouncedValues((current) => ({ ...current, [field]: (values as any)[field] }) as T);
-  }, [values]);
+  const handleBlur = useCallback(
+    (field: keyof T) => {
+      setTouched((current) => ({ ...current, [field]: true }));
+      setValues((current) => {
+        setDebouncedValues((d) => ({ ...d, [field]: (current as any)[field] }) as T);
+        return current;
+      });
+    },
+    [],
+  );
 
   const registerFieldRef = useCallback(
     (field: keyof T) => (el: HTMLElement | null) => {

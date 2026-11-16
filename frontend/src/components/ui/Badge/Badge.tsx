@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { Check, Clock3 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { badgePopVariants } from '../../../animations/variants';
 import type { BadgeTone } from '../../../constants';
@@ -8,6 +9,8 @@ export interface BadgeProps {
   children: ReactNode;
   tone?: BadgeTone;
   dot?: boolean;
+  /** Ícono de estado para distinguir sin depender solo del color. */
+  statusIcon?: 'processed' | 'paid' | 'none';
   className?: string;
 }
 
@@ -25,18 +28,34 @@ const dotClasses: Record<BadgeTone, string> = {
   error: 'bg-error',
 };
 
-export function Badge({ children, tone = 'neutral', dot = false, className }: BadgeProps) {
+export function Badge({ children, tone = 'neutral', dot = true, statusIcon = 'none', className }: BadgeProps) {
   const reduce = useReducedMotion();
+  const icon =
+    statusIcon === 'paid' ? (
+      <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} />
+    ) : statusIcon === 'processed' ? (
+      <Clock3 className="h-3 w-3" aria-hidden strokeWidth={2.25} />
+    ) : null;
 
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium tracking-tight',
+        'inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-[13px] font-medium tracking-tight',
         toneClasses[tone],
         className,
       )}
     >
-      {dot && (
+      {icon ? (
+        <motion.span
+          aria-hidden
+          variants={badgePopVariants}
+          initial={reduce ? false : 'hidden'}
+          animate="show"
+          className="inline-flex"
+        >
+          {icon}
+        </motion.span>
+      ) : dot ? (
         <motion.span
           aria-hidden
           variants={badgePopVariants}
@@ -44,7 +63,7 @@ export function Badge({ children, tone = 'neutral', dot = false, className }: Ba
           animate="show"
           className={cn('h-1.5 w-1.5 rounded-full', dotClasses[tone])}
         />
-      )}
+      ) : null}
       {children}
     </span>
   );
