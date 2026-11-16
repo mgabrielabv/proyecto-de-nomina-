@@ -25,6 +25,8 @@ import {
   type ReciboResumen,
 } from '../../features/payroll/services';
 import {
+  aCentavos,
+  deCentavos,
   formatMoney,
   formatFechaLocal,
   formatDateTime,
@@ -43,9 +45,6 @@ import {
 
 // Los DECIMAL del backend llegan como texto: sumar en céntimos con enteros y
 // dividir solo al mostrar. Nunca `+= Number(...)` sobre strings de dinero.
-const aCentavos = (valor: string | null | undefined): number =>
-  Math.round(Number(valor ?? 0) * 100);
-const deCentavos = (centavos: number): number => centavos / 100;
 
 
 export function PeriodsPage() {
@@ -263,7 +262,10 @@ export function PeriodsPage() {
       render: (row) => {
         const estado = row.estado as PeriodoEstado;
         return (
-          <Badge tone={PERIODO_ESTADO_TONE[estado] ?? 'neutral'}>
+          <Badge
+            tone={PERIODO_ESTADO_TONE[estado] ?? 'neutral'}
+            statusIcon={estado === 'PAGADO' ? 'paid' : estado === 'PROCESADO' ? 'processed' : 'none'}
+          >
             {PERIODO_ESTADO_LABEL[estado] ?? row.estado}
           </Badge>
         );
@@ -273,11 +275,23 @@ export function PeriodsPage() {
     {
       key: 'fecha_proceso',
       header: 'Procesado',
-      render: (row) => (
-        <span className="text-xs text-text-muted">
-          {row.fecha_proceso ? formatDateTime(row.fecha_proceso) : '—'}
-        </span>
-      ),
+      render: (row) => {
+        if (!row.fecha_proceso) {
+          return (
+            <span className="text-sm text-text-muted" aria-label="Sin procesar">
+              —
+            </span>
+          );
+        }
+        const full = formatDateTime(row.fecha_proceso);
+        const [datePart, timePart] = full.split(',').map((s) => s.trim());
+        return (
+          <span className="flex flex-col leading-tight">
+            <span className="num text-sm text-text-secondary">{datePart || full}</span>
+            {timePart ? <span className="num text-xs text-text-muted">{timePart}</span> : null}
+          </span>
+        );
+      },
     },
     {
       key: 'acciones',
@@ -290,10 +304,12 @@ export function PeriodsPage() {
             e.stopPropagation();
             void handleVerDetalle(row);
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface"
+          aria-label={`Ver detalle del período ${row.descripcion || row.id}`}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-transparent px-3 text-sm font-medium text-text-secondary transition-colors duration-150 hover:border-border-strong hover:bg-spot hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-9"
         >
-          <Eye className="h-3.5 w-3.5" />
-          Ver detalle
+          <Eye className="h-4 w-4" aria-hidden />
+          <span className="hidden sm:inline">Ver detalle</span>
+          <span className="sm:hidden">Detalle</span>
         </button>
       ),
     },
@@ -317,7 +333,7 @@ export function PeriodsPage() {
       header: 'Asignaciones',
       align: 'right',
       render: (row) => (
-        <span className="tabular-nums text-success">
+        <span className="num text-success">
           +{formatMoney(row.total_asignaciones)}
         </span>
       ),
@@ -327,7 +343,7 @@ export function PeriodsPage() {
       header: 'Deducciones',
       align: 'right',
       render: (row) => (
-        <span className="tabular-nums text-error">
+        <span className="num text-error">
           −{formatMoney(row.total_deducciones)}
         </span>
       ),
@@ -337,7 +353,7 @@ export function PeriodsPage() {
       header: 'Neto a cobrar',
       align: 'right',
       render: (row) => (
-        <span className="font-semibold tabular-nums text-text">
+        <span className="num font-semibold text-text">
           {formatMoney(row.monto_total)}
         </span>
       ),
@@ -348,7 +364,10 @@ export function PeriodsPage() {
       render: (row) => {
         const estado = row.estado as ReciboEstado;
         return (
-          <Badge tone={RECIBO_ESTADO_TONE[estado] ?? 'neutral'}>
+          <Badge
+            tone={RECIBO_ESTADO_TONE[estado] ?? 'neutral'}
+            statusIcon={estado === 'PAGADO' ? 'paid' : estado === 'PROCESADO' ? 'processed' : 'none'}
+          >
             {RECIBO_ESTADO_LABEL[estado] ?? row.estado}
           </Badge>
         );
@@ -359,7 +378,7 @@ export function PeriodsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Periodos de Nómina"
+        title="Períodos de nómina"
         description="Creación, procesamiento, pago y anulación de periodos de nómina."
         actions={
           <Button onClick={() => setCreateOpen(true)}>

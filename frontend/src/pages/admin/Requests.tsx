@@ -7,6 +7,8 @@ import { Tabs } from '../../components/ui/Tabs';
 import { Badge } from '../../components/ui/Badge';
 import { Drawer } from '../../components/ui/Drawer';
 import { Button } from '../../components/ui/Button';
+import { Textarea } from '../../components/ui/Textarea';
+import { LIMITS } from '../../constants';
 import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
 import { useEmployeesStore, useRequestsStore, useToastStore } from '../../store';
 import {
@@ -222,19 +224,13 @@ export function AdminRequests() {
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="review-comment"
-                className="block text-xs font-semibold uppercase tracking-wider text-text-muted"
-              >
-                Comentario de revisión
-              </label>
-              <textarea
-                id="review-comment"
-                rows={3}
+              <Textarea
+                name="review-comment"
+                label="Comentario de revisión"
                 value={comment}
-                onChange={(event) => setComment(event.target.value)}
-                placeholder="Añade una nota opcional"
-                className="w-full rounded-input border border-border bg-surface-soft px-4 py-3 text-sm text-text outline-none transition-colors duration-200 placeholder:text-text-secondary focus:border-accent"
+                onChange={setComment}
+                maxLength={LIMITS.notes.max}
+                hint="Añade una nota opcional."
               />
             </div>
 
