@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useLocation, useNavigationType, useOutlet } from 'react-router-dom';
 import { layoutVariants, pageVariants } from '../../../animations/variants';
 import { PAGE_TITLES, SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from '../../../constants';
-import { useIsMobile, useMediaQuery } from '../../../hooks';
+import { useIsMobile, useLowEndDevice, useMediaQuery } from '../../../hooks';
 import { useUiStore } from '../../../store';
 import { ErrorBoundary, RouteFallback } from '../../errors';
 import { Drawer } from '../../ui/Drawer';
@@ -20,6 +20,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
   const navType = useNavigationType();
   const outlet = useOutlet();
   const reduce = useReducedMotion();
+  const lowEnd = useLowEndDevice();
   const isMobile = useIsMobile();
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
@@ -42,9 +43,12 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
     prevPathRef.current = location.pathname;
   }, [location.pathname, navType, reduce]);
 
+  const simple = lowEnd;
   const pageVariant = reduce
     ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.01 } }, exit: { opacity: 0, transition: { duration: 0.01 } } }
-    : pageVariants;
+    : simple
+      ? { hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } }, exit: { opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } } }
+      : pageVariants;
 
   return (
     <div className="min-h-dvh bg-bg font-sans text-text" style={{ ['--topbar-h' as string]: '5rem' }}>

@@ -100,8 +100,8 @@
   html.theme-transition *::before,
   html.theme-transition *::after {
     transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-    transition-duration: 220ms;
-    transition-timing-function: ease;
+    transition-duration: var(--dur-base);
+    transition-timing-function: var(--ease-in-out);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -209,4 +209,11 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+html[data-paused] *,
+html[data-paused] *::before,
+html[data-paused] *::after {
+  animation-play-state: paused !important;
 }

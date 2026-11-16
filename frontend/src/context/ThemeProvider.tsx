@@ -70,7 +70,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       timerRef.current = window.setTimeout(() => {
         root.classList.remove('theme-transition');
         timerRef.current = null;
-      }, 260);
+      }, 240);
     }
     run();
   }, [applyTheme, theme]);
