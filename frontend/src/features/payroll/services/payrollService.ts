@@ -508,6 +508,12 @@ export const LoanService = {
   anular: (prestamoId: string) =>
     execute<{ id: string; estado: 'ANULADO' }>('Payroll', 'Loan', 'anular', [prestamoId]),
 
+  aprobar: (prestamoId: string) =>
+    execute<{ id: string; estado: 'ACTIVO' }>('Payroll', 'Loan', 'aprobar', [prestamoId]),
+
+  rechazar: (prestamoId: string) =>
+    execute<{ id: string; estado: 'ANULADO' }>('Payroll', 'Loan', 'rechazar', [prestamoId]),
+
   misPrestamos: () =>
     execute<PrestamoItem[]>('Payroll', 'Loan', 'misPrestamos', []),
 };

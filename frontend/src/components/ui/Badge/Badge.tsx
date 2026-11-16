@@ -10,7 +10,7 @@ export interface BadgeProps {
   tone?: BadgeTone;
   dot?: boolean;
   /** Ícono de estado para distinguir sin depender solo del color. */
-  statusIcon?: 'processed' | 'paid' | 'none';
+  statusIcon?: 'processed' | 'paid' | 'solicitado' | 'none';
   className?: string;
 }
 
@@ -33,7 +33,7 @@ export function Badge({ children, tone = 'neutral', dot = true, statusIcon = 'no
   const icon =
     statusIcon === 'paid' ? (
       <Check className="h-3 w-3" aria-hidden strokeWidth={2.5} />
-    ) : statusIcon === 'processed' ? (
+    ) : statusIcon === 'processed' || statusIcon === 'solicitado' ? (
       <Clock3 className="h-3 w-3" aria-hidden strokeWidth={2.25} />
     ) : null;
 
