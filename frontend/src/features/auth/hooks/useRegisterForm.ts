@@ -12,6 +12,7 @@ export interface UseRegisterFormResult {
   submitState: SubmitState;
   serverError: string | null;
   handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  registerFieldRef: (field: keyof RegisterValues) => (el: HTMLElement | null) => void;
 }
 
 export function useRegisterForm(onSuccess?: () => void): UseRegisterFormResult {

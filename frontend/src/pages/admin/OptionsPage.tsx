@@ -34,12 +34,13 @@ import {
 } from '../../features/admin/services/optionService';
 import { ProfileAdminService, type PerfilAdminItem } from '../../features/admin/services/profileAdminService';
 import { hasProfile } from '../../utils';
+import { LIMITS } from '../../constants';
 import { cn } from '../../utils/cn';
 
 // Misma regla del backend: 2–80 caracteres alfanuméricos, empieza por letra,
 // sin espacios, acentos, guiones ni guion bajo.
 const OPCION_NOMBRE_REGEX = /^[A-Za-z][A-Za-z0-9]{1,79}$/;
-const DESCRIPCION_MAX = 200;
+const DESCRIPCION_MAX = LIMITS.description.max;
 const ORDEN_MIN = 0;
 const ORDEN_MAX = 32767;
 
@@ -791,7 +792,7 @@ export function OptionsPage() {
             onChange={(val) => setNombre(val)}
             error={nombreError}
             disabled={modal === 'editar' && opcionEditando?.protegida}
-            maxLength={80}
+            maxLength={LIMITS.shortText.max}
             required
           />
           {modal === 'editar' && opcionEditando?.protegida && (

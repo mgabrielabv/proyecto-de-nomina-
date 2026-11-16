@@ -7,6 +7,7 @@ import { Avatar } from '../../ui/Avatar';
 import { useSessionStore, useUiStore } from '../../../store';
 import { useClickOutside, useDebouncedValue } from '../../../hooks';
 import { cn } from '../../../utils';
+import { LIMITS } from '../../../constants';
 import { NotificationPanel } from '../NotificationPanel';
 
 export interface TopbarProps {
@@ -88,6 +89,7 @@ export function Topbar({ title, description, sidebarCollapsed = false, onToggleS
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             placeholder="Buscar en la plataforma"
+            maxLength={LIMITS.searchQuery.max}
             aria-label="Búsqueda"
             className={cn(
               'h-9 w-full rounded-lg border border-border bg-surface-soft px-3 text-sm text-text outline-none transition-all duration-200 placeholder:text-text-secondary focus:border-accent focus:shadow-input-focus lg:pl-9',

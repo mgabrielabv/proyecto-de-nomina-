@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, CheckCircle2, Info, X } from 'lucide-react';
 import { toastVariants } from '../../../animations/variants';
 import { useToastStore, type ToastTone } from '../../../store';
 import { cn } from '../../../utils';
@@ -7,12 +7,14 @@ import { cn } from '../../../utils';
 const toneClasses: Record<ToastTone, string> = {
   success: 'border-success/30 bg-success-soft text-success',
   error: 'border-error/30 bg-error-soft text-error',
+  warning: 'border-warning/35 bg-warning-soft text-warning',
   info: 'border-border bg-surface text-text-secondary',
 };
 
 function ToneIcon({ tone }: { tone: ToastTone }) {
   if (tone === 'success') return <CheckCircle2 className="h-[18px] w-[18px]" aria-hidden />;
   if (tone === 'error') return <AlertCircle className="h-[18px] w-[18px]" aria-hidden />;
+  if (tone === 'warning') return <AlertTriangle className="h-[18px] w-[18px]" aria-hidden />;
   return <Info className="h-[18px] w-[18px]" aria-hidden />;
 }
 

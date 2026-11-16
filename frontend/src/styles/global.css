@@ -50,6 +50,16 @@
     white-space: nowrap;
   }
 
+  /* Detección de autofill para flotar la etiqueta (Input.tsx escucha onAnimationStart). */
+  @keyframes onAutoFillStart {
+    from { /* empty */ }
+    to { /* empty */ }
+  }
+  @keyframes onAutoFillCancel {
+    from { /* empty */ }
+    to { /* empty */ }
+  }
+
   /* El autocompletado del navegador debe conservar el color del tema. */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
@@ -57,6 +67,10 @@
     -webkit-text-fill-color: var(--color-text);
     caret-color: var(--color-accent);
     transition: background-color 9999s ease-out 0s;
+    animation-name: onAutoFillStart;
+  }
+  input:not(:-webkit-autofill) {
+    animation-name: onAutoFillCancel;
   }
 
   /* En campos nativos de fecha/hora, el icono de calendario debe ser interactivo */

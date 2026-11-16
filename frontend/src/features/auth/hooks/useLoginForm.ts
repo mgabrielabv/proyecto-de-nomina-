@@ -13,6 +13,7 @@ export interface UseLoginFormResult {
   submitState: SubmitState;
   serverError: string | null;
   handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  registerFieldRef: (field: keyof LoginValues) => (el: HTMLElement | null) => void;
 }
 
 export function useLoginForm(onSuccess?: (user: SessionUser) => void): UseLoginFormResult {

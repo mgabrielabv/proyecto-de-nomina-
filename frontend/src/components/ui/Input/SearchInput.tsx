@@ -1,4 +1,5 @@
 import { Search } from 'lucide-react';
+import { LIMITS } from '../../../constants';
 import { cn } from '../../../utils';
 
 export interface SearchInputProps {
@@ -15,6 +16,7 @@ export interface SearchInputProps {
   disabled?: boolean;
   autoFocus?: boolean;
   className?: string;
+  maxLength?: number;
 }
 
 /**
@@ -32,6 +34,7 @@ export function SearchInput({
   disabled,
   autoFocus,
   className,
+  maxLength = LIMITS.searchQuery.max,
 }: SearchInputProps) {
   const isLarge = size === 'md';
 
@@ -54,6 +57,7 @@ export function SearchInput({
         aria-label={ariaLabel ?? placeholder}
         disabled={disabled}
         autoFocus={autoFocus}
+        maxLength={maxLength}
         className={cn(
           'w-full truncate border border-border bg-surface-soft pr-4 text-text outline-none transition-colors duration-200 placeholder:text-text-secondary placeholder:text-ellipsis focus:border-accent disabled:cursor-not-allowed disabled:opacity-60',
           isLarge

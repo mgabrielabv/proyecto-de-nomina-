@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { AlertCircle } from 'lucide-react';
 import { fadeUpItem, staggerContainer } from '../../../animations/variants';
+import { LIMITS } from '../../../constants';
 import { useRegisterForm } from '../../../features/auth/hooks';
 import { Button } from '../../ui/Button';
 import { Input, PasswordInput } from '../../ui/Input';
@@ -12,7 +13,8 @@ export interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const reduce = useReducedMotion();
-  const { values, getError, setField, handleBlur, submitState, serverError, handleSubmit } = useRegisterForm(onSuccess);
+  const { values, getError, setField, handleBlur, submitState, serverError, handleSubmit, registerFieldRef } =
+    useRegisterForm(onSuccess);
 
   return (
     <motion.form
@@ -30,6 +32,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
       <motion.div variants={fadeUpItem} className="space-y-4">
         <Input
+          ref={registerFieldRef('name')}
           name="name"
           label="Nombre"
           autoComplete="name"
@@ -37,9 +40,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           onChange={(value) => setField('name', value)}
           onBlurField={() => handleBlur('name')}
           error={getError('name')}
-          success={values.name.length > 0 && !getError('name')}
+          success={values.name.trim().length > 0 && !getError('name')}
+          maxLength={LIMITS.personName.max}
         />
         <Input
+          ref={registerFieldRef('email')}
           name="email"
           label="Correo electrónico"
           type="email"
@@ -49,9 +54,11 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           onChange={(value) => setField('email', value)}
           onBlurField={() => handleBlur('email')}
           error={getError('email')}
-          success={values.email.length > 0 && !getError('email')}
+          success={values.email.trim().length > 0 && !getError('email')}
+          maxLength={LIMITS.email.max}
         />
         <PasswordInput
+          ref={registerFieldRef('password') as any}
           name="password"
           label="Contraseña"
           autoComplete="new-password"
@@ -63,6 +70,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
         />
         <PasswordStrength password={values.password} />
         <PasswordInput
+          ref={registerFieldRef('confirmPassword') as any}
           name="confirmPassword"
           label="Confirma tu contraseña"
           autoComplete="new-password"

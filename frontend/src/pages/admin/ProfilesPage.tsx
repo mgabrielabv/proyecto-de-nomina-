@@ -22,12 +22,13 @@ import {
   ProfileAdminService,
   type PerfilAdminItem,
 } from '../../features/admin/services/profileAdminService';
+import { LIMITS } from '../../constants';
 import { hasAnyProfile, hasProfile } from '../../utils';
 import { cn } from '../../utils/cn';
 
 // Misma regla del backend: 3–50 caracteres alfanuméricos, empieza por letra.
 const PERFIL_NOMBRE_REGEX = /^[A-Za-z][A-Za-z0-9]{2,49}$/;
-const DESCRIPCION_MAX = 200;
+const DESCRIPCION_MAX = LIMITS.description.max;
 
 export function ProfilesPage() {
   const user = useSessionStore((state) => state.user);
@@ -403,7 +404,7 @@ export function ProfilesPage() {
             onChange={(val) => setNombre(val)}
             error={nombreError}
             disabled={modal === 'editar' && perfilEditando?.protegido}
-            maxLength={50}
+            maxLength={LIMITS.shortText.max}
             required
           />
           {modal === 'editar' && perfilEditando?.protegido && (

@@ -15,7 +15,8 @@ export interface LoginFormProps {
 export function LoginForm({ onSuccess }: LoginFormProps) {
   const reduce = useReducedMotion();
   const [remember, setRemember] = useState(false);
-  const { values, getError, setField, handleBlur, submitState, serverError, handleSubmit } = useLoginForm(onSuccess);
+  const { values, getError, setField, handleBlur, submitState, serverError, handleSubmit, registerFieldRef } =
+    useLoginForm(onSuccess);
 
   return (
     <motion.form
@@ -33,6 +34,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
       <motion.div variants={fadeUpItem} className="space-y-4">
         <Input
+          ref={registerFieldRef('username')}
           name="username"
           label="Nombre de usuario"
           type="text"
@@ -42,8 +44,10 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           onBlurField={() => handleBlur('username')}
           error={getError('username')}
           success={values.username.length > 0 && !getError('username')}
+          maxLength={254}
         />
         <PasswordInput
+          ref={registerFieldRef('password') as any}
           name="password"
           label="Contraseña"
           autoComplete="current-password"
