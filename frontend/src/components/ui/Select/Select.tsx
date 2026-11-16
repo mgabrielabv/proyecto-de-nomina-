@@ -21,11 +21,17 @@ export interface SelectProps {
   className?: string;
 }
 
+const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
 export function Select(props: SelectProps) {
   const { name, label, value, options, onChange, error, placeholder = 'Selecciona una opción', disabled, className } = props;
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const typeBufferRef = useRef('');
+  const typeTimerRef = useRef<number | null>(null);
   const listId = `${name}-listbox`;
   const errorId = `${name}-select-error`;
   const labelId = `${name}-select-label`;
@@ -47,11 +53,42 @@ export function Select(props: SelectProps) {
     return () => document.removeEventListener('mousedown', handlePointer);
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const el = optionRefs.current[activeIndex];
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex, open]);
+
+  useEffect(() => () => {
+    if (typeTimerRef.current) window.clearTimeout(typeTimerRef.current);
+  }, []);
+
   const commit = (index: number) => {
     const option = options[index];
     if (!option) return;
     onChange(option.value);
     setOpen(false);
+  };
+
+  const handleTypeAhead = (key: string) => {
+    if (key.length !== 1) return;
+    const char = key;
+    if (typeTimerRef.current) window.clearTimeout(typeTimerRef.current);
+    typeBufferRef.current = `${typeBufferRef.current}${char}`;
+    typeTimerRef.current = window.setTimeout(() => {
+      typeBufferRef.current = '';
+      typeTimerRef.current = null;
+    }, 500);
+    const query = normalize(typeBufferRef.current);
+    if (!query) return;
+    const start = open ? activeIndex + 1 : Math.max(options.findIndex((o) => o.value === value), 0);
+    const ordered = [...options.slice(start), ...options.slice(0, start)];
+    const found = ordered.findIndex((o) => normalize(o.label).startsWith(query));
+    if (found >= 0) {
+      const idx = (start + found) % options.length;
+      if (!open) setOpen(true);
+      setActiveIndex(idx);
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -66,14 +103,24 @@ export function Select(props: SelectProps) {
         const delta = event.key === 'ArrowDown' ? 1 : -1;
         return (current + delta + options.length) % options.length;
       });
-    } else if (event.key === 'Enter' || event.key === ' ') {
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (open) commit(activeIndex);
       else setOpen(true);
-    } else if (event.key === 'Escape') {
+      return;
+    }
+    if (event.key === 'Escape') {
       setOpen(false);
-    } else if (event.key === 'Tab') {
+      return;
+    }
+    if (event.key === 'Tab') {
       setOpen(false);
+      return;
+    }
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      handleTypeAhead(event.key);
     }
   };
 
@@ -121,6 +168,7 @@ export function Select(props: SelectProps) {
       <AnimatePresence>
         {open && (
           <motion.ul
+            ref={listRef}
             id={listId}
             role="listbox"
             aria-labelledby={labelId}
@@ -132,16 +180,20 @@ export function Select(props: SelectProps) {
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;
+              const isActive = index === activeIndex;
               return (
                 <li key={option.value} role="option" aria-selected={isSelected}>
                   <button
+                    ref={(el) => {
+                      optionRefs.current[index] = el;
+                    }}
                     type="button"
                     tabIndex={-1}
                     onMouseEnter={() => setActiveIndex(index)}
                     onClick={() => commit(index)}
                     className={cn(
-                      'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors duration-150',
-                      index === activeIndex ? 'bg-surface-soft text-text' : 'text-text-secondary',
+                      'flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors duration-[120ms]',
+                      isActive ? 'bg-[var(--color-spot)] text-text' : 'text-text-secondary hover:bg-[var(--color-spot)]/70 hover:text-text',
                     )}
                   >
                     <span className="truncate">{option.label}</span>

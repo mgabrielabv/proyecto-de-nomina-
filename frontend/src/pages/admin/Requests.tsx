@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { SearchInput } from '../../components/ui/Input/SearchInput';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -169,17 +169,19 @@ export function AdminRequests() {
           </div>
         </motion.div>
 
-        <motion.div variants={fadeUpItem}>
-          <ResponsiveTable
-            columns={columns}
-            rows={filtered}
-            rowKey={(row) => row.id}
-            caption="Bandeja de solicitudes"
-            onRowClick={openDetail}
-            loading={requests.length === 0}
-            emptyMessage={EMPTY_MESSAGES.requests}
-          />
-        </motion.div>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={tab} variants={fadeUpItem} initial="hidden" animate="show" exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}>
+            <ResponsiveTable
+              columns={columns}
+              rows={filtered}
+              rowKey={(row) => row.id}
+              caption="Bandeja de solicitudes"
+              onRowClick={openDetail}
+              loading={requests.length === 0}
+              emptyMessage={EMPTY_MESSAGES.requests}
+            />
+          </motion.div>
+        </AnimatePresence>
       </motion.div>
 
       <Drawer

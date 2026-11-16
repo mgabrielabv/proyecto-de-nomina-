@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Plus,
   Clock,
@@ -347,64 +347,68 @@ export function ConceptsPage() {
         />
       </div>
 
-      <motion.div
-        variants={staggerContainer(0.05)}
-        initial="hidden"
-        animate="show"
-        className="space-y-5"
-      >
-        {tab === 'catalogo' ? (
-          <motion.div variants={fadeUpItem}>
-            <ResponsiveTable
-              columns={catalogoColumns}
-              rows={catalogo}
-              rowKey={(r) => String(r.id)}
-              caption="Catálogo general de conceptos salariales"
-              loading={loading}
-              emptyMessage="No hay conceptos registrados en el catálogo."
-            />
-          </motion.div>
-        ) : (
-          <>
-            <motion.div
-              variants={fadeUpItem}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4"
-            >
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-text-muted" />
-                <span className="text-sm font-medium text-text">Empleado a consultar:</span>
-              </div>
-
-              <div className="w-full max-w-md">
-                <Select
-                  name="selectedPersona"
-                  label="Empleado a consultar"
-                  value={selectedPersonaId}
-                  onChange={(val) => setSelectedPersonaId(val)}
-                  options={personaOptions}
-                  placeholder="Seleccionar empleado"
-                />
-              </div>
-            </motion.div>
-
-
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={tab}
+          variants={staggerContainer(0.05)}
+          initial="hidden"
+          animate="show"
+          exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+          className="space-y-5"
+        >
+          {tab === 'catalogo' ? (
             <motion.div variants={fadeUpItem}>
               <ResponsiveTable
-                columns={recurrenteColumns}
-                rows={recurrentes}
-                rowKey={(r) => r.id}
-                caption="Conceptos recurrentes asignados al empleado"
-                loading={loading || recurrentesLoading}
-                emptyMessage={
-                  personas.length === 0
-                    ? 'No hay empleados activos.'
-                    : 'Este empleado no tiene conceptos recurrentes asignados.'
-                }
+                columns={catalogoColumns}
+                rows={catalogo}
+                rowKey={(r) => String(r.id)}
+                caption="Catálogo general de conceptos salariales"
+                loading={loading}
+                emptyMessage="No hay conceptos registrados en el catálogo."
               />
             </motion.div>
-          </>
-        )}
-      </motion.div>
+          ) : (
+            <>
+              <motion.div
+                variants={fadeUpItem}
+                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-surface-soft p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-text-muted" />
+                  <span className="text-sm font-medium text-text">Empleado a consultar:</span>
+                </div>
+
+                <div className="w-full max-w-md">
+                  <Select
+                    name="selectedPersona"
+                    label="Empleado a consultar"
+                    value={selectedPersonaId}
+                    onChange={(val) => setSelectedPersonaId(val)}
+                    options={personaOptions}
+                    placeholder="Seleccionar empleado"
+                  />
+                </div>
+              </motion.div>
+
+
+              <motion.div variants={fadeUpItem}>
+                <ResponsiveTable
+                  columns={recurrenteColumns}
+                  rows={recurrentes}
+                  rowKey={(r) => r.id}
+                  caption="Conceptos recurrentes asignados al empleado"
+                  loading={loading || recurrentesLoading}
+                  emptyMessage={
+                    personas.length === 0
+                      ? 'No hay empleados activos.'
+                      : 'Este empleado no tiene conceptos recurrentes asignados.'
+                  }
+                />
+              </motion.div>
+            </>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Modal Asignar Recurrente */}
       <Modal

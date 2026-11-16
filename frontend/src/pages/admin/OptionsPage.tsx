@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertTriangle,
   EyeOff,
@@ -540,13 +540,16 @@ export function OptionsPage() {
         layoutId="opciones-tabs"
       />
 
-      <motion.div
-        variants={staggerContainer(0.05)}
-        initial="hidden"
-        animate="show"
-        className="space-y-5"
-      >
-        {tab === 'catalogo' ? (
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={tab}
+          variants={staggerContainer(0.05)}
+          initial="hidden"
+          animate="show"
+          exit={{ opacity: 0, y: -4, transition: { duration: 0.15 } }}
+          className="space-y-5"
+        >
+          {tab === 'catalogo' ? (
           loading ? (
             <div className="flex h-48 items-center justify-center text-sm text-text-muted">
               Cargando catálogo de opciones...
@@ -739,6 +742,7 @@ export function OptionsPage() {
           </motion.div>
         )}
       </motion.div>
+      </AnimatePresence>
 
       {/* Modal Crear / Editar Opción */}
       <Modal

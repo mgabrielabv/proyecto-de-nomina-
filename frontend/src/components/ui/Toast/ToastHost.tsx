@@ -112,7 +112,7 @@ function ToastCard({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: str
           type="button"
           onClick={() => onDismiss(toast.id)}
           aria-label="Descartar aviso"
-          className="-mr-1.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors duration-200 hover:bg-black/5"
+          className="-mr-1.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors duration-200 hover:bg-surface-soft/70"
         >
           <X className="h-4 w-4" aria-hidden />
         </button>
