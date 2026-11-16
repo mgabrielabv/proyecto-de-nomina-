@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { ChevronLeft, ChevronRight, MenuIcon, RotateCw } from 'lucide-react';
-import { EASE_SIDEBAR, NAV_SECTIONS } from '../../../constants';
+import { DURATION, EASE_SIDEBAR, NAV_SECTIONS } from '../../../constants';
 import type { NavSection } from '../../../constants';
 import { useMenuStore } from '../../../store';
 import { cn } from '../../../utils';
@@ -68,8 +68,8 @@ const rowVariantsFor = (index: number, reduce: boolean): Variants => ({
       ease: EASE_SIDEBAR,
     },
   },
-  left: { opacity: 0, x: reduce ? 0 : -ROW_OFFSET, transition: { duration: 0.12 } },
-  right: { opacity: 0, x: reduce ? 0 : ROW_OFFSET, transition: { duration: 0.12 } },
+  left: { opacity: 0, x: reduce ? 0 : -ROW_OFFSET, transition: { duration: DURATION.instant } },
+  right: { opacity: 0, x: reduce ? 0 : ROW_OFFSET, transition: { duration: DURATION.instant } },
 });
 
 // Navegación por paneles con deslizamiento. El menú se arma desde

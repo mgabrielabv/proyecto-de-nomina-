@@ -1,4 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { DURATION, EASE } from '../../../constants';
 import { useEffect, useRef, useState } from 'react';
 import { PASSWORD_STRENGTH_LABELS } from '../../../constants';
 import { getPasswordIssues, getPasswordStrengthScore } from '../../../features/auth/validators';
@@ -46,7 +47,7 @@ export function PasswordStrength({ password, showChecklist = true }: PasswordStr
           initial={{ height: 0, opacity: 0 }}
           animate={{ height: 'auto', opacity: 1 }}
           exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
+          transition={{ duration: DURATION.fast, ease: EASE.out }}
           className="overflow-hidden"
           role="status"
           aria-live="polite"
@@ -66,7 +67,7 @@ export function PasswordStrength({ password, showChecklist = true }: PasswordStr
                         backgroundColor: fill ? bandColor : 'transparent',
                         opacity: fill ? 1 : 0.5,
                       }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
+                      transition={{ duration: DURATION.fast, ease: EASE.out }}
                     />
                   </span>
                 );
@@ -100,7 +101,7 @@ export function PasswordStrength({ password, showChecklist = true }: PasswordStr
                           borderColor: issue.ok ? 'var(--color-success)' : failed ? 'var(--color-error)' : 'var(--color-border-strong)',
                           scale: issue.ok ? 1 : 0.92,
                         }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ duration: DURATION.fast }}
                         className="flex h-4 w-4 items-center justify-center rounded-full border"
                       >
                         <svg viewBox="0 0 16 16" className="h-2.5 w-2.5" fill="none">
@@ -112,7 +113,7 @@ export function PasswordStrength({ password, showChecklist = true }: PasswordStr
                             strokeLinejoin="round"
                             initial={false}
                             animate={{ pathLength: issue.ok ? 1 : 0, opacity: issue.ok ? 1 : 0 }}
-                            transition={{ duration: 0.2 }}
+                            transition={{ duration: DURATION.fast }}
                           />
                         </svg>
                       </motion.span>

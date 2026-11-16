@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { DURATION } from '../../constants';
 import { AnimatedBackground } from '../../components/background/AnimatedBackground';
 import { AuthCard } from '../../components/auth/AuthCard';
 import { BrandMark } from '../../components/ui/BrandMark';
@@ -32,7 +33,7 @@ export function LoginPage() {
                   viewBox="0 0 48 48"
                   className="mb-10 h-10 w-10 text-text-secondary"
                   animate={reduce ? undefined : { rotate: 360 }}
-                  transition={reduce ? undefined : { duration: 48, repeat: Infinity, ease: 'linear' }}
+                  transition={reduce ? undefined : { duration: DURATION.slower * 80, repeat: Infinity, ease: 'linear' }}
                   aria-hidden
                 >
                   <g fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round">

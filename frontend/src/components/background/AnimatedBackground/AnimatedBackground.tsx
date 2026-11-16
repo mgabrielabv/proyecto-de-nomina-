@@ -1,5 +1,6 @@
 import { useMotionValue, useReducedMotion } from 'framer-motion';
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
+import { usePageVisibility } from '../../../hooks';
 import { cn } from '../../../utils';
 import { CursorSpotlight } from '../CursorSpotlight';
 import { FloatingOrbs } from '../FloatingOrbs';
@@ -11,6 +12,8 @@ export interface AnimatedBackgroundProps {
 
 export function AnimatedBackground({ children, className }: AnimatedBackgroundProps) {
   const reduce = useReducedMotion();
+  const visible = usePageVisibility();
+  const paused = reduce || !visible;
   const x = useMotionValue(-1000);
   const y = useMotionValue(-1000);
 
@@ -21,10 +24,10 @@ export function AnimatedBackground({ children, className }: AnimatedBackgroundPr
   };
 
   return (
-    <div className={cn('relative h-full w-full overflow-hidden', className)} onPointerMove={reduce ? undefined : handlePointerMove}>
+    <div className={cn('relative h-full w-full overflow-hidden', className)} onPointerMove={paused ? undefined : handlePointerMove}>
       <div className="panel-gradient absolute inset-0" aria-hidden />
-      {!reduce && <FloatingOrbs />}
-      {!reduce && <CursorSpotlight x={x} y={y} />}
+      {!reduce && <FloatingOrbs paused={!visible} />}
+      {!paused && <CursorSpotlight x={x} y={y} />}
       <div className="grid-lines absolute inset-0" aria-hidden />
       <div className="grain absolute inset-0" aria-hidden />
       <div className="relative z-10 flex h-full w-full flex-col">{children}</div>

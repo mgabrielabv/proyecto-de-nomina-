@@ -7,3 +7,6 @@ export { useLockBodyScroll } from './useLockBodyScroll';
 export { useIsMobile, useMediaQuery } from './useMediaQuery';
 export { useMockLoad } from './useMockLoad';
 export { useTheme } from './useTheme';
+export { useLowEndDevice } from './useLowEndDevice';
+export { usePageVisibility } from './usePageVisibility';
+export { usePauseAnimationsWhenHidden } from './usePauseAnimationsWhenHidden';

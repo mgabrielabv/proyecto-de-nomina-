@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ORB_CONFIGS } from '../../../constants';
 import { orbFloatVariants } from '../../../animations/variants';
 
-export function FloatingOrbs() {
+export function FloatingOrbs({ paused = false }: { paused?: boolean }) {
   const reduce = useReducedMotion();
 
   if (reduce) {
@@ -42,7 +42,7 @@ export function FloatingOrbs() {
           }}
           variants={orbFloatVariants(orb)}
           initial={false}
-          animate="float"
+          animate={paused ? undefined : 'float'}
         />
       ))}
     </>

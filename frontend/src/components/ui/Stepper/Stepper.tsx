@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'framer-motion';
+import { DURATION, SPRING } from '../../../constants';
 import { Check } from 'lucide-react';
 import { cn } from '../../../utils';
 
@@ -43,7 +44,7 @@ export function Stepper({ steps, current, className, onSelect }: StepperProps) {
                   <motion.span
                     layoutId="stepper-active"
                     className="absolute inset-0 rounded-full ring-2 ring-[var(--color-focus)]"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    transition={SPRING.snappy}
                   />
                 )}
               </button>
@@ -52,7 +53,7 @@ export function Stepper({ steps, current, className, onSelect }: StepperProps) {
                   <motion.span
                     initial={{ scaleX: 0 }}
                     animate={{ scaleX: done ? 1 : 0 }}
-                    transition={{ duration: 0.35 }}
+                    transition={{ duration: DURATION.base }}
                     style={{ originX: 0 }}
                     className="absolute inset-0 bg-text"
                   />
