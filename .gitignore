@@ -9,3 +9,9 @@ dist-ssr
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local archives
+backend.zip
+backend/
+frontend.tar.xz
+frontend.zip
