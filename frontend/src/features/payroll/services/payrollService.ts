@@ -206,6 +206,8 @@ export interface PeriodoNomina {
   procesado_por?: number | null;
   fecha_proceso?: string | null;
   created_at: string;
+  preNominaId?: string | null;
+  preNominaVersion?: number | null;
 }
 
 export interface ReciboResumen {
@@ -262,6 +264,72 @@ export interface LineaReciboDetalle {
   tipo_concepto: 'ASIGNACION' | 'DEDUCCION' | 'APORTE_PATRONAL';
   categoria: string;
   unidad: string;
+}
+
+/* ==============================================================================
+ * TIPOS DE PRE-NÓMINA (Payroll/PreNomina)
+ * Los montos viajan y se pintan como string: nunca number de coma flotante.
+ * ============================================================================== */
+
+export type TipoConcepto = 'ASIGNACION' | 'DEDUCCION' | 'APORTE_PATRONAL';
+export type OrigenLinea =
+  | 'CALCULADA' | 'RECURRENTE' | 'NOVEDAD' | 'PRESTAMO' | 'LEY' | 'MANUAL';
+
+export interface PreNominaLinea {
+  id: string;
+  conceptoId: number;
+  codigo: string;
+  nombreConcepto: string;
+  tipoConcepto: TipoConcepto;
+  categoria: string;
+  unidad: string;
+  origen: OrigenLinea;
+  editable: boolean;
+  editada: boolean;
+  cuotaPrestamoId: string | null;
+  novedadId: string | null;
+  conceptoPersonaId: number | null;
+  parametroAporteId: number | null;
+  baseCalculo: string | null;
+  tasaAplicada: string | null;
+  cantidadUnidades: string | null;
+  monto: string;
+}
+
+export interface PreNominaRecibo {
+  id: string;
+  personaId: string;
+  cedula: string;
+  nombre: string;
+  contratoId: string;
+  totalAsignaciones: string;
+  totalDeducciones: string;
+  montoTotal: string;
+  lineas: PreNominaLinea[];
+}
+
+export interface PreNominaDetalle {
+  preNomina: {
+    id: string;
+    periodoId: string;
+    periodo: {
+      fechaInicio: string;
+      fechaFin: string;
+      frecuencia: 'SEMANAL' | 'QUINCENAL' | 'MENSUAL';
+      descripcion: string | null;
+    };
+    version: number;
+    generadoPor: string | null;
+    fechaGeneracion: string;
+    actualizadoPor: string | null;
+    fechaActualizacion: string | null;
+    recibos: number;
+    totalAsignaciones: string;
+    totalDeducciones: string;
+    totalAportePatronal: string;
+    montoTotal: string;
+  };
+  recibos: PreNominaRecibo[];
 }
 
 /* ==============================================================================
@@ -492,12 +560,63 @@ export const PeriodService = {
     execute<PeriodoNomina[]>('Payroll', 'Period', 'listar', []),
 
   ver: (periodoId: string) =>
-    execute<{ periodo: PeriodoNomina; recibos: ReciboItem[] }>(
+    execute<{
+      periodo: PeriodoNomina;
+      recibos: ReciboItem[];
+      preNomina: { id: string; version: number } | null;
+    }>(
       'Payroll',
       'Period',
       'ver',
       [periodoId],
     ),
+};
+
+export const PreNominaService = {
+  generar: (periodoId: string) =>
+    execute<PreNominaDetalle>('Payroll', 'PreNomina', 'generar', [periodoId]),
+
+  ver: (preNominaId: string) =>
+    execute<PreNominaDetalle>('Payroll', 'PreNomina', 'ver', [preNominaId]),
+
+  guardar: (
+    preNominaId: string,
+    version: number,
+    body: {
+      recibos: {
+        reciboId: string;
+        lineas: {
+          id: string | null;
+          conceptoId?: number;
+          monto: string;
+          cantidadUnidades: string | null;
+        }[];
+      }[];
+    },
+  ) =>
+    execute<PreNominaDetalle>('Payroll', 'PreNomina', 'guardar', [
+      preNominaId,
+      version,
+      body,
+    ]),
+
+  eliminar: (preNominaId: string) =>
+    execute<{ eliminada: true; preNominaId: string; periodoId: string }>(
+      'Payroll',
+      'PreNomina',
+      'eliminar',
+      [preNominaId],
+    ),
+
+  confirmar: (preNominaId: string, version: number) =>
+    execute<{
+      periodo: { id: string; estado: 'PROCESADO' };
+      recibos: { id: string; personaId: string; montoTotal: string }[];
+      novedadesAplicadas: number;
+      cuotasDescontadas: number;
+      prestamosPagados: number;
+      preNominaEliminada: true;
+    }>('Payroll', 'PreNomina', 'confirmar', [preNominaId, version]),
 };
 
 export const ReceiptService = {

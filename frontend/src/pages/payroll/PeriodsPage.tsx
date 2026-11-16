@@ -6,6 +6,7 @@ import {
   CreditCard,
   RotateCcw,
   Eye,
+  ArrowRight,
 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -15,6 +16,7 @@ import { ResponsiveTable, type TableColumn } from '../../components/ui/Table';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
+import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '../../store';
 import {
   PeriodService,
@@ -34,6 +36,7 @@ import {
   PERIODO_ESTADO_TONE,
   RECIBO_ESTADO_LABEL,
   RECIBO_ESTADO_TONE,
+  ROUTES,
   type PeriodoEstado,
   type ReciboEstado,
 } from '../../constants';
@@ -49,6 +52,11 @@ export function PeriodsPage() {
   const [periods, setPeriods] = useState<PeriodoNomina[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionBusy, setActionBusy] = useState(false);
+  const navigate = useNavigate();
+  const [procesar409, setProcesar409] = useState<{
+    preNominaId: string;
+    periodoId: string;
+  } | null>(null);
 
   // Modal Crear Periodo
   const [createOpen, setCreateOpen] = useState(false);
@@ -168,7 +176,12 @@ export function PeriodsPage() {
       // Refrescar detalle
       await handleVerDetalle({ ...selectedPeriod, estado: 'PROCESADO' });
     } catch (err: any) {
-      pushToast(err?.message ?? 'Error al procesar periodo', 'error');
+      const msg = err?.message ?? 'Error al procesar periodo';
+      if (err.status === 409 && msg.includes('pre-nómina sin confirmar')) {
+        setProcesar409({ preNominaId: selectedPeriod!.preNominaId!, periodoId: selectedPeriod.id });
+      } else {
+        pushToast(msg, 'error');
+      }
     } finally {
       setActionBusy(false);
     }
@@ -355,6 +368,34 @@ export function PeriodsPage() {
           </Button>
         }
       />
+
+      {procesar409 && (
+        <div className="rounded-lg border border-warning/30 bg-warning/10 p-4 text-sm text-warning">
+          <p>
+            Este periodo tiene una pre-nómina sin confirmar. Confírmala o elimínala antes de procesar.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setProcesar409(null);
+                void navigate(ROUTES.payrollPreNomina);
+              }}
+              className="h-9 rounded-button border border-border bg-surface-soft px-3 text-xs font-medium text-text-secondary hover:text-text"
+            >
+              <ArrowRight className="mr-1.5 h-3.5 w-3.5" />
+              Abrir borrador de pre-nómina
+            </button>
+            <button
+              type="button"
+              onClick={() => setProcesar409(null)}
+              className="h-9 rounded-button border border-border bg-surface-soft px-3 text-xs font-medium text-text-secondary hover:text-text"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
 
 
       <motion.div

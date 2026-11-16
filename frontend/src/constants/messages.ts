@@ -36,6 +36,8 @@ export const TOAST_MESSAGES = {
 export const CONFIRM_MESSAGES = {
   deleteEmployee: 'Esta acción elimina de forma permanente al empleado y sus datos.',
   rejectRequest: 'La solicitud quedará marcada como rechazada.',
+  confirmPreNomina:
+    'Se escribirán los recibos de pago definitivos, se aplicarán las novedades y cuotas del borrador y el periodo pasará a PROCESADO.',
 } as const;
 
 export const EMPTY_MESSAGES = {

@@ -31,6 +31,7 @@ import {
   PeriodsPage,
   HoursPage,
   OvertimePage,
+  PreNominaPage,
   NovedadesPage,
   LoansPage,
   ConceptsPage,
@@ -60,6 +61,7 @@ function AppRoutes() {
           <Route element={<DashboardLayout title="Nómina" />}>
             <Route path={ROUTES.payrollPeriodos} element={<PeriodsPage />} />
             <Route path={ROUTES.payrollHoras} element={<HoursPage />} />
+            <Route path={ROUTES.payrollPreNomina} element={<PreNominaPage />} />
             <Route path={ROUTES.payrollNovedades} element={<NovedadesPage />} />
             <Route path={ROUTES.payrollPrestamos} element={<LoansPage />} />
             <Route path={ROUTES.payrollConceptos} element={<ConceptsPage />} />

@@ -29,6 +29,7 @@ export const ROUTES = {
   payrollCargos: '/payroll/cargos',
   payrollAfiliaciones: '/payroll/afiliaciones',
   payrollMisRecibos: '/payroll/mis-recibos',
+  payrollPreNomina: '/payroll/pre-nomina',
 } as const;
 
 export const PROTECTED_BASE = ROUTES.dashboard;
@@ -63,5 +64,6 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.payrollCargos]: 'Tarifas por Cargo',
   [ROUTES.payrollAfiliaciones]: 'Afiliaciones a Aportes de Ley',
   [ROUTES.payrollMisRecibos]: 'Mis Recibos de Nómina',
+  [ROUTES.payrollPreNomina]: 'Pre-nómina',
 };
 
