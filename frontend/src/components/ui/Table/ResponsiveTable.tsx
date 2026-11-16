@@ -45,17 +45,28 @@ function SkeletonRows({ columns, rows = 6 }: { columns: number; rows?: number })
   return (
     <>
       {Array.from({ length: rows }, (_, rowIndex) => (
-        <tr key={`sk-${rowIndex}`} className="border-b border-border last:border-b-0">
-          {Array.from({ length: columns }, (_, colIndex) => (
-            <td key={colIndex} className="px-5 py-4">
-              <span
+        <tr key={`sk-${rowIndex}`}>
+          {Array.from({ length: columns }, (_, colIndex) => {
+            const lastRow = rowIndex === rows - 1;
+            return (
+              <td
+                key={colIndex}
                 className={cn(
-                  'block h-4 animate-pulse rounded-md bg-surface-soft',
-                  widths[(rowIndex + colIndex) % widths.length],
+                  'bg-surface px-5 py-4',
+                  !lastRow && 'border-b border-border',
+                  lastRow && colIndex === 0 && 'rounded-bl-[var(--radius-card)]',
+                  lastRow && colIndex === columns - 1 && 'rounded-br-[var(--radius-card)]',
                 )}
-              />
-            </td>
-          ))}
+              >
+                <span
+                  className={cn(
+                    'block h-4 animate-pulse rounded-md bg-surface-soft',
+                    widths[(rowIndex + colIndex) % widths.length],
+                  )}
+                />
+              </td>
+            );
+          })}
         </tr>
       ))}
     </>
@@ -85,6 +96,8 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
   const allSelected = selectable && rows.length > 0 && rows.every((row) => selectedKeys?.includes(rowKey(row)));
   const someSelected = selectable && rows.some((row) => selectedKeys?.includes(rowKey(row)));
   const totalColumns = columns.length + (selectable ? 1 : 0);
+  const thBase =
+    'sticky top-[var(--table-sticky-top,var(--topbar-h,5rem))] z-10 bg-surface px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-secondary shadow-[0_1px_0_0_var(--color-border)]';
 
   const handleRowKey = (e: KeyboardEvent<HTMLTableRowElement>, row: T) => {
     if (!onRowClick) return;
@@ -97,121 +110,146 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
   return (
     <div className="glass-card overflow-clip">
       <div className="hidden md:block">
-        <div className="scroll-thin overflow-x-auto">
-          <table className="w-full border-collapse text-sm">
-            <caption className="sr-only">{caption}</caption>
-            <thead className="sticky top-[var(--topbar-h,5rem)] z-10 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
-              <tr className="border-b border-border">
-                {selectable && (
-                  <th scope="col" className="w-12 px-5 py-3.5">
-                    <input
-                      type="checkbox"
-                      aria-label="Seleccionar todas las filas"
-                      checked={allSelected}
-                      ref={(node) => {
-                        if (node) node.indeterminate = !allSelected && someSelected;
-                      }}
-                      onChange={onToggleAll}
-                      className="h-4 w-4 rounded border-border-strong accent-[var(--color-accent)]"
-                    />
-                  </th>
-                )}
-                {columns.map((column) => {
-                  const active = sortKey === column.key;
-                  return (
-                    <th
-                      key={column.key}
-                      scope="col"
-                      aria-sort={active ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
-                      className={cn(
-                        'px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-secondary',
-                        alignClasses[column.align ?? 'left'],
-                      )}
-                    >
-                      {onSort && column.sortValue ? (
-                        <button
-                          type="button"
-                          onClick={() => onSort(column.key)}
-                          className={cn(
-                            'inline-flex items-center gap-1.5 rounded transition-colors duration-200 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                            active && 'text-text',
-                          )}
-                        >
-                          {column.header}
-                          <span className={cn('inline-flex transition-transform duration-200', active && sortDirection === 'asc' ? 'rotate-0' : active ? 'rotate-180' : 'opacity-30')}>
-                            <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-                          </span>
-                        </button>
-                      ) : (
-                        column.header
-                      )}
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <motion.tbody variants={tableContainerVariants} initial="hidden" animate="show">
-              {loading ? (
-                <SkeletonRows columns={totalColumns} />
-              ) : rows.length === 0 ? (
-                <tr>
-                  <td colSpan={totalColumns} className="p-0">
-                    <EmptyState title={emptyTitle} description={emptyMessage} action={emptyAction} />
-                  </td>
-                </tr>
-              ) : (
-                <AnimatePresence initial={false}>
-                  {rows.map((row, index) => {
-                    const key = rowKey(row);
-                    const selected = selectedKeys?.includes(key) ?? false;
-                    return (
-                      <motion.tr
-                        key={key}
-                        variants={index < 12 ? tableRowVariants : undefined}
-                        initial={index < 12 ? 'hidden' : false}
-                        animate={index < 12 ? 'show' : undefined}
-                        exit="exit"
-                        onClick={onRowClick ? () => onRowClick(row) : undefined}
-                        onKeyDown={(e) => handleRowKey(e, row)}
-                        tabIndex={onRowClick ? 0 : undefined}
+        <table className="w-full border-separate border-spacing-0 text-sm">
+          <caption className="sr-only">{caption}</caption>
+          <thead>
+            <tr>
+              {selectable && (
+                <th scope="col" className={cn(thBase, 'w-12 rounded-tl-[var(--radius-card)]')}>
+                  <input
+                    type="checkbox"
+                    aria-label="Seleccionar todas las filas"
+                    checked={allSelected}
+                    ref={(node) => {
+                      if (node) node.indeterminate = !allSelected && someSelected;
+                    }}
+                    onChange={onToggleAll}
+                    className="h-4 w-4 rounded border-border-strong accent-[var(--color-accent)]"
+                  />
+                </th>
+              )}
+              {columns.map((column, colIndex) => {
+                const active = sortKey === column.key;
+                const isFirst = !selectable && colIndex === 0;
+                const isLast = colIndex === columns.length - 1;
+                return (
+                  <th
+                    key={column.key}
+                    scope="col"
+                    aria-sort={active ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    className={cn(
+                      thBase,
+                      alignClasses[column.align ?? 'left'],
+                      isFirst && 'rounded-tl-[var(--radius-card)]',
+                      isLast && 'rounded-tr-[var(--radius-card)]',
+                    )}
+                  >
+                    {onSort && column.sortValue ? (
+                      <button
+                        type="button"
+                        onClick={() => onSort(column.key)}
                         className={cn(
-                          'group border-b border-border transition-colors duration-150 last:border-b-0',
-                          'min-h-[56px]',
-                          onRowClick && 'cursor-pointer hover:bg-spot focus-visible:bg-spot focus-visible:outline-none',
-                          !onRowClick && 'hover:bg-spot/60',
-                          selected && 'bg-spot',
+                          'inline-flex items-center gap-1.5 rounded transition-colors duration-200 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                          active && 'text-text',
                         )}
                       >
-                        {selectable && (
-                          <td className="px-5 py-4" onClick={(event) => event.stopPropagation()}>
-                            <input
-                              type="checkbox"
-                              aria-label={`Seleccionar fila ${key}`}
-                              checked={selected}
-                              onChange={() => onToggleRow?.(key)}
-                              className="h-4 w-4 rounded border-border-strong accent-[var(--color-accent)]"
-                            />
-                          </td>
-                        )}
-                        {columns.map((column) => (
+                        {column.header}
+                        <span
+                          className={cn(
+                            'inline-flex transition-transform duration-200',
+                            active && sortDirection === 'asc' ? 'rotate-0' : active ? 'rotate-180' : 'opacity-30',
+                          )}
+                        >
+                          <ArrowUp className="h-3.5 w-3.5" aria-hidden />
+                        </span>
+                      </button>
+                    ) : (
+                      column.header
+                    )}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <motion.tbody variants={tableContainerVariants} initial="hidden" animate="show">
+            {loading ? (
+              <SkeletonRows columns={totalColumns} />
+            ) : rows.length === 0 ? (
+              <tr>
+                <td colSpan={totalColumns} className="rounded-b-[var(--radius-card)] bg-surface p-0">
+                  <EmptyState title={emptyTitle} description={emptyMessage} action={emptyAction} />
+                </td>
+              </tr>
+            ) : (
+              <AnimatePresence initial={false}>
+                {rows.map((row, index) => {
+                  const key = rowKey(row);
+                  const selected = selectedKeys?.includes(key) ?? false;
+                  const lastRow = index === rows.length - 1;
+                  return (
+                    <motion.tr
+                      key={key}
+                      variants={index < 12 ? tableRowVariants : undefined}
+                      initial={index < 12 ? 'hidden' : false}
+                      animate={index < 12 ? 'show' : undefined}
+                      exit="exit"
+                      onClick={onRowClick ? () => onRowClick(row) : undefined}
+                      onKeyDown={(e) => handleRowKey(e, row)}
+                      tabIndex={onRowClick ? 0 : undefined}
+                      className={cn(
+                        'group transition-colors duration-150',
+                        'min-h-[56px]',
+                        onRowClick && 'cursor-pointer focus-visible:outline-none',
+                        selected && 'bg-spot',
+                      )}
+                    >
+                      {selectable && (
+                        <td
+                          className={cn(
+                            'bg-surface px-5 py-4',
+                            !lastRow && 'border-b border-border',
+                            lastRow && 'rounded-bl-[var(--radius-card)]',
+                            onRowClick ? 'group-hover:bg-spot group-focus-visible:bg-spot' : 'group-hover:bg-spot/60',
+                            selected && 'bg-spot',
+                          )}
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            aria-label={`Seleccionar fila ${key}`}
+                            checked={selected}
+                            onChange={() => onToggleRow?.(key)}
+                            className="h-4 w-4 rounded border-border-strong accent-[var(--color-accent)]"
+                          />
+                        </td>
+                      )}
+                      {columns.map((column, colIndex) => {
+                        const isLastCol = colIndex === columns.length - 1;
+                        const isFirstCol = !selectable && colIndex === 0;
+                        return (
                           <td
                             key={column.key}
                             className={cn(
-                              'px-5 py-4 align-middle text-text-secondary',
+                              'bg-surface px-5 py-4 align-middle text-text-secondary',
                               alignClasses[column.align ?? 'left'],
+                              !lastRow && 'border-b border-border',
+                              lastRow && isFirstCol && 'rounded-bl-[var(--radius-card)]',
+                              lastRow && isLastCol && 'rounded-br-[var(--radius-card)]',
+                              onRowClick ? 'group-hover:bg-spot group-focus-visible:bg-spot' : 'group-hover:bg-spot/60',
+                              selected && 'bg-spot',
                             )}
                           >
                             {column.render(row)}
                           </td>
-                        ))}
-                      </motion.tr>
-                    );
-                  })}
-                </AnimatePresence>
-              )}
-            </motion.tbody>
-          </table>
-        </div>
+                        );
+                      })}
+                    </motion.tr>
+                  );
+                })}
+              </AnimatePresence>
+            )}
+          </motion.tbody>
+        </table>
       </div>
 
       <div className="md:hidden">
@@ -241,7 +279,7 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                     className={cn('space-y-2.5 p-5', onRowClick && 'cursor-pointer active:bg-spot')}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 space-y-2.5 w-full">
+                      <div className="min-w-0 w-full space-y-2.5">
                         {columns
                           .filter((column) => !column.hideOnMobile)
                           .map((column) => (

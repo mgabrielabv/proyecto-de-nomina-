@@ -6,13 +6,13 @@ export const pageVariants: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
+    filter: 'none',
     transition: { duration: DURATION.slow, ease: EASE.out },
   },
   exit: {
     opacity: 0,
     y: -4,
-    filter: 'blur(0px)',
+    filter: 'none',
     transition: { duration: DURATION.fast, ease: EASE.in },
   },
 };
