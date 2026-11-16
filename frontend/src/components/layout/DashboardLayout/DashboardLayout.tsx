@@ -37,7 +37,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
   }, [routeTitle]);
 
   return (
-    <div className="min-h-dvh bg-bg font-sans text-text">
+    <div className="min-h-dvh bg-bg font-sans text-text" style={{ ["--topbar-h" as string]: "5rem" }}>
       <div className="page-gradient pointer-events-none fixed inset-0" aria-hidden />
       <motion.div
         variants={layoutVariants}

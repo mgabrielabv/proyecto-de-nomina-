@@ -240,7 +240,7 @@ export function OvertimePage() {
   if (!puedeGestionarExtras) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Horas Extras" description="Acceso restringido." />
+        <PageHeader title="Horas extras" description="Acceso restringido." />
         <div className="rounded-2xl border border-error/30 bg-error/10 p-8 text-center sm:p-12">
           <ShieldAlert className="mx-auto h-12 w-12 text-error" />
           <h2 className="mt-4 text-xl font-bold text-text">Acceso Restringido</h2>
@@ -267,7 +267,7 @@ export function OvertimePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Registro de Horas Extras"
+        title="Registro de horas extras"
         description="Registra las horas extra del personal. Se suman a las horas extra del día y se pagan a 1.5× en el recibo."
         actions={
           <Button onClick={() => setCreateOpen(true)}>

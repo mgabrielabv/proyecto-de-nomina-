@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDown, ArrowUp, Search } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ArrowUp } from 'lucide-react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { tableContainerVariants, tableRowVariants } from '../../../animations/variants';
 import { cn } from '../../../utils';
+import { EmptyState } from '../EmptyState';
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -29,6 +30,8 @@ export interface ResponsiveTableProps<T> {
   onToggleAll?: () => void;
   loading?: boolean;
   emptyMessage?: string;
+  emptyTitle?: string;
+  emptyAction?: ReactNode;
 }
 
 const alignClasses = {
@@ -37,17 +40,25 @@ const alignClasses = {
   right: 'text-right',
 } as const;
 
-function RowSkeleton({ columns }: { columns: number }) {
+function SkeletonRows({ columns, rows = 6 }: { columns: number; rows?: number }) {
+  const widths = ['w-10', 'w-20', 'w-28', 'w-16', 'w-24', 'w-14', 'w-32'];
   return (
-    <tr className="border-b border-border">
-      <td colSpan={columns} className="px-5 py-6">
-        <div className="flex flex-wrap gap-3">
-          {Array.from({ length: Math.min(columns, 5) }, (_, index) => (
-            <span key={index} className="h-4 flex-1 animate-pulse rounded-md bg-surface-soft" />
+    <>
+      {Array.from({ length: rows }, (_, rowIndex) => (
+        <tr key={`sk-${rowIndex}`} className="border-b border-border last:border-b-0">
+          {Array.from({ length: columns }, (_, colIndex) => (
+            <td key={colIndex} className="px-5 py-4">
+              <span
+                className={cn(
+                  'block h-4 animate-pulse rounded-md bg-surface-soft',
+                  widths[(rowIndex + colIndex) % widths.length],
+                )}
+              />
+            </td>
           ))}
-        </div>
-      </td>
-    </tr>
+        </tr>
+      ))}
+    </>
   );
 }
 
@@ -66,6 +77,8 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
     onToggleAll,
     loading = false,
     emptyMessage = 'Sin resultados.',
+    emptyTitle = 'Sin resultados',
+    emptyAction,
   } = props;
 
   const selectable = Boolean(selectedKeys && onToggleRow);
@@ -73,13 +86,21 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
   const someSelected = selectable && rows.some((row) => selectedKeys?.includes(rowKey(row)));
   const totalColumns = columns.length + (selectable ? 1 : 0);
 
+  const handleRowKey = (e: KeyboardEvent<HTMLTableRowElement>, row: T) => {
+    if (!onRowClick) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onRowClick(row);
+    }
+  };
+
   return (
-    <div className="glass-card overflow-hidden">
+    <div className="glass-card overflow-clip">
       <div className="hidden md:block">
-        <div className="max-h-[70vh] overflow-y-auto">
+        <div className="scroll-thin overflow-x-auto">
           <table className="w-full border-collapse text-sm">
             <caption className="sr-only">{caption}</caption>
-            <thead className="sticky top-0 z-10 bg-surface/95 backdrop-blur">
+            <thead className="sticky top-[var(--topbar-h,5rem)] z-10 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
               <tr className="border-b border-border">
                 {selectable && (
                   <th scope="col" className="w-12 px-5 py-3.5">
@@ -103,7 +124,7 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                       scope="col"
                       aria-sort={active ? (sortDirection === 'asc' ? 'ascending' : 'descending') : 'none'}
                       className={cn(
-                        'px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-muted',
+                        'px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-text-secondary',
                         alignClasses[column.align ?? 'left'],
                       )}
                     >
@@ -112,17 +133,14 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                           type="button"
                           onClick={() => onSort(column.key)}
                           className={cn(
-                            'inline-flex items-center gap-1.5 rounded transition-colors duration-200 hover:text-text',
+                            'inline-flex items-center gap-1.5 rounded transition-colors duration-200 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
                             active && 'text-text',
                           )}
                         >
                           {column.header}
-                          {active &&
-                            (sortDirection === 'asc' ? (
-                              <ArrowUp className="h-3.5 w-3.5" aria-hidden />
-                            ) : (
-                              <ArrowDown className="h-3.5 w-3.5" aria-hidden />
-                            ))}
+                          <span className={cn('inline-flex transition-transform duration-200', active && sortDirection === 'asc' ? 'rotate-0' : active ? 'rotate-180' : 'opacity-30')}>
+                            <ArrowUp className="h-3.5 w-3.5" aria-hidden />
+                          </span>
                         </button>
                       ) : (
                         column.header
@@ -133,29 +151,34 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
               </tr>
             </thead>
             <motion.tbody variants={tableContainerVariants} initial="hidden" animate="show">
-              <AnimatePresence initial={false}>
-                {loading && <RowSkeleton columns={totalColumns} />}
-                {!loading && rows.length === 0 && (
-                  <tr className="border-b border-border">
-                    <td colSpan={totalColumns} className="px-5 py-14 text-center text-sm text-text-secondary">
-                      <Search className="mx-auto mb-3 h-6 w-6 text-text-muted" aria-hidden />
-                      {emptyMessage}
-                    </td>
-                  </tr>
-                )}
-                {!loading &&
-                  rows.map((row) => {
+              {loading ? (
+                <SkeletonRows columns={totalColumns} />
+              ) : rows.length === 0 ? (
+                <tr>
+                  <td colSpan={totalColumns} className="p-0">
+                    <EmptyState title={emptyTitle} description={emptyMessage} action={emptyAction} />
+                  </td>
+                </tr>
+              ) : (
+                <AnimatePresence initial={false}>
+                  {rows.map((row, index) => {
                     const key = rowKey(row);
                     const selected = selectedKeys?.includes(key) ?? false;
                     return (
                       <motion.tr
                         key={key}
-                        variants={tableRowVariants}
+                        variants={index < 12 ? tableRowVariants : undefined}
+                        initial={index < 12 ? 'hidden' : false}
+                        animate={index < 12 ? 'show' : undefined}
                         exit="exit"
                         onClick={onRowClick ? () => onRowClick(row) : undefined}
+                        onKeyDown={(e) => handleRowKey(e, row)}
+                        tabIndex={onRowClick ? 0 : undefined}
                         className={cn(
-                          'border-b border-border transition-colors duration-150 last:border-b-0',
-                          onRowClick && 'cursor-pointer hover:bg-spot',
+                          'group border-b border-border transition-colors duration-150 last:border-b-0',
+                          'min-h-[56px]',
+                          onRowClick && 'cursor-pointer hover:bg-spot focus-visible:bg-spot focus-visible:outline-none',
+                          !onRowClick && 'hover:bg-spot/60',
                           selected && 'bg-spot',
                         )}
                       >
@@ -173,7 +196,10 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                         {columns.map((column) => (
                           <td
                             key={column.key}
-                            className={cn('px-5 py-4 align-middle text-text-secondary', alignClasses[column.align ?? 'left'])}
+                            className={cn(
+                              'px-5 py-4 align-middle text-text-secondary',
+                              alignClasses[column.align ?? 'left'],
+                            )}
                           >
                             {column.render(row)}
                           </td>
@@ -181,28 +207,30 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                       </motion.tr>
                     );
                   })}
-              </AnimatePresence>
+                </AnimatePresence>
+              )}
             </motion.tbody>
           </table>
         </div>
       </div>
 
       <div className="md:hidden">
-        <motion.ul variants={tableContainerVariants} initial="hidden" animate="show" className="divide-y divide-border">
-          <AnimatePresence initial={false}>
-            {loading &&
-              Array.from({ length: 3 }, (_, index) => (
-                <li key={index} className="space-y-2.5 p-5">
-                  {Array.from({ length: 3 }, (_, inner) => (
-                    <span key={inner} className="block h-4 animate-pulse rounded-md bg-surface-soft" />
-                  ))}
-                </li>
-              ))}
-            {!loading && rows.length === 0 && (
-              <li className="p-8 text-center text-sm text-text-secondary">{emptyMessage}</li>
-            )}
-            {!loading &&
-              rows.map((row) => {
+        {loading ? (
+          <ul className="divide-y divide-border">
+            {Array.from({ length: 3 }, (_, index) => (
+              <li key={index} className="space-y-2.5 p-5">
+                {Array.from({ length: 3 }, (_, inner) => (
+                  <span key={inner} className="block h-4 animate-pulse rounded-md bg-surface-soft" />
+                ))}
+              </li>
+            ))}
+          </ul>
+        ) : rows.length === 0 ? (
+          <EmptyState title={emptyTitle} description={emptyMessage} action={emptyAction} />
+        ) : (
+          <motion.ul variants={tableContainerVariants} initial="hidden" animate="show" className="divide-y divide-border">
+            <AnimatePresence initial={false}>
+              {rows.map((row) => {
                 const key = rowKey(row);
                 return (
                   <motion.li
@@ -213,7 +241,7 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                     className={cn('space-y-2.5 p-5', onRowClick && 'cursor-pointer active:bg-spot')}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 space-y-2.5">
+                      <div className="min-w-0 space-y-2.5 w-full">
                         {columns
                           .filter((column) => !column.hideOnMobile)
                           .map((column) => (
@@ -229,8 +257,9 @@ export function ResponsiveTable<T>(props: ResponsiveTableProps<T>) {
                   </motion.li>
                 );
               })}
-          </AnimatePresence>
-        </motion.ul>
+            </AnimatePresence>
+          </motion.ul>
+        )}
       </div>
     </div>
   );

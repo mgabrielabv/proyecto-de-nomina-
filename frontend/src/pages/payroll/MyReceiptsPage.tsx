@@ -160,7 +160,7 @@ export function MyReceiptsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Mis Recibos de Nómina"
+        title="Mis recibos de nómina"
         description="Historial detallado de recibos de pago, deducciones legales, bonos y depósitos."
       />
 

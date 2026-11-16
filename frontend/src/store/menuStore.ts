@@ -50,6 +50,11 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
 // BD se conserva porque es la llave de los mapas de permisos.
 const MENU_LABEL_MAP: Record<string, string> = {
   registrar: 'Registrar personas',
+  HorasExtras: 'Horas extras',
+  PreNomina: 'Pre-nómina',
+  Prestamos: 'Préstamos',
+  Periodos: 'Períodos',
+  MisRecibos: 'Mis recibos',
 };
 
 // Etiqueta visible por subsistema; el resto se muestra tal cual.
