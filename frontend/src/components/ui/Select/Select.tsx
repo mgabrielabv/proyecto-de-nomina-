@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { errorMessageVariants, menuVariants } from '../../../animations/variants';
+import { dropdownVariants, errorMessageVariants } from '../../../animations/variants';
 import { cn } from '../../../utils';
 
 export interface SelectOption {
@@ -113,7 +113,7 @@ export function Select(props: SelectProps) {
             {selected?.label ?? placeholder}
           </span>
         </span>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }} className="text-text-muted">
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.15 }} className="text-text-muted">
           <ChevronDown className="h-4 w-4" aria-hidden />
         </motion.span>
       </motion.button>
@@ -124,11 +124,11 @@ export function Select(props: SelectProps) {
             id={listId}
             role="listbox"
             aria-labelledby={labelId}
-            variants={menuVariants}
+            variants={dropdownVariants}
             initial="hidden"
             animate="show"
             exit="exit"
-            className="absolute left-0 right-0 top-[calc(100%+6px)] z-40 max-h-64 overflow-y-auto rounded-xl border border-border bg-surface p-1.5 shadow-card"
+            className="absolute left-0 right-0 top-[calc(100%+6px)] z-40 max-h-64 origin-top overflow-y-auto rounded-xl border border-border bg-surface p-1.5 shadow-card"
           >
             {options.map((option, index) => {
               const isSelected = option.value === value;

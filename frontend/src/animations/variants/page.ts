@@ -1,20 +1,30 @@
 import type { Variants } from 'framer-motion';
-import { EASE_OUT } from '../../constants';
+import { DURATION, EASE } from '../../constants';
 
 export const pageVariants: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } },
-  exit: { opacity: 0, y: -12, transition: { duration: 0.22, ease: 'easeIn' } },
+  hidden: { opacity: 0, y: 8, filter: 'blur(4px)' },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: { duration: DURATION.slow, ease: EASE.out },
+  },
+  exit: {
+    opacity: 0,
+    y: -4,
+    filter: 'blur(0px)',
+    transition: { duration: DURATION.fast, ease: EASE.in },
+  },
 };
 
 export const layoutVariants: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.25, ease: EASE_OUT } },
-  exit: { opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
+  show: { opacity: 1, transition: { duration: DURATION.base, ease: EASE.out } },
+  exit: { opacity: 0, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
 
 export const stepPanelVariants: Variants = {
-  hidden: { opacity: 0, x: 32 },
-  show: { opacity: 1, x: 0, transition: { duration: 0.35, ease: EASE_OUT } },
-  exit: { opacity: 0, x: -32, transition: { duration: 0.25, ease: 'easeIn' } },
+  hidden: { opacity: 0, x: 24 },
+  show: { opacity: 1, x: 0, transition: { duration: DURATION.base, ease: EASE.out } },
+  exit: { opacity: 0, x: -16, transition: { duration: DURATION.fast, ease: EASE.in } },
 };

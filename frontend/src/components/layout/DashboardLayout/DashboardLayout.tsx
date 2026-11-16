@@ -1,6 +1,6 @@
-import { Suspense, useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { useLocation, useOutlet } from 'react-router-dom';
+import { Suspense, useEffect, useRef } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useLocation, useNavigationType, useOutlet } from 'react-router-dom';
 import { layoutVariants, pageVariants } from '../../../animations/variants';
 import { PAGE_TITLES, SIDEBAR_WIDTH, SIDEBAR_WIDTH_COLLAPSED } from '../../../constants';
 import { useIsMobile, useMediaQuery } from '../../../hooks';
@@ -17,6 +17,7 @@ export interface DashboardLayoutProps {
 
 export function DashboardLayout({ title, description }: DashboardLayoutProps) {
   const location = useLocation();
+  const navType = useNavigationType();
   const outlet = useOutlet();
   const reduce = useReducedMotion();
   const isMobile = useIsMobile();
@@ -25,19 +26,28 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
   const drawerOpen = useUiStore((state) => state.drawerOpen);
   const setDrawerOpen = useUiStore((state) => state.setDrawerOpen);
   const lg = useMediaQuery('(min-width: 1024px)');
+  const prevPathRef = useRef(location.pathname);
 
-  // Una sola fuente para el título: la ruta actual. El layout ya no recibe un
-  // título fijo por grupo (que dejaba "Panel administrativo" en todas las
-  // pantallas); el mapa PAGE_TITLES es la verdad y el prop queda como
-  // fallback para rutas nuevas.
+  // Una sola fuente para el título: la ruta actual.
   const routeTitle = PAGE_TITLES[location.pathname] ?? title;
 
   useEffect(() => {
     document.title = `${routeTitle} — Onyx`;
   }, [routeTitle]);
 
+  useEffect(() => {
+    if (prevPathRef.current !== location.pathname && navType !== 'POP') {
+      window.scrollTo({ top: 0, left: 0, behavior: reduce ? 'auto' : 'smooth' });
+    }
+    prevPathRef.current = location.pathname;
+  }, [location.pathname, navType, reduce]);
+
+  const pageVariant = reduce
+    ? { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.01 } }, exit: { opacity: 0, transition: { duration: 0.01 } } }
+    : pageVariants;
+
   return (
-    <div className="min-h-dvh bg-bg font-sans text-text" style={{ ["--topbar-h" as string]: "5rem" }}>
+    <div className="min-h-dvh bg-bg font-sans text-text" style={{ ['--topbar-h' as string]: '5rem' }}>
       <div className="page-gradient pointer-events-none fixed inset-0" aria-hidden />
       <motion.div
         variants={layoutVariants}
@@ -45,16 +55,10 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
         animate="show"
         className="relative flex min-h-dvh"
       >
-        {lg && (
-          <Sidebar collapsed={sidebarCollapsed} variant="desktop" />
-        )}
+        {lg && <Sidebar collapsed={sidebarCollapsed} variant="desktop" />}
         <div
           className="flex min-h-dvh min-w-0 flex-1 flex-col transition-[padding-left] duration-300 ease-sidebar will-change-[padding-left]"
-          style={
-            lg
-              ? { paddingLeft: sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH }
-              : undefined
-          }
+          style={lg ? { paddingLeft: sidebarCollapsed ? SIDEBAR_WIDTH_COLLAPSED : SIDEBAR_WIDTH } : undefined}
         >
           <Topbar
             title={routeTitle}
@@ -64,23 +68,21 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
             onOpenDrawer={() => setDrawerOpen(true)}
           />
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-            {/* El contenido se monta de inmediato al cambiar de ruta. Antes,
-                AnimatePresence con mode="wait" retenía el contenido nuevo
-                hasta que terminara la salida del anterior; si esa animación
-                se interrumpía (navegación rápida, StrictMode o un keyframe de
-                filter inválido) el área quedaba con opacity 0: pantalla negra
-                con el sidebar ya resaltado. */}
             <ErrorBoundary resetKey={location.pathname}>
               <Suspense fallback={<RouteFallback />}>
-                <motion.div
-                  key={location.pathname}
-                  data-route={location.pathname}
-                  variants={pageVariants}
-                  initial={reduce ? false : 'hidden'}
-                  animate="show"
-                >
-                  {outlet}
-                </motion.div>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={location.pathname}
+                    data-route={location.pathname}
+                    variants={pageVariant}
+                    initial={reduce ? false : 'hidden'}
+                    animate="show"
+                    exit={reduce ? undefined : 'exit'}
+                    className="min-h-[50vh]"
+                  >
+                    {outlet}
+                  </motion.div>
+                </AnimatePresence>
               </Suspense>
             </ErrorBoundary>
           </main>

@@ -40,7 +40,7 @@ export function Checkbox({
       />
       <motion.span
         whileTap={disabled ? undefined : { scale: 0.9 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
         className={cn(
           'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-colors duration-150',
           'peer-focus-visible:ring-2 peer-focus-visible:ring-accent peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface',
@@ -61,7 +61,7 @@ export function Checkbox({
             strokeLinejoin="round"
             variants={{
               unchecked: { pathLength: 0, opacity: 0 },
-              checked: { pathLength: 1, opacity: 1, transition: { duration: 0.22, delay: 0.08 } },
+              checked: { pathLength: 1, opacity: 1, transition: { duration: 0.2, delay: 0.05 } },
             }}
           />
         </motion.svg>

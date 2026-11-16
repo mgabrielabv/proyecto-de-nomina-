@@ -1,19 +1,21 @@
 import type { Variants } from 'framer-motion';
-import { EASE_OUT } from '../../constants';
+import { DURATION, EASE } from '../../constants';
 
 export const authCardVariants: Variants = {
-  hidden: { opacity: 0, y: 28, scale: 0.97, filter: 'blur(10px)' },
-  show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { duration: 0.6, ease: EASE_OUT } },
-  exit: { opacity: 0, scale: 0.9, filter: 'blur(8px)', transition: { duration: 0.45, ease: 'easeIn' } },
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: DURATION.slow, ease: EASE.out } },
+  exit: { opacity: 0, scale: 0.98, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
 
 export const successCardVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.85 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: EASE_OUT } },
+  hidden: { opacity: 0, scale: 0.96 },
+  show: { opacity: 1, scale: 1, transition: { duration: DURATION.base, ease: EASE.out } },
 };
 
 export const modeSwapVariants: Variants = {
-  hidden: { opacity: 0, y: 14, filter: 'blur(5px)' },
-  show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.35, ease: EASE_OUT } },
-  exit: { opacity: 0, y: -14, filter: 'blur(5px)', transition: { duration: 0.25, ease: 'easeIn' } },
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: DURATION.base, ease: EASE.out } },
+  exit: { opacity: 0, y: -6, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
+
+export const fadeSwapVariants = modeSwapVariants;

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { type ButtonHTMLAttributes } from 'react';
+import { useLayoutEffect, useRef, useState, type ButtonHTMLAttributes } from 'react';
 import {
   buttonVariants,
   contentSwapVariants,
@@ -36,11 +36,20 @@ export function Button(props: ButtonProps) {
     className,
     children,
     disabled,
+    style,
     ...restProps
   } = props;
   const reduce = useReducedMotion();
   const isBusy = state === 'loading';
   const interactive = state === 'idle' && !disabled && !reduce;
+  const innerRef = useRef<HTMLSpanElement | null>(null);
+  const [minWidth, setMinWidth] = useState<number | undefined>(undefined);
+
+  useLayoutEffect(() => {
+    if (state === 'idle' && innerRef.current && !fullWidth) {
+      setMinWidth(innerRef.current.offsetWidth + 2);
+    }
+  }, [children, state, fullWidth, successLabel]);
 
   return (
     <motion.button
@@ -51,8 +60,10 @@ export function Button(props: ButtonProps) {
       whileTap={interactive ? 'tap' : undefined}
       disabled={disabled || isBusy}
       aria-live="polite"
+      aria-busy={isBusy || undefined}
+      style={{ ...(style || {}), minWidth: !fullWidth && minWidth ? `${minWidth}px` : undefined }}
       className={cn(
-        'relative inline-flex items-center justify-center overflow-hidden rounded-button font-medium tracking-tight transition-colors duration-200',
+        'group relative inline-flex items-center justify-center overflow-hidden rounded-button font-medium tracking-tight transition-colors duration-200',
         state === 'success'
           ? 'border border-success/30 bg-success-soft text-success'
           : 'border border-transparent bg-accent text-accent-text hover:bg-accent-hover',
@@ -62,7 +73,7 @@ export function Button(props: ButtonProps) {
         className,
       )}
     >
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="popLayout" initial={false}>
         {state === 'loading' && (
           <motion.span
             key="loading"
@@ -94,6 +105,7 @@ export function Button(props: ButtonProps) {
         {state === 'idle' && (
           <motion.span
             key="idle"
+            ref={innerRef}
             variants={contentSwapVariants}
             initial="hidden"
             animate="show"
@@ -109,7 +121,8 @@ export function Button(props: ButtonProps) {
           aria-hidden
           variants={shimmerVariants}
           initial="rest"
-          className="pointer-events-none absolute inset-y-0 -left-1/4 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+          whileHover="hover"
+          className="pointer-events-none absolute inset-y-0 -left-1/4 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
         />
       )}
     </motion.button>

@@ -1,23 +1,23 @@
 import type { Variants } from 'framer-motion';
-import { EASE_OUT } from '../../constants';
+import { DURATION, EASE, STAGGER } from '../../constants';
 
 export const tableRowVariants: Variants = {
   hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE_OUT } },
-  exit: { opacity: 0, x: 60, height: 0, transition: { duration: 0.3, ease: 'easeIn' } },
+  show: { opacity: 1, y: 0, transition: { duration: DURATION.base, ease: EASE.out } },
+  exit: { opacity: 0, y: -4, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
 
 export const tableContainerVariants: Variants = {
   hidden: {},
-  show: { transition: { staggerChildren: 0.04, delayChildren: 0.05 } },
+  show: { transition: { staggerChildren: STAGGER.tight, delayChildren: 0.02 } },
 };
 
 export const rowHoverVariants: Variants = {
   rest: { backgroundColor: 'rgba(0,0,0,0)' },
-  hover: { backgroundColor: 'var(--color-spot)', transition: { duration: 0.18, ease: 'easeOut' } },
+  hover: { backgroundColor: 'var(--color-spot)', transition: { duration: DURATION.fast, ease: EASE.out } },
 };
 
 export const hoverLiftVariants: Variants = {
-  rest: { y: 0, boxShadow: 'var(--shadow-card)' },
-  hover: { y: -3, boxShadow: '0 2px 4px rgba(28,25,23,0.05), 0 28px 56px -30px rgba(28,25,23,0.28)', transition: { duration: 0.24, ease: EASE_OUT } },
+  rest: { y: 0 },
+  hover: { y: -2, transition: { duration: DURATION.fast, ease: EASE.out } },
 };

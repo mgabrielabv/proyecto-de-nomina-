@@ -31,6 +31,17 @@
   --panel-gradient: radial-gradient(120% 90% at 18% 8%, #FFFFFF 0%, #F6F5F4 34%, #EDECEA 62%, #E4E3E1 100%);
   --page-gradient: radial-gradient(96% 60% at 20% -10%, rgba(214, 211, 209, 0.5), transparent 60%),
     radial-gradient(80% 50% at 90% 110%, rgba(214, 211, 209, 0.35), transparent 55%);
+
+  /* Motion tokens */
+  --dur-instant: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+  --dur-slower: 600ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
 }
 
 html.dark {

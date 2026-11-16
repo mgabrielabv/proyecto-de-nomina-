@@ -1,13 +1,16 @@
 import type { Variants } from 'framer-motion';
+import { DURATION, EASE } from '../../constants';
 
 export const iconSwapVariants: Variants = {
-  hidden: { opacity: 0, rotateY: -90, scale: 0.4 },
-  show: { opacity: 1, rotateY: 0, scale: 1, transition: { type: 'spring', stiffness: 380, damping: 26 } },
-  exit: { opacity: 0, rotateY: 90, scale: 0.4, transition: { duration: 0.15, ease: 'easeIn' } },
+  hidden: { opacity: 0, rotate: -20, scale: 0.8 },
+  show: { opacity: 1, rotate: 0, scale: 1, transition: { duration: DURATION.fast, ease: EASE.out } },
+  exit: { opacity: 0, rotate: 20, scale: 0.8, transition: { duration: DURATION.instant, ease: EASE.in } },
 };
 
-export const iconFlipVariants: Variants = {
-  hidden: { opacity: 0, rotate: -120, scale: 0.4 },
-  show: { opacity: 1, rotate: 0, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 24 } },
-  exit: { opacity: 0, rotate: 120, scale: 0.4, transition: { duration: 0.18, ease: 'easeIn' } },
+export const themeIconSwapVariants: Variants = {
+  hidden: { opacity: 0, rotate: -90, scale: 0.6 },
+  show: { opacity: 1, rotate: 0, scale: 1, transition: { duration: DURATION.base, ease: EASE.out } },
+  exit: { opacity: 0, rotate: 90, scale: 0.6, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
+
+export const iconFlipVariants = themeIconSwapVariants;

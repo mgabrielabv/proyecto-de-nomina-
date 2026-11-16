@@ -1,9 +1,9 @@
 import type { Variants } from 'framer-motion';
-import { INPUT_FLOATING_OFFSET } from '../../constants';
+import { DURATION, EASE, INPUT_FLOATING_OFFSET, SPRING } from '../../constants';
 
 export const inputShellVariants: Variants = {
   rest: { y: 0 },
-  shake: { x: [0, -9, 9, -6, 6, -3, 0], transition: { duration: 0.45, ease: 'easeInOut' } },
+  shake: { x: [0, -6, 6, -4, 4, -2, 0], transition: { duration: 0.35, ease: EASE.inOut } },
 };
 
 export const floatingLabelVariants: Variants = {
@@ -12,11 +12,11 @@ export const floatingLabelVariants: Variants = {
     y: INPUT_FLOATING_OFFSET,
     scale: 0.72,
     color: 'var(--color-text-secondary)',
-    transition: { type: 'spring', stiffness: 320, damping: 26 },
+    transition: SPRING.soft,
   },
 };
 
 export const focusLineVariants: Variants = {
   rest: { scaleX: 0.4, opacity: 0 },
-  focused: { scaleX: 1, opacity: 1, transition: { duration: 0.25, ease: 'easeOut' } },
+  focused: { scaleX: 1, opacity: 1, transition: { duration: DURATION.fast, ease: EASE.out } },
 };

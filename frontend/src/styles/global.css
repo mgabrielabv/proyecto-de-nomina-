@@ -11,6 +11,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -92,6 +93,31 @@
     opacity: 1;
   }
 }
+
+
+  html.theme-transition,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-duration: 220ms;
+    transition-timing-function: ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html.theme-transition,
+    html.theme-transition *,
+    html.theme-transition *::before,
+    html.theme-transition *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
 
 @layer components {
   .glass-card {

@@ -43,6 +43,16 @@ export default {
       },
       transitionTimingFunction: {
         sidebar: 'cubic-bezier(0.32, 0.72, 0, 1)',
+        'out-expo': 'var(--ease-out)',
+        'in-expo': 'var(--ease-in)',
+        'in-out-std': 'var(--ease-in-out)',
+      },
+      transitionDuration: {
+        instant: 'var(--dur-instant)',
+        fast: 'var(--dur-fast)',
+        base: 'var(--dur-base)',
+        slow: 'var(--dur-slow)',
+        slower: 'var(--dur-slower)',
       },
       fontFamily: {
         sans: ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],

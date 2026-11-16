@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion';
-import type { KeyboardEvent, ReactNode } from 'react';
-import { tabIndicatorVariants } from '../../../animations/variants';
+import { useId, type KeyboardEvent, type ReactNode } from 'react';
+import { tabIndicatorTransition } from '../../../animations/variants';
 import { cn } from '../../../utils';
 
 export interface TabItem {
@@ -18,8 +18,10 @@ export interface TabsProps {
   className?: string;
 }
 
-export function Tabs({ items, value, onChange, layoutId = 'tabs-indicator', className }: TabsProps) {
+export function Tabs({ items, value, onChange, layoutId, className }: TabsProps) {
   const reduce = useReducedMotion();
+  const uid = useId();
+  const indicatorId = layoutId ?? `tabs-indicator-${uid}`;
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const index = items.findIndex((item) => item.value === value);
@@ -39,7 +41,7 @@ export function Tabs({ items, value, onChange, layoutId = 'tabs-indicator', clas
       role="tablist"
       onKeyDown={handleKeyDown}
       className={cn(
-        'inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-surface-soft/70 p-1',
+        'scroll-thin inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-border bg-surface-soft/70 p-1',
         className,
       )}
     >
@@ -60,10 +62,8 @@ export function Tabs({ items, value, onChange, layoutId = 'tabs-indicator', clas
           >
             {active && !reduce && (
               <motion.span
-                layoutId={layoutId}
-                variants={tabIndicatorVariants}
-                initial="hidden"
-                animate="show"
+                layoutId={indicatorId}
+                transition={tabIndicatorTransition}
                 className="absolute inset-0 rounded-full border border-border bg-surface shadow-sm"
               />
             )}

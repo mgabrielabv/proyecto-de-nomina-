@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
@@ -26,8 +26,20 @@ const sizeClasses: Record<ModalSize, string> = {
 
 export function Modal({ open, title, description, onClose, children, footer, size = 'md' }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const reduce = useReducedMotion();
   useFocusTrap(panelRef, open);
   useLockBodyScroll(open);
+
+  useEffect(() => {
+    if (open) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null;
+      return;
+    }
+    if (previousFocusRef.current && document.contains(previousFocusRef.current)) {
+      previousFocusRef.current.focus({ preventScroll: true });
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -47,10 +59,10 @@ export function Modal({ open, title, description, onClose, children, footer, siz
             aria-label="Cerrar diálogo"
             onClick={onClose}
             variants={overlayVariants}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            className="absolute inset-0 cursor-default bg-text/25 backdrop-blur-md"
+            initial={reduce ? false : 'hidden'}
+            animate={reduce ? undefined : 'show'}
+            exit={reduce ? undefined : 'exit'}
+            className="absolute inset-0 cursor-default bg-text/25 backdrop-blur-sm"
           />
           <motion.div
             ref={panelRef}
@@ -60,9 +72,9 @@ export function Modal({ open, title, description, onClose, children, footer, siz
             aria-describedby={description ? 'modal-description' : undefined}
             tabIndex={-1}
             variants={modalVariants}
-            initial="hidden"
-            animate="show"
-            exit="exit"
+            initial={reduce ? false : 'hidden'}
+            animate={reduce ? undefined : 'show'}
+            exit={reduce ? undefined : 'exit'}
             className={cn(
               'glass-card relative z-10 max-h-[88dvh] w-full overflow-y-auto p-6 outline-none sm:p-7',
               sizeClasses[size],

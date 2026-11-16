@@ -3,10 +3,17 @@ import { useEffect } from 'react';
 export function useLockBodyScroll(active: boolean): void {
   useEffect(() => {
     if (!active) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const body = document.body;
+    const previousOverflow = body.style.overflow;
+    const previousPaddingRight = body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    body.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
     return () => {
-      document.body.style.overflow = previous;
+      body.style.overflow = previousOverflow;
+      body.style.paddingRight = previousPaddingRight;
     };
   }, [active]);
 }

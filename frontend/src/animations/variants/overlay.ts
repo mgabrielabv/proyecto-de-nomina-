@@ -1,34 +1,45 @@
 import type { Variants } from 'framer-motion';
-import { EASE_OUT } from '../../constants';
+import { DURATION, EASE, SPRING } from '../../constants';
 
-export const overlayVariants: Variants = {
+export const backdropVariants: Variants = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { duration: 0.22, ease: EASE_OUT } },
-  exit: { opacity: 0, transition: { duration: 0.18, ease: 'easeIn' } },
+  show: { opacity: 1, transition: { duration: DURATION.fast, ease: EASE.out } },
+  exit: { opacity: 0, transition: { duration: DURATION.fast, ease: EASE.in } },
 };
 
 export const modalVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.94, y: 18, filter: 'blur(10px)' },
-  // Tween, no spring: un spring sobre filter puede sobrepasar 0 y generar
-  // keyframes inválidos (blur(-0.05px)) que rompen la animación del modal.
-  show: { opacity: 1, scale: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.32, ease: EASE_OUT } },
-  exit: { opacity: 0, scale: 0.96, y: 10, filter: 'blur(8px)', transition: { duration: 0.2, ease: 'easeIn' } },
+  hidden: { opacity: 0, scale: 0.96, y: 8 },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: SPRING.soft,
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.98,
+    y: 4,
+    transition: { duration: DURATION.fast, ease: EASE.in },
+  },
 };
 
 export const drawerVariants: Variants = {
-  hidden: { x: '100%', opacity: 0.4 },
-  show: { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 32 } },
-  exit: { x: '100%', opacity: 0, transition: { duration: 0.24, ease: 'easeIn' } },
+  hidden: { x: '100%', opacity: 0.98 },
+  show: { x: 0, opacity: 1, transition: SPRING.soft },
+  exit: { x: '100%', opacity: 0.98, transition: { duration: DURATION.base, ease: EASE.in } },
 };
 
 export const drawerLeftVariants: Variants = {
-  hidden: { x: '-100%', opacity: 0.4 },
-  show: { x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 32 } },
-  exit: { x: '-100%', opacity: 0, transition: { duration: 0.24, ease: 'easeIn' } },
+  hidden: { x: '-100%', opacity: 0.98 },
+  show: { x: 0, opacity: 1, transition: SPRING.soft },
+  exit: { x: '-100%', opacity: 0.98, transition: { duration: DURATION.base, ease: EASE.in } },
 };
 
-export const menuVariants: Variants = {
-  hidden: { opacity: 0, y: 8, scale: 0.96, filter: 'blur(6px)' },
-  show: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: { duration: 0.2, ease: EASE_OUT } },
-  exit: { opacity: 0, y: 6, scale: 0.97, filter: 'blur(4px)', transition: { duration: 0.14, ease: 'easeIn' } },
+export const dropdownVariants: Variants = {
+  hidden: { opacity: 0, y: -4, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: DURATION.fast, ease: EASE.out } },
+  exit: { opacity: 0, y: -4, scale: 0.97, transition: { duration: DURATION.instant, ease: EASE.in } },
 };
+
+export const overlayVariants = backdropVariants;
+export const menuVariants = dropdownVariants;
