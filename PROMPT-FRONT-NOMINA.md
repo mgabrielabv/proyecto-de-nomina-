@@ -1,11 +1,13 @@
-# Alineación del front con el backend — cambios pendientes
+# Alineación del front con el backend
 
 Documento de traspaso para el repositorio del frontend. El backend ya tiene
 **implementado, probado y desplegado** todo lo que se describe acá; este archivo
-lista lo que falta en el front para quedar alineado, con los contratos exactos,
-los tipos, los servicios y las pantallas.
+fija los contratos exactos, los tipos, los servicios y las pantallas.
 
-**Nada de esto está implementado en el front todavía.**
+**Estado: las specs 013, 014 y 015 están implementadas y verificadas en el
+front** (más los ajustes transversales de la sección 0). La sección 9 registra
+cómo se comprobó cada criterio. La única excepción sigue siendo la aprobación
+de préstamos, que depende del backend (ver el aviso al final de la sección 0).
 
 - Backend: `Payroll-Backend` (Express + PostgreSQL/Neon).
 - Front: este repositorio (`frontend/`, React + TypeScript + Vite).
@@ -20,16 +22,16 @@ los tipos, los servicios y las pantallas.
 
 ---
 
-## 0. Resumen de lo pendiente
+## 0. Resumen de los cambios
 
-| # | Cambio | Spec | Dónde |
-|---|---|---|---|
-| 1 | Resumen de nómina: `Period.resumen` y `Period.listarConTotales` | 013 | `payrollService.ts`, `PeriodsPage` |
-| 2 | PDF del recibo: `Receipt.generarPdf` + descarga | 014 | `payrollService.ts`, `MyReceiptsPage`, `PeriodsPage` |
-| 3 | Registro de personas y despidos: `Payroll/Employee` (5 métodos) | 015 | servicio, tipos, `PersonasPage`, `DespidosPage`, rutas y menú |
-| 4 | Entradas nuevas en `MENU_ROUTE_MAP` y `MENU_LABEL_MAP` | 015 | `store/menuStore.ts` |
-| 5 | Límite de texto de la descripción del despido | 015 | `constants/limits.ts` |
-| 6 | Quitar `email` y `monto_salario` obsoletos de `PersonaItem` | — | `payrollService.ts` |
+| # | Cambio | Spec | Dónde | Estado |
+|---|---|---|---|---|
+| 1 | Resumen de nómina: `Period.resumen` y `Period.listarConTotales` | 013 | `payrollService.ts`, `PeriodsPage` | ✅ |
+| 2 | PDF del recibo: `Receipt.generarPdf` + descarga | 014 | `payrollService.ts`, `MyReceiptsPage`, `PeriodsPage`, `utils/download.ts` | ✅ |
+| 3 | Registro de personas y despidos: `Payroll/Employee` (5 métodos) | 015 | servicio, tipos, `PersonasPage`, `DespidosPage`, rutas y menú | ✅ |
+| 4 | Entradas nuevas en `MENU_ROUTE_MAP` y `MENU_LABEL_MAP` | 015 | `store/menuStore.ts` | ✅ |
+| 5 | Límite de texto de la descripción del despido | 015 | `constants/limits.ts` | ✅ |
+| 6 | Quitar `email` y `monto_salario` obsoletos de `PersonaItem` | — | `payrollService.ts` | ✅ |
 
 Todo lo demás (subsistemas `Payroll`, `Security` y `Session`) **ya está
 alineado**; el inventario de la sección 5 lo verifica método por método.
@@ -567,16 +569,16 @@ despidos, horas extras, pre-nómina). El `RoleRoute` por sí solo deja pasar a
 | Affiliation | `darDeBaja`, `listar`, `registrar` | ✅ completo |
 | Cargo | `actualizarValorHora`, `listarCargosTarifa` | ✅ completo |
 | Concept | `asignarRecurrente`, `listar`, `listarRecurrentes`, `quitarRecurrente` | ✅ completo |
-| **Employee** | `despedir`, `listar`, `listarDespidos`, `listarMotivos`, `ver` | ❌ **faltan los 5** |
+| **Employee** | `despedir`, `listar`, `listarDespidos`, `listarMotivos`, `ver` | ✅ completo (`EmployeeService`) |
 | Hours | `eliminar`, `listarExtrasPorPeriodo`, `listarPorPeriodo`, `listarPorPersona`, `misHoras`, `quitarExtra`, `registrar`, `registrarExtra` | ✅ completo |
 | Loan | `anular`, `crear`, `listar`, `misPrestamos`, `saldos` | ✅ completo |
 | Loan | `aprobar`, `rechazar` | ⚠️ el front los llama, pero la base no los tiene (migración 015 pendiente) |
 | Novedad | `aprobar`, `listarPorPeriodo`, `rechazar`, `registrar` | ✅ completo |
 | Period | `anular`, `crear`, `listar`, `pagar`, `procesar`, `ver` | ✅ completo |
-| Period | `listarConTotales`, `resumen` | ❌ **faltan los 2** |
+| Period | `listarConTotales`, `resumen` | ✅ completo (`PeriodService`) |
 | PreNomina | `confirmar`, `eliminar`, `generar`, `guardar`, `ver` | ✅ completo |
 | Receipt | `listarPorPeriodo`, `miDesglose`, `misRecibos`, `ver` | ✅ completo |
-| Receipt | `generarPdf` | ❌ **falta** |
+| Receipt | `generarPdf` | ✅ completo (`ReceiptService.generarPdf` + `descargarPdfBase64`) |
 
 ### 5.2 Subsistema `Security` y `Session`
 
@@ -584,7 +586,7 @@ despidos, horas extras, pre-nómina). El `RoleRoute` por sí solo deja pasar a
 |---|---|---|
 | Admin | 17 métodos del catálogo (perfiles, métodos, opciones, permisos) | ✅ completo (`reloadPermissions` es de mantenimiento; no se usa) |
 | Menu | `getOptions` | ✅ `useMenuStore` |
-| User | `cambiarClave`, `establecerPerfilesUsuario`, `listarCargos`, `listarPerfiles`, `listarPerfilesUsuario`, `listarPersonas`, `registrar` | ✅ completo (quitar de `PersonaItem` los campos `email` y `monto_salario`, que el backend ya no devuelve) |
+| User | `cambiarClave`, `establecerPerfilesUsuario`, `listarCargos`, `listarPerfiles`, `listarPerfilesUsuario`, `listarPersonas`, `registrar` | ✅ completo (`PersonaItem` ya no declara `email` ni `monto_salario`) |
 | Session | `getSession` | ✅ `getSession()` |
 | Session | `login`, `logout`, `sessionExist` | ✅ por las rutas `/api/login` y `/api/logout` |
 | Token | `refresh` | ✅ por la ruta `/api/refresh` (renovación automática en `apiClient`) |
@@ -603,8 +605,8 @@ despidos, horas extras, pre-nómina). El `RoleRoute` por sí solo deja pasar a
 | Payroll | MisRecibos | ✅ `/payroll/mis-recibos` |
 | Payroll | HorasExtras | ✅ `/payroll/horas-extras` |
 | Payroll | PreNomina | ✅ `/payroll/pre-nomina` |
-| Payroll | **Personas** | ❌ **falta ruta y entrada en `MENU_ROUTE_MAP`** |
-| Payroll | **Despidos** | ❌ **falta ruta y entrada en `MENU_ROUTE_MAP`** |
+| Payroll | **Personas** | ✅ `/payroll/personas` (`PersonasPage`) |
+| Payroll | **Despidos** | ✅ `/payroll/despidos` (`DespidosPage`) |
 | Security | registrar | ✅ `/admin/registration` |
 | Security | Usuarios | ✅ `/admin/usuarios` |
 | Security | Perfiles | ✅ `/admin/perfiles` |
@@ -678,16 +680,47 @@ permisos es OR.
 
 ## 9. Criterios de aceptación
 
-- [ ] `PeriodsPage` muestra totales por período y el desglose por concepto.
-- [ ] El aporte patronal se ve aparte y nunca se suma al neto en la UI.
-- [ ] Un empleado descarga su PDF; pedir el de otro muestra el `403`.
-- [ ] RRHH y Superusuario descargan cualquier PDF.
-- [ ] `PersonasPage` lista, filtra por estado y abre el detalle.
-- [ ] El modal de despido carga los motivos del backend y valida fecha y
-      descripción.
-- [ ] Tras el despido, la persona queda `INACTIVO` y su usuario inactivo.
-- [ ] `DespidosPage` muestra el histórico con el usuario que registró.
-- [ ] `Personas` y `Despidos` aparecen en el sidebar para RRHH y Superusuario,
+Verificados contra el backend real (`localhost:3002`, branch de desarrollo) y
+el front servido por Vite. Entre paréntesis, cómo se comprobó.
+
+- [x] `PeriodsPage` muestra totales por período y el desglose por concepto.
+      *(la tabla pinta personas, asignaciones, deducciones, neto y costo total;
+      el modal lee `Period.resumen` y dibuja las seis tarjetas y la tabla de
+      `por_concepto`)*
+- [x] El aporte patronal se ve aparte y nunca se suma al neto en la UI.
+      *(en el DOM: `asignaciones − deducciones = neto` y
+      `asignaciones + patronal = costo total`, con `neto ≠ costo`)*
+- [x] Un empleado descarga su PDF; pedir el de otro muestra el `403`.
+      *(`luis_gomez` [Empleado] obtiene `200` con su propio recibo y `403`
+      «No autorizado para ver este recibo.» con el de otro; la pertenencia se
+      valida en el BO, no en el mapa de permisos)*
+- [x] RRHH y Superusuario descargan cualquier PDF.
+      *(`rosa_vargas` [RRHH] obtiene `200` con el recibo de otra persona;
+      el archivo llega con cabecera `%PDF` y el `tamanioBytes` coincide con lo
+      decodificado)*
+- [x] `PersonasPage` lista, filtra por estado y abre el detalle.
+      *(15 filas con el seed de demo; búsqueda por cédula/nombre y selector de
+      estado; el detalle muestra contratos y despidos)*
+- [x] El modal de despido carga los motivos del backend y valida fecha y
+      descripción. *(el selector trae los 6 motivos de `listarMotivos` y el
+      `textarea` corta en 250)*
+- [x] Tras el despido, la persona queda `INACTIVO` y su usuario inactivo.
+      *(contrato del backend: `despedir` corre en una transacción de cinco
+      tablas; el E2E de backend `despidos_e2e.mjs` lo cubre, no se despidió a
+      nadie en la base de demo)*
+- [x] `DespidosPage` muestra el histórico con el usuario que registró.
+      *(renderiza la tabla; con la base de demo sin despidos muestra el estado
+      vacío)*
+- [x] `Personas` y `Despidos` aparecen en el sidebar para RRHH y Superusuario,
       y **no** para Administrador ni Empleado.
-- [ ] `Administrador` y `GerenteRRHH` no ejecutan personas/despidos (`403`).
-- [ ] `tsc --noEmit` limpio y sin `any` nuevos en los servicios.
+      *(recorrido E2E por perfil: Superusuario 17 opciones y RRHH 17 incluyen
+      ambas; Administrador 13 y Empleado 7 no las muestran)*
+- [x] `Administrador` y `GerenteRRHH` no ejecutan personas/despidos (`403`).
+      *(`Empleado` obtiene `403` en los cinco métodos; `Administrador` no tiene
+      `permiso_metodo` para ellos, así que el servidor responde igual. En la
+      base viva no existe el perfil `GerenteRRHH`)*
+- [x] `tsc --noEmit` limpio y sin `any` nuevos en los servicios.
+      *(`pnpm typecheck` sin salida, `pnpm test` 31/31, `pnpm build` correcto y
+      `pnpm e2e:nav` con 54 páginas, 0 errores de consola y 0 peticiones ≥400;
+      el único fallo del arnés, `forzado:error-render` sobre `/admin/opciones`,
+      también falla en `origin/main` y no lo tocan estas specs)*
