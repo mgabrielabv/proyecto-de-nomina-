@@ -47,7 +47,6 @@ export interface PersonaItem {
   segundo_nombre?: string | null;
   primer_apellido: string;
   segundo_apellido?: string | null;
-  email?: string | null;
   usuario_id?: string | null; // UUID del usuario asociado (o null si no tiene)
   username?: string | null;
   usuario_activo?: boolean | null;
@@ -56,7 +55,6 @@ export interface PersonaItem {
   tipo_pago?: string | null;
   frecuencia_pago?: string | null;
   contrato_estado?: string | null;
-  monto_salario?: string | null;
 }
 
 export interface PerfilItem {
