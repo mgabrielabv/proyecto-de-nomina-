@@ -11,6 +11,7 @@ import {
   Receipt,
   UserPlus,
   UserRound,
+  UserMinus,
   Users,
   SlidersHorizontal,
   type LucideIcon,
@@ -37,6 +38,8 @@ const MENU_ROUTE_MAP: Record<string, { path: string; icon: LucideIcon }> = {
   Afiliaciones: { path: '/payroll/afiliaciones', icon: ShieldCheck },
   MisRecibos: { path: '/payroll/mis-recibos', icon: Receipt },
   PreNomina: { path: '/payroll/pre-nomina', icon: FileText },
+  Personas: { path: '/payroll/personas', icon: UserRound },
+  Despidos: { path: '/payroll/despidos', icon: UserMinus },
   registrar: { path: '/admin/registration', icon: UserPlus },
   'Registrar personas': { path: '/admin/registration', icon: UserPlus },
   Registro: { path: '/admin/registration', icon: UserPlus },
@@ -55,6 +58,8 @@ const MENU_LABEL_MAP: Record<string, string> = {
   Prestamos: 'Préstamos',
   Periodos: 'Períodos',
   MisRecibos: 'Mis recibos',
+  Personas: 'Personas',
+  Despidos: 'Despidos',
 };
 
 // Etiqueta visible por subsistema; el resto se muestra tal cual.

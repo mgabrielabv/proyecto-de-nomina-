@@ -8,4 +8,6 @@ export { ConceptsPage } from './ConceptsPage';
 export { CargosPage } from './CargosPage';
 export { AffiliationsPage } from './AffiliationsPage';
 export { MyReceiptsPage } from './MyReceiptsPage';
+export { PersonasPage } from './PersonasPage';
+export { DespidosPage } from './DespidosPage';
 

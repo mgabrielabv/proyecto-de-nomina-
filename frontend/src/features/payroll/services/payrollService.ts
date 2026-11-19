@@ -65,6 +65,133 @@ export interface PerfilItem {
   descripcion: string;
 }
 
+/* ==============================================================================
+ * REGISTRO DE PERSONAS Y DESPIDOS (Payroll/Employee, spec 015)
+ * Employee devuelve las columnas en snake_case, igual que la base.
+ * ============================================================================== */
+
+export type MotivoDespido =
+  | 'RENUNCIA'
+  | 'DESPIDO_JUSTIFICADO'
+  | 'DESPIDO_INJUSTIFICADO'
+  | 'FIN_DE_CONTRATO'
+  | 'JUBILACION'
+  | 'FALLECIMIENTO';
+
+export interface PersonaRegistro {
+  id: string;
+  cedula: string;
+  primer_nombre: string;
+  segundo_nombre: string | null;
+  primer_apellido: string;
+  segundo_apellido: string | null;
+  email: string | null;
+  nro_tlf: string | null;
+  estado: 'ACTIVO' | 'INACTIVO';
+  usuario_id: string | null;
+  username: string | null;
+  usuario_activo: boolean | null;
+  contrato_id: string | null;
+  contrato_estado: 'VIGENTE' | 'SUSPENDIDO' | 'FINALIZADO' | null;
+  fecha_inicio: string | null; // "YYYY-MM-DD"
+  fecha_fin: string | null; // "YYYY-MM-DD"
+  tipo_pago: 'POR_HORA' | 'SALARIO_FIJO' | null;
+  frecuencia_pago: 'SEMANAL' | 'QUINCENAL' | 'MENSUAL' | null;
+  cargo: string | null;
+  despido_id: string | null;
+  despido_motivo: MotivoDespido | null;
+  fecha_despido: string | null;
+}
+
+export interface PersonaFicha {
+  id: string;
+  cedula: string;
+  primer_nombre: string;
+  segundo_nombre: string | null;
+  primer_apellido: string;
+  segundo_apellido: string | null;
+  fecha_nacimiento: string | null;
+  sexo: 'M' | 'F' | null;
+  estado_civil: string | null;
+  nro_tlf: string | null;
+  email: string | null;
+  direccion: string | null;
+  estado: 'ACTIVO' | 'INACTIVO';
+  created_at: string;
+  updated_at: string | null;
+  usuario_id: string | null;
+  username: string | null;
+  usuario_activo: boolean | null;
+  debe_cambiar_clave: boolean | null;
+  ultimo_acceso: string | null;
+}
+
+export interface ContratoPersona {
+  id: string;
+  cargo_id: number;
+  cargo: string | null;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  tipo_pago: string;
+  frecuencia_pago: string;
+  horas_semanales: string | null;
+  estado: 'VIGENTE' | 'SUSPENDIDO' | 'FINALIZADO';
+  created_at: string;
+}
+
+export interface DespidoPersona {
+  id: string;
+  contrato_id: string;
+  motivo: MotivoDespido;
+  fecha_despido: string;
+  descripcion: string | null;
+  registrado_por: string | null;
+  registrado_por_username: string | null;
+  created_at: string;
+}
+
+export interface PersonaDetalle {
+  persona: PersonaFicha;
+  contratos: ContratoPersona[];
+  despidos: DespidoPersona[];
+}
+
+export interface DespidoHistorico {
+  id: string;
+  persona_id: string;
+  contrato_id: string;
+  motivo: MotivoDespido;
+  fecha_despido: string;
+  descripcion: string | null;
+  created_at: string;
+  cedula: string;
+  primer_nombre: string;
+  segundo_nombre: string | null;
+  primer_apellido: string;
+  segundo_apellido: string | null;
+  contrato_inicio: string;
+  contrato_fin: string;
+  cargo: string | null;
+  registrado_por_username: string | null;
+}
+
+export interface ResultadoDespido {
+  despido: {
+    id: string;
+    persona_id: string;
+    contrato_id: string;
+    motivo: MotivoDespido;
+    fecha_despido: string;
+    descripcion: string | null;
+    registrado_por: string | null;
+    created_at: string;
+  };
+  contrato: { id: string; estado: 'FINALIZADO'; fecha_fin: string };
+  usuarioDesactivado: boolean;
+  sesionesCerradas: number;
+  tokensRevocados: number;
+}
+
 // 1. Cargo
 export interface CargoTarifa {
   id: number;
@@ -701,6 +828,37 @@ export const ReceiptService = {
 
   generarPdf: (reciboId: string) =>
     execute<ReciboPdf>('Payroll', 'Receipt', 'generarPdf', [reciboId]),
+};
+
+/* ==============================================================================
+ * REGISTRO DE PERSONAS Y DESPIDOS (Payroll/Employee)
+ * ============================================================================== */
+
+export const EmployeeService = {
+  listar: (estado: 'ACTIVO' | 'INACTIVO' | 'TODOS' = 'TODOS') =>
+    execute<PersonaRegistro[]>('Payroll', 'Employee', 'listar', [estado]),
+
+  ver: (personaId: string) =>
+    execute<PersonaDetalle>('Payroll', 'Employee', 'ver', [personaId]),
+
+  despedir: (
+    personaId: string,
+    motivo: MotivoDespido,
+    fecha: string,
+    descripcion: string | null = null,
+  ) =>
+    execute<ResultadoDespido>('Payroll', 'Employee', 'despedir', [
+      personaId,
+      motivo,
+      fecha,
+      descripcion,
+    ]),
+
+  listarDespidos: () =>
+    execute<DespidoHistorico[]>('Payroll', 'Employee', 'listarDespidos', []),
+
+  listarMotivos: () =>
+    execute<MotivoDespido[]>('Payroll', 'Employee', 'listarMotivos', []),
 };
 
 /* ==============================================================================

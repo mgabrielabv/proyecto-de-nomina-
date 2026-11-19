@@ -8,6 +8,7 @@ export const LIMITS = {
   shortText: { max: 100 }, // nombres de concepto, cargo, afiliación
   description: { max: 200 },
   notes: { max: 500 }, // textarea / observaciones
+  dismissalDescription: { max: 250 }, // despido.descripcion (varchar(250))
   password: { min: 8, maxBytes: 72 },
   money: { max: 999_999_999.99, decimals: 2 },
   hours: { max: 24, decimals: 2 },

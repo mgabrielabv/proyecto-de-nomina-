@@ -30,6 +30,8 @@ export const ROUTES = {
   payrollAfiliaciones: '/payroll/afiliaciones',
   payrollMisRecibos: '/payroll/mis-recibos',
   payrollPreNomina: '/payroll/pre-nomina',
+  payrollPersonas: '/payroll/personas',
+  payrollDespidos: '/payroll/despidos',
 } as const;
 
 export const PROTECTED_BASE = ROUTES.dashboard;
@@ -65,5 +67,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.payrollAfiliaciones]: 'Afiliaciones a aportes de ley',
   [ROUTES.payrollMisRecibos]: 'Mis recibos de nómina',
   [ROUTES.payrollPreNomina]: 'Pre-nómina',
+  [ROUTES.payrollPersonas]: 'Registro de personas',
+  [ROUTES.payrollDespidos]: 'Despidos',
 };
 
