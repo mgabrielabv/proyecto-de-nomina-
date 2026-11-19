@@ -21,6 +21,8 @@ import { useToastStore } from '../../store';
 import {
   PeriodService,
   type PeriodoNomina,
+  type PeriodoConTotales,
+  type ResumenNomina,
   type ReciboItem,
   type ReciboResumen,
 } from '../../features/payroll/services';
@@ -46,9 +48,16 @@ import {
 // Los DECIMAL del backend llegan como texto: sumar en céntimos con enteros y
 // dividir solo al mostrar. Nunca `+= Number(...)` sobre strings de dinero.
 
+// Etiqueta visible del tipo de concepto; el orden lo decide el backend.
+const TIPO_CONCEPTO_LABEL: Record<string, string> = {
+  ASIGNACION: 'Asignación',
+  DEDUCCION: 'Deducción',
+  APORTE_PATRONAL: 'Aporte patronal',
+};
+
 
 export function PeriodsPage() {
-  const [periods, setPeriods] = useState<PeriodoNomina[]>([]);
+  const [periods, setPeriods] = useState<PeriodoConTotales[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionBusy, setActionBusy] = useState(false);
   const navigate = useNavigate();
@@ -68,6 +77,8 @@ export function PeriodsPage() {
   // Modal Ver Detalle de Periodo
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodoNomina | null>(null);
   const [periodReceipts, setPeriodReceipts] = useState<ReciboItem[]>([]);
+  const [resumen, setResumen] = useState<ResumenNomina | null>(null);
+  const [resumenLoading, setResumenLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -94,7 +105,7 @@ export function PeriodsPage() {
   const loadPeriods = async () => {
     setLoading(true);
     try {
-      const data = await PeriodService.listar();
+      const data = await PeriodService.listarConTotales();
       setPeriods(Array.isArray(data) ? data : []);
     } catch (err: any) {
       pushToast(err?.message ?? 'Error al cargar periodos', 'error');
@@ -134,14 +145,21 @@ export function PeriodsPage() {
     setSelectedPeriod(periodo);
     setDetailOpen(true);
     setDetailLoading(true);
+    setResumenLoading(true);
+    setResumen(null);
     try {
-      const res = await PeriodService.ver(periodo.id);
+      const [res, resumenData] = await Promise.all([
+        PeriodService.ver(periodo.id),
+        PeriodService.resumen(periodo.id),
+      ]);
       setSelectedPeriod(res.periodo ?? periodo);
       setPeriodReceipts(res.recibos ?? []);
+      setResumen(resumenData ?? null);
     } catch (err: any) {
       pushToast(err?.message ?? 'Error al cargar detalle del periodo', 'error');
     } finally {
       setDetailLoading(false);
+      setResumenLoading(false);
     }
   };
 
@@ -228,7 +246,7 @@ export function PeriodsPage() {
     }
   };
 
-  const columns: TableColumn<PeriodoNomina>[] = [
+  const columns: TableColumn<PeriodoConTotales>[] = [
     {
       key: 'frecuencia',
       header: 'Frecuencia',
@@ -255,6 +273,55 @@ export function PeriodsPage() {
       render: (row) => (
         <span className="text-text-secondary">{row.descripcion || '—'}</span>
       ),
+    },
+    {
+      key: 'personas',
+      header: 'Personas',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="num text-text-secondary">{row.personas}</span>
+      ),
+      sortValue: (row) => row.personas,
+    },
+    {
+      key: 'total_asignaciones',
+      header: 'Asignaciones',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="num text-success">+{formatMoney(row.total_asignaciones)}</span>
+      ),
+      sortValue: (row) => aCentavos(row.total_asignaciones),
+    },
+    {
+      key: 'total_deducciones',
+      header: 'Deducciones',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="num text-error">−{formatMoney(row.total_deducciones)}</span>
+      ),
+      sortValue: (row) => aCentavos(row.total_deducciones),
+    },
+    {
+      key: 'total_neto',
+      header: 'Neto',
+      align: 'right',
+      render: (row) => (
+        <span className="num font-semibold text-text">{formatMoney(row.total_neto)}</span>
+      ),
+      sortValue: (row) => aCentavos(row.total_neto),
+    },
+    {
+      key: 'costo_total',
+      header: 'Costo total',
+      align: 'right',
+      hideOnMobile: true,
+      render: (row) => (
+        <span className="num text-text-secondary">{formatMoney(row.costo_total)}</span>
+      ),
+      sortValue: (row) => aCentavos(row.costo_total),
     },
     {
       key: 'estado',
@@ -575,7 +642,97 @@ export function PeriodsPage() {
           </div>
         }
       >
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* Totales del período (spec 013) */}
+          {resumenLoading ? (
+            <div className="flex h-20 items-center justify-center rounded-xl border border-border/60 bg-surface-soft text-sm text-text-muted">
+              Calculando totales del período...
+            </div>
+          ) : resumen ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Personas</span>
+                  <p className="mt-1 text-xl font-bold text-text">{resumen.totales.personas}</p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Asignaciones</span>
+                  <p className="mt-1 text-xl font-bold text-success">
+                    +{formatMoney(resumen.totales.total_asignaciones)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Deducciones</span>
+                  <p className="mt-1 text-xl font-bold text-error">
+                    −{formatMoney(resumen.totales.total_deducciones)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Neto a pagar</span>
+                  <p className="mt-1 text-xl font-bold text-accent">
+                    {formatMoney(resumen.totales.total_neto)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Aporte patronal</span>
+                  <p className="mt-1 text-xl font-bold text-text-secondary">
+                    {formatMoney(resumen.totales.total_aporte_patronal)}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-tight text-text-muted">
+                    Costo del patrono, no se descuenta al empleado.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-border bg-surface-soft p-3">
+                  <span className="text-xs text-text-muted uppercase">Costo total</span>
+                  <p className="mt-1 text-xl font-bold text-text">
+                    {formatMoney(resumen.totales.costo_total)}
+                  </p>
+                </div>
+              </div>
+
+              {resumen.por_concepto.length > 0 && (
+                <div className="overflow-hidden rounded-xl border border-border/60 bg-surface-soft">
+                  <div className="border-b border-border/60 px-4 py-3">
+                    <h3 className="text-sm font-semibold text-text">Desglose por concepto</h3>
+                    <p className="mt-0.5 text-xs text-text-muted">
+                      El aporte patronal se reporta aparte del neto.
+                    </p>
+                  </div>
+                  <div className="max-h-56 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-surface-soft">
+                        <tr className="text-left text-xs uppercase tracking-wide text-text-muted">
+                          <th className="px-4 py-2 font-medium">Código</th>
+                          <th className="px-4 py-2 font-medium">Concepto</th>
+                          <th className="px-4 py-2 font-medium">Tipo</th>
+                          <th className="px-4 py-2 text-right font-medium">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resumen.por_concepto.map((linea) => (
+                          <tr
+                            key={`${linea.codigo}-${linea.tipo_concepto}`}
+                            className="border-t border-border/40"
+                          >
+                            <td className="num px-4 py-2 text-text-secondary">{linea.codigo}</td>
+                            <td className="px-4 py-2 text-text">{linea.nombre_concepto}</td>
+                            <td className="px-4 py-2 text-xs text-text-muted">
+                              {TIPO_CONCEPTO_LABEL[linea.tipo_concepto] ?? linea.tipo_concepto}
+                            </td>
+                            <td className="num px-4 py-2 text-right text-text">
+                              {formatMoney(linea.total)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {/* Recibos del período */}
           {detailLoading ? (
             <div className="flex h-36 items-center justify-center text-text-muted">
               Cargando recibos del periodo...

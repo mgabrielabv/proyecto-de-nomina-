@@ -220,6 +220,41 @@ export interface ReciboResumen {
   estado: string;
 }
 
+// Resumen de nómina (spec 013). Los montos llegan como texto decimal; el
+// aporte patronal es costo del patrono y NO forma parte del neto.
+export interface ConceptoResumen {
+  codigo: string;
+  nombre_concepto: string;
+  tipo_concepto: string;
+  categoria: string;
+  lineas: number;
+  total: string;
+}
+
+export interface TotalesResumen {
+  personas: number;
+  total_asignaciones: string;
+  total_deducciones: string;
+  total_neto: string;
+  total_aporte_patronal: string;
+  costo_total: string;
+}
+
+export interface ResumenNomina {
+  periodo: PeriodoNomina;
+  totales: TotalesResumen;
+  por_concepto: ConceptoResumen[];
+}
+
+export interface PeriodoConTotales extends PeriodoNomina {
+  personas: number;
+  total_asignaciones: string;
+  total_deducciones: string;
+  total_neto: string;
+  total_aporte_patronal: string;
+  costo_total: string;
+}
+
 export interface ReciboItem {
   id: string; // UUID
   persona_id: string;
@@ -576,6 +611,14 @@ export const PeriodService = {
       'ver',
       [periodoId],
     ),
+
+  // Resumen de solo lectura: totales del período y desglose por concepto.
+  resumen: (periodoId: string) =>
+    execute<ResumenNomina>('Payroll', 'Period', 'resumen', [periodoId]),
+
+  // Histórico de períodos con sus totales (incluye aporte patronal).
+  listarConTotales: () =>
+    execute<PeriodoConTotales[]>('Payroll', 'Period', 'listarConTotales', []),
 };
 
 export const PreNominaService = {
