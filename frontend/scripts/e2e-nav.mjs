@@ -855,6 +855,12 @@ const forceServerError = async () => {
 
 const forceUnauthorized = async () => {
   beginStep('forzado:401+refresh');
+  // Carga completa antes de simular el 401: el refresco solo se dispara si la
+  // pantalla hace una petición, y después de recorrer los paneles el store
+  // puede traer los datos en caché (la tabla se pinta sin llamar a
+  // /api/execute, no hay 401 y la comprobación falla sin que nada esté roto).
+  // Recargar deja el store en frío y el mock intercepta la primera petición.
+  await navigate(`${BASE}/`);
   await installFetchMock((real) => {
     let injected = false;
     window.__e2eRefreshCount = 0;
