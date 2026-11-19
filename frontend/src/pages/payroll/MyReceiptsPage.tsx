@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Eye } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
@@ -14,7 +14,7 @@ import {
   type ReciboDetalle,
   type LineaReciboDetalle,
 } from '../../features/payroll/services';
-import { formatMoney, formatFechaLocal } from '../../utils';
+import { formatMoney, formatFechaLocal, descargarPdfBase64 } from '../../utils';
 import {
   RECIBO_ESTADO_LABEL,
   RECIBO_ESTADO_TONE,
@@ -32,6 +32,7 @@ export function MyReceiptsPage() {
   const [desgloseLoading, setDesgloseLoading] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState<ReciboDetalle | null>(null);
   const [receiptDetail, setReceiptDetail] = useState<LineaReciboDetalle[]>([]);
+  const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
 
   const pushToast = useToastStore((s) => s.push);
 
@@ -63,6 +64,19 @@ export function MyReceiptsPage() {
       pushToast(err?.message ?? 'No se pudo cargar el desglose del recibo', 'error');
     } finally {
       setDesgloseLoading(false);
+    }
+  };
+
+  const handleDescargarPdf = async (recibo: ReciboItem) => {
+    setPdfBusyId(recibo.id);
+    try {
+      const pdf = await ReceiptService.generarPdf(recibo.id);
+      descargarPdfBase64(pdf);
+      pushToast('Recibo descargado', 'success');
+    } catch (err: any) {
+      pushToast(err?.message ?? 'No se pudo descargar el recibo', 'error');
+    } finally {
+      setPdfBusyId(null);
     }
   };
 
@@ -138,17 +152,32 @@ export function MyReceiptsPage() {
       header: 'Acciones',
       align: 'right',
       render: (row) => (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            void handleVerDesglose(row);
-          }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface"
-        >
-          <Eye className="h-3.5 w-3.5" />
-          Ver recibo
-        </button>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              void handleVerDesglose(row);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface"
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Ver recibo
+          </button>
+          <button
+            type="button"
+            disabled={pdfBusyId === row.id}
+            onClick={(e) => {
+              e.stopPropagation();
+              void handleDescargarPdf(row);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-3 py-1.5 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+            title="Descargar el recibo en PDF"
+          >
+            <Download className="h-3.5 w-3.5" />
+            {pdfBusyId === row.id ? 'Generando...' : 'PDF'}
+          </button>
+        </div>
       ),
     },
   ];
@@ -195,9 +224,24 @@ export function MyReceiptsPage() {
         }
         size="lg"
         footer={
-          <Button onClick={() => setDesgloseOpen(false)}>
-            Cerrar recibo
-          </Button>
+          <div className="flex w-full items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDesgloseOpen(false)}
+              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary hover:text-text"
+            >
+              Cerrar
+            </button>
+            <Button
+              state={selectedReceipt && pdfBusyId === selectedReceipt.id ? 'loading' : 'idle'}
+              onClick={() => {
+                if (selectedReceipt) void handleDescargarPdf(selectedReceipt);
+              }}
+            >
+              <Download className="mr-1.5 h-4 w-4" />
+              Descargar PDF
+            </Button>
+          </div>
         }
       >
         {desgloseLoading ? (

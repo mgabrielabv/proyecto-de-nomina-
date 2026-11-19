@@ -7,6 +7,7 @@ import {
   RotateCcw,
   Eye,
   ArrowRight,
+  Download,
 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -20,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '../../store';
 import {
   PeriodService,
+  ReceiptService,
   type PeriodoNomina,
   type PeriodoConTotales,
   type ResumenNomina,
@@ -33,6 +35,7 @@ import {
   formatFechaLocal,
   formatDateTime,
   toISODate,
+  descargarPdfBase64,
 } from '../../utils';
 import {
   FRECUENCIA_LABEL,
@@ -81,6 +84,7 @@ export function PeriodsPage() {
   const [resumenLoading, setResumenLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
 
   // Modal Pagar Periodo
   const [payOpen, setPayOpen] = useState(false);
@@ -160,6 +164,19 @@ export function PeriodsPage() {
     } finally {
       setDetailLoading(false);
       setResumenLoading(false);
+    }
+  };
+
+  const handleDescargarPdf = async (recibo: ReciboItem) => {
+    setPdfBusyId(recibo.id);
+    try {
+      const pdf = await ReceiptService.generarPdf(recibo.id);
+      descargarPdfBase64(pdf);
+      pushToast('Recibo descargado', 'success');
+    } catch (err: any) {
+      pushToast(err?.message ?? 'No se pudo descargar el recibo', 'error');
+    } finally {
+      setPdfBusyId(null);
     }
   };
 
@@ -439,6 +456,26 @@ export function PeriodsPage() {
           </Badge>
         );
       },
+    },
+    {
+      key: 'acciones',
+      header: 'PDF',
+      align: 'right',
+      render: (row) => (
+        <button
+          type="button"
+          disabled={pdfBusyId === row.id}
+          onClick={(e) => {
+            e.stopPropagation();
+            void handleDescargarPdf(row);
+          }}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-2.5 py-1 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
+          title="Descargar el recibo en PDF"
+        >
+          <Download className="h-3.5 w-3.5" />
+          {pdfBusyId === row.id ? 'Generando...' : 'PDF'}
+        </button>
+      ),
     },
   ];
 

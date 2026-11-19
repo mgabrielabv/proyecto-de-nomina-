@@ -301,6 +301,14 @@ export interface LineaReciboDetalle {
   unidad: string;
 }
 
+// PDF del recibo armado en el servidor y entregado en base64 (spec 014).
+export interface ReciboPdf {
+  nombreArchivo: string;
+  mimeType: string;
+  tamanioBytes: number;
+  contenidoBase64: string;
+}
+
 /* ==============================================================================
  * TIPOS DE PRE-NÓMINA (Payroll/PreNomina)
  * Los montos viajan y se pintan como string: nunca number de coma flotante.
@@ -690,6 +698,9 @@ export const ReceiptService = {
       'miDesglose',
       [reciboId],
     ),
+
+  generarPdf: (reciboId: string) =>
+    execute<ReciboPdf>('Payroll', 'Receipt', 'generarPdf', [reciboId]),
 };
 
 /* ==============================================================================

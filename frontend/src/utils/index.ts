@@ -18,3 +18,4 @@ export {
 export { getGreeting, getInitials, getRoleHomePath, hasAnyProfile, hasProfile, profileToRole, slugify, sortProfilesByPriority } from './identity';
 export * from './sanitize';
 export * from './money';
+export * from './download';
