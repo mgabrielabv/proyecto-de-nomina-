@@ -40,6 +40,7 @@ import {
   MyReceiptsPage,
   PersonasPage,
   DespidosPage,
+  ReportsPage,
 } from '../pages/payroll';
 
 function AppRoutes() {
@@ -71,6 +72,7 @@ function AppRoutes() {
             <Route path={ROUTES.payrollAfiliaciones} element={<AffiliationsPage />} />
             <Route path={ROUTES.payrollPersonas} element={<PersonasPage />} />
             <Route path={ROUTES.payrollDespidos} element={<DespidosPage />} />
+            <Route path={ROUTES.payrollReportes} element={<ReportsPage />} />
           </Route>
         </Route>
 

@@ -32,6 +32,7 @@ export const ROUTES = {
   payrollPreNomina: '/payroll/pre-nomina',
   payrollPersonas: '/payroll/personas',
   payrollDespidos: '/payroll/despidos',
+  payrollReportes: '/payroll/reportes',
 } as const;
 
 export const PROTECTED_BASE = ROUTES.dashboard;
@@ -69,5 +70,6 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.payrollPreNomina]: 'Pre-nómina',
   [ROUTES.payrollPersonas]: 'Registro de personas',
   [ROUTES.payrollDespidos]: 'Despidos',
+  [ROUTES.payrollReportes]: 'Reportes',
 };
 

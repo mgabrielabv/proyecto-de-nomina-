@@ -10,4 +10,5 @@ export { AffiliationsPage } from './AffiliationsPage';
 export { MyReceiptsPage } from './MyReceiptsPage';
 export { PersonasPage } from './PersonasPage';
 export { DespidosPage } from './DespidosPage';
+export { ReportsPage } from './ReportsPage';
 
