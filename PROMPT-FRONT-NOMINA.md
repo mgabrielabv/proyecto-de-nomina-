@@ -32,6 +32,7 @@ de préstamos, que depende del backend (ver el aviso al final de la sección 0).
 | 4 | Entradas nuevas en `MENU_ROUTE_MAP` y `MENU_LABEL_MAP` | 015 | `store/menuStore.ts` | ✅ |
 | 5 | Límite de texto de la descripción del despido | 015 | `constants/limits.ts` | ✅ |
 | 6 | Quitar `email` y `monto_salario` obsoletos de `PersonaItem` | — | `payrollService.ts` | ✅ |
+| 7 | Reporte final del período emitido (`Ver reporte final`) | — | `PeriodsPage`, `ReporteFinalPeriodo`, `global.css` | ✅ |
 
 Todo lo demás (subsistemas `Payroll`, `Security` y `Session`) **ya está
 alineado**; el inventario de la sección 5 lo verifica método por método.
@@ -224,6 +225,19 @@ export function descargarPdfBase64(pdf: {
 ### 2.3 Permisos
 
 `RRHH`, `GerenteRRHH`, `Administrador`, `Superusuario` y `Empleado`.
+
+### 2.4 Reporte final del período emitido
+
+En `PeriodsPage`, el detalle de un período `PROCESADO` o `PAGADO` muestra el
+botón **«Ver reporte final»**. Abre un modal de solo lectura con los totales,
+el desglose por concepto y los recibos definitivos del período. Incluye
+**«Imprimir / guardar PDF»** (la hoja de estilos imprime solo el reporte) y la
+descarga PDF por recibo ya existente.
+
+No hay métodos ni permisos nuevos: la vista reutiliza `Period.resumen`,
+`Period.ver` y `Receipt.generarPdf` sobre los datos que ya cargó el detalle.
+El botón **no aparece** en períodos `BORRADOR`, porque todavía no hay recibos
+definitivos.
 
 ---
 
@@ -694,6 +708,11 @@ el front servido por Vite. Entre paréntesis, cómo se comprobó.
       *(`luis_gomez` [Empleado] obtiene `200` con su propio recibo y `403`
       «No autorizado para ver este recibo.» con el de otro; la pertenencia se
       valida en el BO, no en el mapa de permisos)*
+- [x] Los períodos emitidos muestran «Ver reporte final» con totales,
+      desglose y recibos, y pueden imprimirse o guardarse como PDF.
+      *(arnés CDP `pnpm e2e:reporte`: 17/17 verificaciones; en `media: print` el `#root` queda
+      oculto, el reporte conserva su altura, el encabezado de impresión se ve y
+      los botones desaparecen)*
 - [x] RRHH y Superusuario descargan cualquier PDF.
       *(`rosa_vargas` [RRHH] obtiene `200` con el recibo de otra persona;
       el archivo llega con cabecera `%PDF` y el `tamanioBytes` coincide con lo

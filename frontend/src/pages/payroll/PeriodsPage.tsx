@@ -7,7 +7,8 @@ import {
   RotateCcw,
   Eye,
   ArrowRight,
-  Download,
+  FileText,
+  Printer,
 } from 'lucide-react';
 import { staggerContainer, fadeUpItem } from '../../animations/variants';
 import { PageHeader } from '../../components/ui/PageHeader';
@@ -19,6 +20,7 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { useNavigate } from 'react-router-dom';
 import { useToastStore } from '../../store';
+import { ReporteFinalPeriodo } from '../../features/payroll/components/ReporteFinalPeriodo';
 import {
   PeriodService,
   ReceiptService,
@@ -41,23 +43,12 @@ import {
   FRECUENCIA_LABEL,
   PERIODO_ESTADO_LABEL,
   PERIODO_ESTADO_TONE,
-  RECIBO_ESTADO_LABEL,
-  RECIBO_ESTADO_TONE,
   ROUTES,
   type PeriodoEstado,
-  type ReciboEstado,
 } from '../../constants';
 
 // Los DECIMAL del backend llegan como texto: sumar en céntimos con enteros y
 // dividir solo al mostrar. Nunca `+= Number(...)` sobre strings de dinero.
-
-// Etiqueta visible del tipo de concepto; el orden lo decide el backend.
-const TIPO_CONCEPTO_LABEL: Record<string, string> = {
-  ASIGNACION: 'Asignación',
-  DEDUCCION: 'Deducción',
-  APORTE_PATRONAL: 'Aporte patronal',
-};
-
 
 export function PeriodsPage() {
   const [periods, setPeriods] = useState<PeriodoConTotales[]>([]);
@@ -84,6 +75,7 @@ export function PeriodsPage() {
   const [resumenLoading, setResumenLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [reporteOpen, setReporteOpen] = useState(false);
   const [pdfBusyId, setPdfBusyId] = useState<string | null>(null);
 
   // Modal Pagar Periodo
@@ -178,6 +170,17 @@ export function PeriodsPage() {
     } finally {
       setPdfBusyId(null);
     }
+  };
+
+  // La nómina emitida (PROCESADO o PAGADO) ya tiene recibos definitivos: el
+  // reporte es solo lectura y usa los datos que ya trajo el detalle.
+  const handleAbrirReporte = () => {
+    setDetailOpen(false);
+    setReporteOpen(true);
+  };
+
+  const handleImprimirReporte = () => {
+    window.print();
   };
 
   const handleProcesar = async () => {
@@ -399,86 +402,6 @@ export function PeriodsPage() {
     },
   ];
 
-  const receiptColumns: TableColumn<ReciboItem>[] = [
-    {
-      key: 'persona',
-      header: 'Empleado',
-      render: (row) => (
-        <div>
-          <p className="font-medium text-text">
-            {row.primer_nombre} {row.primer_apellido}
-          </p>
-          <p className="text-xs text-text-muted">CI: {row.cedula}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'asignaciones',
-      header: 'Asignaciones',
-      align: 'right',
-      render: (row) => (
-        <span className="num text-success">
-          +{formatMoney(row.total_asignaciones)}
-        </span>
-      ),
-    },
-    {
-      key: 'deducciones',
-      header: 'Deducciones',
-      align: 'right',
-      render: (row) => (
-        <span className="num text-error">
-          −{formatMoney(row.total_deducciones)}
-        </span>
-      ),
-    },
-    {
-      key: 'total',
-      header: 'Neto a cobrar',
-      align: 'right',
-      render: (row) => (
-        <span className="num font-semibold text-text">
-          {formatMoney(row.monto_total)}
-        </span>
-      ),
-    },
-    {
-      key: 'estado',
-      header: 'Estado',
-      render: (row) => {
-        const estado = row.estado as ReciboEstado;
-        return (
-          <Badge
-            tone={RECIBO_ESTADO_TONE[estado] ?? 'neutral'}
-            statusIcon={estado === 'PAGADO' ? 'paid' : estado === 'PROCESADO' ? 'processed' : 'none'}
-          >
-            {RECIBO_ESTADO_LABEL[estado] ?? row.estado}
-          </Badge>
-        );
-      },
-    },
-    {
-      key: 'acciones',
-      header: 'PDF',
-      align: 'right',
-      render: (row) => (
-        <button
-          type="button"
-          disabled={pdfBusyId === row.id}
-          onClick={(e) => {
-            e.stopPropagation();
-            void handleDescargarPdf(row);
-          }}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-soft px-2.5 py-1 text-xs font-medium text-text transition hover:border-border-strong hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
-          title="Descargar el recibo en PDF"
-        >
-          <Download className="h-3.5 w-3.5" />
-          {pdfBusyId === row.id ? 'Generando...' : 'PDF'}
-        </button>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <PageHeader
@@ -668,6 +591,14 @@ export function PeriodsPage() {
                 </>
               )}
 
+              {(selectedPeriod?.estado === 'PROCESADO' ||
+                selectedPeriod?.estado === 'PAGADO') && (
+                <Button onClick={handleAbrirReporte}>
+                  <FileText className="mr-1.5 h-4 w-4" />
+                  Ver reporte final
+                </Button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setDetailOpen(false)}
@@ -679,118 +610,48 @@ export function PeriodsPage() {
           </div>
         }
       >
-        <div className="space-y-5">
-          {/* Totales del período (spec 013) */}
-          {resumenLoading ? (
-            <div className="flex h-20 items-center justify-center rounded-xl border border-border/60 bg-surface-soft text-sm text-text-muted">
-              Calculando totales del período...
-            </div>
-          ) : resumen ? (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Personas</span>
-                  <p className="mt-1 text-xl font-bold text-text">{resumen.totales.personas}</p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Asignaciones</span>
-                  <p className="mt-1 text-xl font-bold text-success">
-                    +{formatMoney(resumen.totales.total_asignaciones)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Deducciones</span>
-                  <p className="mt-1 text-xl font-bold text-error">
-                    −{formatMoney(resumen.totales.total_deducciones)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Neto a pagar</span>
-                  <p className="mt-1 text-xl font-bold text-accent">
-                    {formatMoney(resumen.totales.total_neto)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Aporte patronal</span>
-                  <p className="mt-1 text-xl font-bold text-text-secondary">
-                    {formatMoney(resumen.totales.total_aporte_patronal)}
-                  </p>
-                  <p className="mt-0.5 text-[11px] leading-tight text-text-muted">
-                    Costo del patrono, no se descuenta al empleado.
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border bg-surface-soft p-3">
-                  <span className="text-xs text-text-muted uppercase">Costo total</span>
-                  <p className="mt-1 text-xl font-bold text-text">
-                    {formatMoney(resumen.totales.costo_total)}
-                  </p>
-                </div>
-              </div>
+        <ReporteFinalPeriodo
+          periodo={selectedPeriod}
+          resumen={resumen}
+          recibos={periodReceipts}
+          cargando={detailLoading || resumenLoading}
+          pdfBusyId={pdfBusyId}
+          onDescargarPdf={(recibo) => void handleDescargarPdf(recibo)}
+        />
+      </Modal>
 
-              {resumen.por_concepto.length > 0 && (
-                <div className="overflow-hidden rounded-xl border border-border/60 bg-surface-soft">
-                  <div className="border-b border-border/60 px-4 py-3">
-                    <h3 className="text-sm font-semibold text-text">Desglose por concepto</h3>
-                    <p className="mt-0.5 text-xs text-text-muted">
-                      El aporte patronal se reporta aparte del neto.
-                    </p>
-                  </div>
-                  <div className="max-h-56 overflow-y-auto">
-                    <table className="w-full text-sm">
-                      <thead className="sticky top-0 bg-surface-soft">
-                        <tr className="text-left text-xs uppercase tracking-wide text-text-muted">
-                          <th className="px-4 py-2 font-medium">Código</th>
-                          <th className="px-4 py-2 font-medium">Concepto</th>
-                          <th className="px-4 py-2 font-medium">Tipo</th>
-                          <th className="px-4 py-2 text-right font-medium">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {resumen.por_concepto.map((linea) => (
-                          <tr
-                            key={`${linea.codigo}-${linea.tipo_concepto}`}
-                            className="border-t border-border/40"
-                          >
-                            <td className="num px-4 py-2 text-text-secondary">{linea.codigo}</td>
-                            <td className="px-4 py-2 text-text">{linea.nombre_concepto}</td>
-                            <td className="px-4 py-2 text-xs text-text-muted">
-                              {TIPO_CONCEPTO_LABEL[linea.tipo_concepto] ?? linea.tipo_concepto}
-                            </td>
-                            <td className="num px-4 py-2 text-right text-text">
-                              {formatMoney(linea.total)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : null}
-
-          {/* Recibos del período */}
-          {detailLoading ? (
-            <div className="flex h-36 items-center justify-center text-text-muted">
-              Cargando recibos del periodo...
-            </div>
-          ) : periodReceipts.length === 0 ? (
-            <div className="rounded-xl border border-border/60 bg-surface-soft p-6 text-center text-sm text-text-secondary">
-              {selectedPeriod?.estado === 'BORRADOR'
-                ? 'El periodo está en BORRADOR. Presiona "Procesar nómina" para calcular salarios, horas, conceptos y generar los recibos correspondientes.'
-                : 'No se encontraron recibos generados.'}
-            </div>
-          ) : (
-            <div className="max-h-96 overflow-y-auto">
-              <ResponsiveTable
-                columns={receiptColumns}
-                rows={periodReceipts}
-                rowKey={(r) => r.id}
-                caption="Recibos generados en este periodo"
-              />
-            </div>
-          )}
-        </div>
+      {/* Reporte final del período ya emitido (PROCESADO o PAGADO) */}
+      <Modal
+        open={reporteOpen}
+        onClose={() => setReporteOpen(false)}
+        title="Reporte final de la nómina"
+        description="Resumen definitivo del período emitido. Puedes imprimirlo o guardarlo como PDF desde el navegador."
+        size="lg"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setReporteOpen(false)}
+              className="h-11 rounded-button border border-border bg-surface-soft px-4 text-sm font-medium text-text-secondary hover:text-text"
+            >
+              Cerrar
+            </button>
+            <Button onClick={handleImprimirReporte}>
+              <Printer className="mr-1.5 h-4 w-4" />
+              Imprimir / guardar PDF
+            </Button>
+          </>
+        }
+      >
+        <ReporteFinalPeriodo
+          periodo={selectedPeriod}
+          resumen={resumen}
+          recibos={periodReceipts}
+          cargando={detailLoading || resumenLoading}
+          pdfBusyId={pdfBusyId}
+          onDescargarPdf={(recibo) => void handleDescargarPdf(recibo)}
+          imprimible
+        />
       </Modal>
 
       {/* Modal Pagar Periodo */}

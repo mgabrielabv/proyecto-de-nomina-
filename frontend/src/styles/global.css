@@ -212,6 +212,56 @@
 }
 
 
+/* El reporte final se imprime solo: el resto de la app (incluidos los toast)
+   no debe aparecer en el PDF que guarda el navegador. */
+.print-only {
+  display: none;
+}
+
+@media print {
+  body:has([data-reporte-final]) > *:not(:has([data-reporte-final])) {
+    display: none !important;
+  }
+
+  body:has([data-reporte-final]) > div:has([data-reporte-final]) {
+    position: static !important;
+    display: block !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  [role='dialog']:has([data-reporte-final]) {
+    position: static !important;
+    width: 100% !important;
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+
+  [data-reporte-final] .print-only {
+    display: block !important;
+  }
+
+  [data-reporte-final] .reporte-tabla-scroll,
+  [data-reporte-final] .reporte-tabla-scroll > div {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  [data-reporte-final] .no-print,
+  [data-reporte-final] button,
+  [aria-label='Cerrar diálogo'],
+  [aria-label='Cerrar'] {
+    display: none !important;
+  }
+}
+
 html[data-paused] *,
 html[data-paused] *::before,
 html[data-paused] *::after {

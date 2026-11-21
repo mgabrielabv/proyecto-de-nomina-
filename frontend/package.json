@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "e2e:nav": "node scripts/e2e-nav.mjs",
+    "e2e:reporte": "node scripts/e2e-reporte-final.mjs",
     "test": "vitest run"
   },
   "dependencies": {
