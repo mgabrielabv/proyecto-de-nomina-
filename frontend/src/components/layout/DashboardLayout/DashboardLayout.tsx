@@ -71,7 +71,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
         className="relative flex min-h-dvh"
       >
         <Sidebar variant="desktop" collapsed={sidebarCollapsed} />
-        <div className="flex min-h-dvh min-w-0 flex-1 flex-col transition-[padding-left] duration-300 ease-sidebar lg:pl-[var(--sidebar-w,264px)]">
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col transition-[padding-left] duration-300 ease-sidebar lg:pl-[var(--sidebar-w,240px)]">
           <Topbar
             title={routeTitle}
             description={description}

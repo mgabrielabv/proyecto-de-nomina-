@@ -33,7 +33,7 @@ export function Sidebar({ collapsed = false, variant = 'desktop', onNavigate }: 
       className={cn(
         'flex flex-col overflow-hidden border-border bg-surface',
         variant === 'desktop'
-          ? 'fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-w,264px)] transition-[width] duration-300 ease-sidebar will-change-[width] lg:flex'
+          ? 'fixed inset-y-0 left-0 z-40 hidden w-[var(--sidebar-w,240px)] transition-[width] duration-300 ease-sidebar will-change-[width] lg:flex'
           : 'relative flex h-full w-full border-none bg-transparent',
         variant === 'desktop' && !plegada && 'border-r',
         plegada && 'pointer-events-none',

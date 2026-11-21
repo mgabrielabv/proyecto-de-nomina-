@@ -15,7 +15,7 @@ export const DATE_FORMAT_MONTH = 'LLLL yyyy';
 export const CURRENCY = 'EUR';
 export const CURRENCY_LOCALE = 'es-ES';
 
-export const SIDEBAR_WIDTH = 264;
+export const SIDEBAR_WIDTH = 240;
 
 export const TABLE_PAGE_SIZE = 8;
 export const SESSION_DELAY = 700;
