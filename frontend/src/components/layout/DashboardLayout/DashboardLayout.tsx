@@ -22,6 +22,8 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
   const reduce = useReducedMotion();
   const lowEnd = useLowEndDevice();
   const isMobile = useIsMobile();
+  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
+  const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const drawerOpen = useUiStore((state) => state.drawerOpen);
   const setDrawerOpen = useUiStore((state) => state.setDrawerOpen);
   const prevPathRef = useRef(location.pathname);
@@ -58,7 +60,7 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
       style={{
         ['--topbar-h' as string]: '5rem',
         ['--table-sticky-top' as string]: '5rem',
-        ['--sidebar-w' as string]: `${SIDEBAR_WIDTH}px`,
+        ['--sidebar-w' as string]: `${sidebarCollapsed ? 0 : SIDEBAR_WIDTH}px`,
       }}
     >
       <div className="page-gradient pointer-events-none fixed inset-0" aria-hidden />
@@ -68,9 +70,15 @@ export function DashboardLayout({ title, description }: DashboardLayoutProps) {
         animate="show"
         className="relative flex min-h-dvh"
       >
-        <Sidebar variant="desktop" />
-        <div className="flex min-h-dvh min-w-0 flex-1 flex-col lg:pl-[var(--sidebar-w,264px)]">
-          <Topbar title={routeTitle} description={description} onOpenDrawer={() => setDrawerOpen(true)} />
+        <Sidebar variant="desktop" collapsed={sidebarCollapsed} />
+        <div className="flex min-h-dvh min-w-0 flex-1 flex-col transition-[padding-left] duration-300 ease-sidebar lg:pl-[var(--sidebar-w,264px)]">
+          <Topbar
+            title={routeTitle}
+            description={description}
+            sidebarCollapsed={sidebarCollapsed}
+            onToggleSidebar={toggleSidebar}
+            onOpenDrawer={() => setDrawerOpen(true)}
+          />
           <main className="flex-1 min-w-0 px-4 py-6 sm:px-6 lg:px-8">
             <ErrorBoundary resetKey={location.pathname}>
               <Suspense fallback={<RouteFallback />}>

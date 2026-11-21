@@ -2,10 +2,14 @@ import { create } from 'zustand';
 import { fetchNotifications, markAllNotificationsRead, markNotificationRead } from '../features/dashboard/services';
 import type { AppNotification } from '../types';
 
+// Plegar oculta la barra completa: el menú sigue siendo multipágina. No revive
+// el colapso a iconos que se retiró porque mezclaba los paneles del sidebar.
 interface UiState {
+  sidebarCollapsed: boolean;
   drawerOpen: boolean;
   searchQuery: string;
   notifications: AppNotification[];
+  toggleSidebar: () => void;
   setDrawerOpen: (open: boolean) => void;
   setSearchQuery: (value: string) => void;
   loadNotifications: () => Promise<void>;
@@ -14,9 +18,11 @@ interface UiState {
 }
 
 export const useUiStore = create<UiState>((set) => ({
+  sidebarCollapsed: false,
   drawerOpen: false,
   searchQuery: '',
   notifications: [],
+  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
   setDrawerOpen: (open) => set({ drawerOpen: open }),
   setSearchQuery: (value) => set({ searchQuery: value }),
   loadNotifications: async () => set({ notifications: await fetchNotifications() }),

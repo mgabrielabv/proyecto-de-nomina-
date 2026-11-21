@@ -30,6 +30,7 @@ export function resetAppData(): void {
   useRequestsStore.setState({ requests: [], loading: false, loaded: false });
   useToastStore.setState({ toasts: [] });
   useUiStore.setState({
+    sidebarCollapsed: false,
     drawerOpen: false,
     searchQuery: '',
     notifications: [],
